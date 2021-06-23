@@ -5,7 +5,7 @@ import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.config.ModConfiguration;
 import com.wuest.prefab.structures.events.StructureEventHandler;
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;

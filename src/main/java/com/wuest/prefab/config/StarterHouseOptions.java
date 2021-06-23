@@ -1,6 +1,7 @@
 package com.wuest.prefab.config;
 
-import me.sargunvohra.mcmods.autoconfig1u.shadowed.blue.endless.jankson.Comment;
+
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
 public class StarterHouseOptions {
 

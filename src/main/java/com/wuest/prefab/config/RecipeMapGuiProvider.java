@@ -1,10 +1,10 @@
 package com.wuest.prefab.config;
 
-import me.sargunvohra.mcmods.autoconfig1u.gui.registry.api.GuiProvider;
-import me.sargunvohra.mcmods.autoconfig1u.gui.registry.api.GuiRegistryAccess;
+import com.wuest.prefab.Utils;
+import me.shedaniel.autoconfig.gui.registry.api.GuiProvider;
+import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 import java.lang.reflect.Field;
