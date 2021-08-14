@@ -21,8 +21,8 @@ public class ExtendedButton extends ButtonWidget {
 			MinecraftClient mc = MinecraftClient.getInstance();
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			int k = this.getYImage(this.isHovered());
-			GuiUtils.drawContinuousTexturedBox(WIDGETS_LOCATION, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.getZOffset());
-			this.renderBg(mStack, mc, mouseX, mouseY);
+			GuiUtils.drawContinuousTexturedBox(WIDGETS_TEXTURE, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.getZOffset());
+			this.renderBackground(mStack, mc, mouseX, mouseY);
 
 			Text buttonText = this.getMessage();
 			int strWidth = mc.textRenderer.getWidth(buttonText);

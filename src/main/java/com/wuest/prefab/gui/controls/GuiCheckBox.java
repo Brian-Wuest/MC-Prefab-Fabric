@@ -5,6 +5,7 @@ import com.wuest.prefab.gui.GuiUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -92,7 +93,7 @@ public class GuiCheckBox extends CheckboxWidget {
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.boxWidth && mouseY < this.y + this.height;
 
 			GuiUtils.drawContinuousTexturedBox(
-					WIDGETS_LOCATION,
+					WIDGETS_TEXTURE,
 					this.x,
 					this.y,
 					0,
@@ -114,7 +115,7 @@ public class GuiCheckBox extends CheckboxWidget {
 			}
 
 			if (this.isChecked()) {
-				this.drawCenteredString(matrixStack, this.mineCraft.textRenderer, "x", this.x + this.boxWidth / 2 + 1, this.y + 1, 14737632);
+				DrawableHelper.drawCenteredText(matrixStack, this.mineCraft.textRenderer, "x", this.x + this.boxWidth / 2 + 1, this.y + 1, 14737632);
 			}
 
 			if (this.withShadow) {

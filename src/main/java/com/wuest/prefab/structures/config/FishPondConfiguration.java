@@ -3,7 +3,7 @@ package com.wuest.prefab.structures.config;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.predefined.StructureFishPond;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -19,7 +19,7 @@ public class FishPondConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the NBTTagCompound.
 	 */
 	@Override
-	public FishPondConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public FishPondConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		FishPondConfiguration config = new FishPondConfiguration();
 
 		return (FishPondConfiguration) super.ReadFromCompoundNBT(messageTag, config);

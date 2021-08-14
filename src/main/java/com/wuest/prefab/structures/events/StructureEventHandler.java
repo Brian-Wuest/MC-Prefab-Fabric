@@ -22,9 +22,9 @@ import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtDouble;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -354,7 +354,7 @@ public final class StructureEventHandler {
                     Entity entity = entityType.get().create(structure.world);
 
                     if (entity != null) {
-                        CompoundTag tagCompound = buildEntity.getEntityDataTag();
+                        NbtCompound tagCompound = buildEntity.getEntityDataTag();
                         BlockPos entityPos = buildEntity.getStartingPosition().getRelativePosition(structure.originalPos,
                                 structure.getClearSpace().getShape().getDirection(), structure.configuration.houseFacing);
 
@@ -363,13 +363,13 @@ public final class StructureEventHandler {
                                 tagCompound.putUuid("UUID", UUID.randomUUID());
                             }
 
-                            ListTag nbttaglist = new ListTag();
-                            nbttaglist.add(DoubleTag.of(entityPos.getX()));
-                            nbttaglist.add(DoubleTag.of(entityPos.getY()));
-                            nbttaglist.add(DoubleTag.of(entityPos.getZ()));
+                            NbtList nbttaglist = new NbtList();
+                            nbttaglist.add(NbtDouble.of(entityPos.getX()));
+                            nbttaglist.add(NbtDouble.of(entityPos.getY()));
+                            nbttaglist.add(NbtDouble.of(entityPos.getZ()));
                             tagCompound.put("Pos", nbttaglist);
 
-                            entity.fromTag(tagCompound);
+                            entity.readNbt(tagCompound);
                         }
 
                         entity.teleporting = true;
@@ -458,10 +458,10 @@ public final class StructureEventHandler {
         yaw = entity.applyRotation(rotation);
 
         AbstractDecorationEntity hangingEntity = entity;
-        CompoundTag compound = new CompoundTag();
-        hangingEntity.writeCustomDataToTag(compound);
+        NbtCompound compound = new NbtCompound();
+        hangingEntity.writeCustomDataToNbt(compound);
         compound.putByte("Facing", (byte) facing.getHorizontal());
-        hangingEntity.readCustomDataFromTag(compound);
+        hangingEntity.readCustomDataFromNbt(compound);
         StructureEventHandler.updateEntityHangingBoundingBox(hangingEntity);
 
         entity.refreshPositionAndAngles(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,
@@ -512,10 +512,10 @@ public final class StructureEventHandler {
         yaw = frame.applyRotation(rotation);
 
         AbstractDecorationEntity hangingEntity = frame;
-        CompoundTag compound = new CompoundTag();
-        hangingEntity.writeCustomDataToTag(compound);
+        NbtCompound compound = new NbtCompound();
+        hangingEntity.writeCustomDataToNbt(compound);
         compound.putByte("Facing", (byte) facing.getId());
-        hangingEntity.readCustomDataFromTag(compound);
+        hangingEntity.readCustomDataFromNbt(compound);
         StructureEventHandler.updateEntityHangingBoundingBox(hangingEntity);
 
         frame.refreshPositionAndAngles(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,

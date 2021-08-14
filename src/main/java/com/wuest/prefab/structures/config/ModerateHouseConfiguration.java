@@ -4,7 +4,7 @@ import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.predefined.StructureModerateHouse;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
@@ -67,7 +67,7 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
 	}
 
 	@Override
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		tag.putInt(ModerateHouseConfiguration.houseStyleTag, this.houseStyle.value);
 		tag.putBoolean(ModerateHouseConfiguration.addChestTag, this.addChests);
 		tag.putBoolean(ModerateHouseConfiguration.addChestContentsTag, this.addChestContents);
@@ -78,7 +78,7 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
 	}
 
 	@Override
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 		ModerateHouseConfiguration houseConfiguration = ((ModerateHouseConfiguration) config);
 
 		if (messageTag.contains(ModerateHouseConfiguration.houseStyleTag)) {
@@ -109,7 +109,7 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public ModerateHouseConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public ModerateHouseConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		ModerateHouseConfiguration config = new ModerateHouseConfiguration();
 
 		return (ModerateHouseConfiguration) super.ReadFromCompoundNBT(messageTag, config);

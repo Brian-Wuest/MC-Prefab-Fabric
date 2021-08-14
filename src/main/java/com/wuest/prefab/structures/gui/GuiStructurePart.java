@@ -11,7 +11,7 @@ import com.wuest.prefab.structures.config.StructurePartConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.predefined.StructurePart;
 import com.wuest.prefab.structures.render.StructureRenderHandler;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Direction;
@@ -124,7 +124,7 @@ public class GuiStructurePart extends GuiStructure {
 	 * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
 	 */
 	@Override
-	public void buttonClicked(AbstractButtonWidget button) {
+	public void buttonClicked(PressableWidget button) {
 		this.configuration.houseFacing = this.client.player.getHorizontalFacing().getOpposite();
 		this.configuration.stairHeight = this.sldrStairHeight.getValueInt();
 		this.configuration.stairWidth = this.sldrStairWidth.getValueInt();

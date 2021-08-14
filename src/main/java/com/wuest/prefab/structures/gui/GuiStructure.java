@@ -10,8 +10,8 @@ import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
@@ -119,7 +119,7 @@ public abstract class GuiStructure extends GuiBase {
 	/**
 	 * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
 	 */
-	protected void performCancelOrBuildOrHouseFacing(StructureConfiguration configuration, AbstractButtonWidget button) {
+	protected void performCancelOrBuildOrHouseFacing(StructureConfiguration configuration, PressableWidget button) {
 		configuration.houseFacing = this.structureFacing;
 
 		if (button == this.btnCancel) {

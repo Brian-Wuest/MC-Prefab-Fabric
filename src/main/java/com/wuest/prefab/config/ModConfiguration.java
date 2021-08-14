@@ -4,7 +4,7 @@ import me.sargunvohra.mcmods.autoconfig1u.ConfigData;
 import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
 import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
 import me.sargunvohra.mcmods.autoconfig1u.shadowed.blue.endless.jankson.Comment;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +47,8 @@ public class ModConfiguration implements ConfigData {
         }
     }
 
-    public CompoundTag writeCompoundTag() {
-        CompoundTag tag = new CompoundTag();
+    public NbtCompound writeNbtCompound() {
+        NbtCompound tag = new NbtCompound();
 
         tag.putString(ConfigKeyNames.startingItemName, this.startingItem.toString());
         tag.putBoolean(ConfigKeyNames.enableLoftHouseName, this.enableLoftHouse);
@@ -84,7 +84,7 @@ public class ModConfiguration implements ConfigData {
         return tag;
     }
 
-    public void readFromTag(CompoundTag tag) {
+    public void readFromTag(NbtCompound tag) {
         this.startingItem = StartingItemOptions.getByName(tag.getString(ConfigKeyNames.startingItemName));
 
         this.enableLoftHouse = tag.getBoolean(ConfigKeyNames.enableLoftHouseName);

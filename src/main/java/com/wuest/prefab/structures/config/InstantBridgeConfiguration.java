@@ -4,7 +4,7 @@ import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.base.EnumStructureMaterial;
 import com.wuest.prefab.structures.predefined.StructureInstantBridge;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -53,7 +53,7 @@ public class InstantBridgeConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public InstantBridgeConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public InstantBridgeConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		InstantBridgeConfiguration config = new InstantBridgeConfiguration();
 
 		return (InstantBridgeConfiguration) super.ReadFromCompoundNBT(messageTag, config);
@@ -75,7 +75,7 @@ public class InstantBridgeConfiguration extends StructureConfiguration {
 	 * @return The updated tag.
 	 */
 	@Override
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		tag.putInt("bridgeLength", this.bridgeLength);
 		tag.putInt("bridgeMaterial", this.bridgeMaterial.getNumber());
 		tag.putBoolean("includeRoof", this.includeRoof);
@@ -90,7 +90,7 @@ public class InstantBridgeConfiguration extends StructureConfiguration {
 	 * @param config     The configuration to read the settings into.
 	 */
 	@Override
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 		if (messageTag.contains("bridgeLength")) {
 			((InstantBridgeConfiguration) config).bridgeLength = messageTag.getInt("bridgeLength");
 		}

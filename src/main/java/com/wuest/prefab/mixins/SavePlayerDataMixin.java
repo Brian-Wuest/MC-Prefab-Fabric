@@ -2,11 +2,10 @@ package com.wuest.prefab.mixins;
 
 import com.wuest.prefab.config.EntityPlayerConfiguration;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
@@ -14,8 +13,8 @@ import java.util.UUID;
 
 @Mixin(PlayerEntity.class)
 public class SavePlayerDataMixin {
-	@Inject(method = "writeCustomDataToTag", at = @At("TAIL"))
-	private void writeCustomDataToTag(CompoundTag tag, CallbackInfo ci) {
+	@Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
+	private void writeCustomDataToTag(NbtCompound tag, CallbackInfo ci) {
 		UUID playerTag = tag.getUuid("UUID");
 		EntityPlayerConfiguration configuration;
 
@@ -29,8 +28,8 @@ public class SavePlayerDataMixin {
 		tag.put("PrefabTag", configuration.createPlayerTag());
 	}
 
-	@Inject(method = "readCustomDataFromTag", at = @At("TAIL"))
-	private void readCustomDataFromTag(CompoundTag tag, CallbackInfo ci) {
+	@Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+	private void readCustomDataFromTag(NbtCompound tag, CallbackInfo ci) {
 		UUID playerTag = tag.getUuid("UUID");
 
 		EntityPlayerConfiguration configuration = new EntityPlayerConfiguration();

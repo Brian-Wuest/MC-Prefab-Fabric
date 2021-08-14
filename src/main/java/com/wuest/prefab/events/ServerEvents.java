@@ -45,7 +45,7 @@ public class ServerEvents {
         ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
             if (entity instanceof ServerPlayerEntity) {
                 // Send the message to the client.
-                PacketByteBuf messagePacket = Utils.createMessageBuffer(Prefab.serverConfiguration.writeCompoundTag());
+                PacketByteBuf messagePacket = Utils.createMessageBuffer(Prefab.serverConfiguration.writeNbtCompound());
 
                 ServerSidePacketRegistry.INSTANCE.sendToPlayer((ServerPlayerEntity) entity, ModRegistry.ConfigSync, messagePacket);
             }

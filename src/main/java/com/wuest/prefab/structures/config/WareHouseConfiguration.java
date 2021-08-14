@@ -4,7 +4,7 @@ import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.items.StructureItem;
 import com.wuest.prefab.structures.predefined.StructureWarehouse;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
@@ -45,7 +45,7 @@ public class WareHouseConfiguration extends StructureConfiguration {
 	}
 
 	@Override
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 		if (messageTag.contains(WareHouseConfiguration.dyeColorTag)) {
 			((WareHouseConfiguration) config).dyeColor = DyeColor.byId(messageTag.getInt(WareHouseConfiguration.dyeColorTag));
 		}
@@ -62,14 +62,14 @@ public class WareHouseConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public WareHouseConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public WareHouseConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		WareHouseConfiguration config = new WareHouseConfiguration();
 
 		return (WareHouseConfiguration) super.ReadFromCompoundNBT(messageTag, config);
 	}
 
 	@Override
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		tag.putInt(WareHouseConfiguration.dyeColorTag, this.dyeColor.getId());
 
 		tag.putBoolean(WareHouseConfiguration.advancedTag, this.advanced);

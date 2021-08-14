@@ -3,7 +3,7 @@ package com.wuest.prefab.structures.config;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.predefined.StructureMonsterMasher;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
@@ -24,14 +24,14 @@ public class MonsterMasherConfiguration extends StructureConfiguration {
 	}
 
 	@Override
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 		if (messageTag.contains(MonsterMasherConfiguration.dyeColorTag)) {
 			((MonsterMasherConfiguration) config).dyeColor = DyeColor.byId(messageTag.getInt(MonsterMasherConfiguration.dyeColorTag));
 		}
 	}
 
 	@Override
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		tag.putInt(MonsterMasherConfiguration.dyeColorTag, this.dyeColor.getId());
 
 		return tag;
@@ -44,7 +44,7 @@ public class MonsterMasherConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public MonsterMasherConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public MonsterMasherConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		MonsterMasherConfiguration config = new MonsterMasherConfiguration();
 
 		return (MonsterMasherConfiguration) super.ReadFromCompoundNBT(messageTag, config);

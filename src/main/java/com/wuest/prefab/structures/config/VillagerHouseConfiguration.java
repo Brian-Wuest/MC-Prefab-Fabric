@@ -4,7 +4,7 @@ import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.predefined.StructureVillagerHouses;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
@@ -44,14 +44,14 @@ public class VillagerHouseConfiguration extends StructureConfiguration {
 	}
 
 	@Override
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		tag.putInt(VillagerHouseConfiguration.houseStyleTag, this.houseStyle.value);
 		tag.putString(VillagerHouseConfiguration.bedColorTag, this.bedColor.asString().toUpperCase());
 		return tag;
 	}
 
 	@Override
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 		VillagerHouseConfiguration houseConfiguration = ((VillagerHouseConfiguration) config);
 
 		if (messageTag.contains(VillagerHouseConfiguration.houseStyleTag)) {
@@ -70,7 +70,7 @@ public class VillagerHouseConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public VillagerHouseConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public VillagerHouseConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		VillagerHouseConfiguration config = new VillagerHouseConfiguration();
 
 		return (VillagerHouseConfiguration) super.ReadFromCompoundNBT(messageTag, config);

@@ -3,7 +3,7 @@ package com.wuest.prefab.structures.config;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.predefined.StructureHorseStable;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -21,7 +21,7 @@ public class HorseStableConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the NBTTagCompound.
 	 */
 	@Override
-	public HorseStableConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public HorseStableConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		HorseStableConfiguration config = new HorseStableConfiguration();
 
 		return (HorseStableConfiguration) super.ReadFromCompoundNBT(messageTag, config);

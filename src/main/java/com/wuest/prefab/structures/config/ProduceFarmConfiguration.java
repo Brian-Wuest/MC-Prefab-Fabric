@@ -3,7 +3,7 @@ package com.wuest.prefab.structures.config;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.predefined.StructureProduceFarm;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
@@ -24,14 +24,14 @@ public class ProduceFarmConfiguration extends StructureConfiguration {
 	}
 
 	@Override
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 		if (messageTag.contains(ProduceFarmConfiguration.dyeColorTag)) {
 			((ProduceFarmConfiguration) config).dyeColor = DyeColor.byId(messageTag.getInt(ProduceFarmConfiguration.dyeColorTag));
 		}
 	}
 
 	@Override
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		tag.putInt(ProduceFarmConfiguration.dyeColorTag, this.dyeColor.getId());
 
 		return tag;
@@ -44,7 +44,7 @@ public class ProduceFarmConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public ProduceFarmConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public ProduceFarmConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		ProduceFarmConfiguration config = new ProduceFarmConfiguration();
 
 		return (ProduceFarmConfiguration) super.ReadFromCompoundNBT(messageTag, config);

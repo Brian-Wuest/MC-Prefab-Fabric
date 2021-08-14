@@ -6,7 +6,8 @@ import com.wuest.prefab.gui.controls.GuiCheckBox;
 import com.wuest.prefab.gui.controls.GuiSlider;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -118,8 +119,8 @@ public abstract class GuiBase extends Screen {
 	}
 
 	protected void renderButtons(MatrixStack matrixStack, int mouseX, int mouseY) {
-		for (net.minecraft.client.gui.widget.AbstractButtonWidget button : this.buttons) {
-			AbstractButtonWidget currentButton = (AbstractButtonWidget) button;
+		for (ClickableWidget button : this.buttons) {
+			PressableWidget currentButton = (PressableWidget) button;
 
 			if (currentButton != null && currentButton.visible) {
 				currentButton.renderButton(matrixStack, mouseX, mouseY, this.client.getTickDelta());
@@ -195,7 +196,7 @@ public abstract class GuiBase extends Screen {
 	 *
 	 * @param button The button which was clicked.
 	 */
-	public abstract void buttonClicked(AbstractButtonWidget button);
+	public abstract void buttonClicked(PressableWidget button);
 
 	protected abstract void preButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks);
 

@@ -6,7 +6,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -55,8 +55,8 @@ public class StructureConfiguration {
 	 *
 	 * @return An CompoundNBT with the updated properties.
 	 */
-	public CompoundTag WriteToCompoundNBT() {
-		CompoundTag tag = new CompoundTag();
+	public NbtCompound WriteToCompoundNBT() {
+		NbtCompound tag = new NbtCompound();
 
 		if (this.pos != null) {
 			tag.putInt(StructureConfiguration.hitXTag, this.pos.getX());
@@ -77,7 +77,7 @@ public class StructureConfiguration {
 	 * @param messageTag The CompoundNBT to read the properties from.
 	 * @return The updated StructureConfiguration instance.
 	 */
-	public StructureConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public StructureConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		return null;
 	}
 
@@ -88,7 +88,7 @@ public class StructureConfiguration {
 	 * @param config     The existing StructureConfiguration instance to fill the properties in for.
 	 * @return The updated StructureConfiguration instance.
 	 */
-	public StructureConfiguration ReadFromCompoundNBT(CompoundTag messageTag, StructureConfiguration config) {
+	public StructureConfiguration ReadFromCompoundNBT(NbtCompound messageTag, StructureConfiguration config) {
 		if (messageTag != null) {
 			if (messageTag.contains(StructureConfiguration.hitXTag)) {
 				config.pos = new BlockPos(
@@ -136,7 +136,7 @@ public class StructureConfiguration {
 	 * @param tag The CompoundNBT to write the custom properties too.
 	 * @return The updated tag.
 	 */
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		return tag;
 	}
 
@@ -146,7 +146,7 @@ public class StructureConfiguration {
 	 * @param messageTag The message to create the configuration from.
 	 * @param config     The configuration to read the settings into.
 	 */
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 	}
 
 	/**

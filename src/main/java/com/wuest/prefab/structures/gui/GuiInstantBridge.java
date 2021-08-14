@@ -10,7 +10,7 @@ import com.wuest.prefab.structures.config.InstantBridgeConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.predefined.StructureInstantBridge;
 import com.wuest.prefab.structures.render.StructureRenderHandler;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
@@ -84,7 +84,7 @@ public class GuiInstantBridge extends GuiStructure {
 	 * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
 	 */
 	@Override
-	public void buttonClicked(AbstractButtonWidget button) {
+	public void buttonClicked(PressableWidget button) {
 		int sliderValue = this.sldrBridgeLength.getValueInt();
 
 		if (sliderValue > 75) {

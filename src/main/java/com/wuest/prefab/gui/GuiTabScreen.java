@@ -3,7 +3,8 @@ package com.wuest.prefab.gui;
 import com.wuest.prefab.gui.controls.GuiTab;
 import com.wuest.prefab.gui.controls.GuiTabTray;
 import com.wuest.prefab.structures.gui.GuiStructure;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class GuiTabScreen extends GuiStructure {
 		this.Tabs.DrawTabs(this.client, matrixStack, mouseX, mouseY);
 	}
 
-	public void buttonClicked(AbstractButtonWidget button) {
+	public void buttonClicked(PressableWidget button) {
 		// This does nothing on purpose.
 	}
 

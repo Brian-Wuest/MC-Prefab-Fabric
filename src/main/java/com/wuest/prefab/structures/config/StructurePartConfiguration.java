@@ -6,7 +6,7 @@ import com.wuest.prefab.structures.base.EnumStairsMaterial;
 import com.wuest.prefab.structures.base.EnumStructureMaterial;
 import com.wuest.prefab.structures.predefined.StructurePart;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -74,7 +74,7 @@ public class StructurePartConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public StructurePartConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public StructurePartConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		StructurePartConfiguration config = new StructurePartConfiguration();
 
 		return (StructurePartConfiguration) super.ReadFromCompoundNBT(messageTag, config);
@@ -96,7 +96,7 @@ public class StructurePartConfiguration extends StructureConfiguration {
 	 * @return The updated tag.
 	 */
 	@Override
-	protected CompoundTag CustomWriteToCompoundNBT(CompoundTag tag) {
+	protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
 		tag.putString("material", this.partMaterial.name());
 		tag.putString("style", this.style.name());
 		tag.putInt("stair_height", this.stairHeight);
@@ -114,7 +114,7 @@ public class StructurePartConfiguration extends StructureConfiguration {
 	 * @param config     The configuration to read the settings into.
 	 */
 	@Override
-	protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
+	protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
 		if (messageTag.contains("material")) {
 			((StructurePartConfiguration) config).partMaterial = EnumStructureMaterial.valueOf(messageTag.getString("material"));
 		}

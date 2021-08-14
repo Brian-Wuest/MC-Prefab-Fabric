@@ -15,7 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -128,12 +128,12 @@ public class ItemBulldozer extends StructureItem {
         if (stack.getItem() == ModRegistry.Bulldozer) {
             if (stack.getTag() == null
                     || stack.getTag().isEmpty()) {
-                stack.setTag(stack.toTag(new CompoundTag()));
+                stack.setTag(stack.writeNbt(new NbtCompound()));
             } else {
-                CompoundTag tag = stack.getTag();
+                NbtCompound tag = stack.getTag();
 
                 if (tag.contains(Prefab.MODID)) {
-                    CompoundTag prefabTag = tag.getCompound(Prefab.MODID);
+                    NbtCompound prefabTag = tag.getCompound(Prefab.MODID);
 
                     if (prefabTag.contains("powered")) {
                         return prefabTag.getBoolean("powered");
@@ -148,10 +148,10 @@ public class ItemBulldozer extends StructureItem {
     public void setPoweredValue(ItemStack stack, boolean value) {
         if (stack.getTag() == null
                 || stack.getTag().isEmpty()) {
-            stack.setTag(stack.toTag(new CompoundTag()));
+            stack.setTag(stack.writeNbt(new NbtCompound()));
         }
 
-        CompoundTag prefabTag = new CompoundTag();
+        NbtCompound prefabTag = new NbtCompound();
         prefabTag.putBoolean("powered", value);
         stack.getTag().put(Prefab.MODID, prefabTag);
     }

@@ -11,7 +11,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -76,8 +76,8 @@ public class HouseConfiguration extends StructureConfiguration {
 	}
 
 	@Override
-	public CompoundTag WriteToCompoundNBT() {
-		CompoundTag tag = new CompoundTag();
+	public NbtCompound WriteToCompoundNBT() {
+		NbtCompound tag = new NbtCompound();
 
 		// This tag should only be written for options which will NOT be overwritten by server options.
 		// Server configuration settings will be used for all other options.
@@ -107,7 +107,7 @@ public class HouseConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the CompoundNBT.
 	 */
 	@Override
-	public HouseConfiguration ReadFromCompoundNBT(CompoundTag tag) {
+	public HouseConfiguration ReadFromCompoundNBT(NbtCompound tag) {
 		HouseConfiguration config = null;
 
 		if (tag != null) {

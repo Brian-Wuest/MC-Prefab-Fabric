@@ -5,8 +5,8 @@ import com.wuest.prefab.events.ServerEvents;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.sargunvohra.mcmods.autoconfig1u.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.block.MapColor;
 import net.minecraft.block.Material;
-import net.minecraft.block.MaterialColor;
 import net.minecraft.block.piston.PistonBehavior;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +20,7 @@ public class Prefab implements ModInitializer {
      * Simulates an air block that blocks movement and cannot be moved.
      */
     public static final Material SeeThroughImmovable = new Material(
-            MaterialColor.CLEAR,
+            MapColor.CLEAR,
             false,
             true,
             true,

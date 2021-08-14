@@ -2,7 +2,7 @@ package com.wuest.prefab.structures.base;
 
 import com.google.gson.annotations.Expose;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -79,7 +79,7 @@ public class BuildEntity {
 		this.entityNBTData = value;
 	}
 
-	public void setEntityNBTData(CompoundTag tagCompound) {
+	public void setEntityNBTData(NbtCompound tagCompound) {
 		this.entityNBTData = tagCompound.toString();
 	}
 
@@ -96,8 +96,8 @@ public class BuildEntity {
 		this.entityFacing = Direction.NORTH.asString();
 	}
 
-	public CompoundTag getEntityDataTag() {
-		CompoundTag tag = null;
+	public NbtCompound getEntityDataTag() {
+		NbtCompound tag = null;
 
 		if (!this.entityNBTData.equals("")) {
 			try {

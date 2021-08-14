@@ -4,7 +4,7 @@ import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.predefined.StructureBulldozer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -30,7 +30,7 @@ public class BulldozerConfiguration extends StructureConfiguration {
 	 * @return An new configuration object with the values derived from the NBTTagCompound.
 	 */
 	@Override
-	public BulldozerConfiguration ReadFromCompoundNBT(CompoundTag messageTag) {
+	public BulldozerConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
 		BulldozerConfiguration config = new BulldozerConfiguration();
 
 		return (BulldozerConfiguration) super.ReadFromCompoundNBT(messageTag, config);

@@ -8,7 +8,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.enums.WallMountLocation;
 import net.minecraft.block.enums.WallShape;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.state.property.Properties;
@@ -530,12 +530,12 @@ public class BuildBlock {
         this.blockStateData = value;
     }
 
-    public void setBlockStateData(CompoundTag tagCompound) {
+    public void setBlockStateData(NbtCompound tagCompound) {
         this.blockStateData = tagCompound.toString();
     }
 
-    public CompoundTag getBlockStateDataTag() {
-        CompoundTag tag = null;
+    public NbtCompound getBlockStateDataTag() {
+        NbtCompound tag = null;
 
         if (!this.blockStateData.equals("")) {
             try {
@@ -552,7 +552,7 @@ public class BuildBlock {
         BlockState state = null;
 
         if (!this.blockStateData.equals("")) {
-            CompoundTag tag = this.getBlockStateDataTag();
+            NbtCompound tag = this.getBlockStateDataTag();
 
             if (tag != null) {
                 state = NbtHelper.toBlockState(tag.getCompound("tag"));

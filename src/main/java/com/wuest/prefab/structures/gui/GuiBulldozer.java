@@ -5,7 +5,7 @@ import com.wuest.prefab.Tuple;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.config.BulldozerConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 
 /**
@@ -53,7 +53,7 @@ public class GuiBulldozer extends GuiStructure {
 	 * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
 	 */
 	@Override
-	public void buttonClicked(AbstractButtonWidget button) {
+	public void buttonClicked(PressableWidget button) {
 		assert this.client != null;
 		this.configuration.houseFacing = this.client.player.getHorizontalFacing().getOpposite();
 		this.performCancelOrBuildOrHouseFacing(this.configuration, button);

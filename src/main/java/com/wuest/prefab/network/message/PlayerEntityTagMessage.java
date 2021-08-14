@@ -1,6 +1,6 @@
 package com.wuest.prefab.network.message;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 /**
@@ -14,7 +14,7 @@ public class PlayerEntityTagMessage extends TagMessage {
 	 *
 	 * @param tagMessage The message to send.
 	 */
-	public PlayerEntityTagMessage(CompoundTag tagMessage) {
+	public PlayerEntityTagMessage(NbtCompound tagMessage) {
 		super(tagMessage);
 	}
 

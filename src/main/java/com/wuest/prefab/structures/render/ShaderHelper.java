@@ -42,7 +42,7 @@ public class ShaderHelper {
 		if (MinecraftClient.getInstance().getResourceManager() instanceof ReloadableResourceManager) {
 
 			ReloadableResourceManager manager = (ReloadableResourceManager) MinecraftClient.getInstance().getResourceManager();
-			manager.registerListener((synchronizer, resourceManager, prepareProfiler, applyProfiler, prepareExecutor, applyExecutor )-> {
+			manager.registerReloader((synchronizer, resourceManager, prepareProfiler, applyProfiler, prepareExecutor, applyExecutor )-> {
 				ShaderHelper.checkIncompatibleMods();
 
 				ShaderHelper.deleteShader(alphaShader);

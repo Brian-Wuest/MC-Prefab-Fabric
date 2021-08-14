@@ -2,7 +2,7 @@ package com.wuest.prefab.structures.messages;
 
 import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.structures.config.*;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 /**
@@ -22,7 +22,7 @@ public class StructureTagMessage extends TagMessage {
 	 *
 	 * @param tagMessage The message to send.
 	 */
-	public StructureTagMessage(CompoundTag tagMessage, EnumStructureConfiguration structureConfig) {
+	public StructureTagMessage(NbtCompound tagMessage, EnumStructureConfiguration structureConfig) {
 		super(tagMessage);
 
 		this.structureConfig = structureConfig;
@@ -30,7 +30,7 @@ public class StructureTagMessage extends TagMessage {
 
 	public static StructureTagMessage decode(PacketByteBuf buf) {
 		// This class is very useful in general for writing more complex objects.
-		CompoundTag tag = buf.readCompoundTag();
+		NbtCompound tag = buf.readNbt();
 		StructureTagMessage returnValue = new StructureTagMessage();
 
 		returnValue.structureConfig = EnumStructureConfiguration.getFromIdentifier(tag.getInt("config"));
@@ -41,11 +41,11 @@ public class StructureTagMessage extends TagMessage {
 	}
 
 	public static void encode(StructureTagMessage message, PacketByteBuf buf) {
-		CompoundTag tag = new CompoundTag();
+		NbtCompound tag = new NbtCompound();
 		tag.putInt("config", message.structureConfig.identifier);
 		tag.put("dataTag", message.tagMessage);
 
-		buf.writeCompoundTag(tag);
+		buf.writeNbt(tag);
 	}
 
 	public EnumStructureConfiguration getStructureConfig() {

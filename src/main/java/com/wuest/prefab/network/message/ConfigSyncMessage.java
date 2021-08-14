@@ -1,6 +1,6 @@
 package com.wuest.prefab.network.message;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 /**
@@ -13,7 +13,7 @@ public class ConfigSyncMessage extends TagMessage {
 	 *
 	 * @param writeToNBTTagCompound The NBTTagCompound to write the data too.
 	 */
-	public ConfigSyncMessage(CompoundTag writeToNBTTagCompound) {
+	public ConfigSyncMessage(NbtCompound writeToNBTTagCompound) {
 		super(writeToNBTTagCompound);
 	}
 

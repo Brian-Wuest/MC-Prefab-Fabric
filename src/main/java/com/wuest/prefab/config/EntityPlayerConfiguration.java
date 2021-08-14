@@ -2,7 +2,7 @@ package com.wuest.prefab.config;
 
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -33,7 +33,7 @@ public class EntityPlayerConfiguration {
         }
     }
 
-    public static EntityPlayerConfiguration loadFromTag(UUID playerUUID, CompoundTag tag) {
+    public static EntityPlayerConfiguration loadFromTag(UUID playerUUID, NbtCompound tag) {
         EntityPlayerConfiguration returnValue = new EntityPlayerConfiguration();
 
         returnValue.loadFromNBTTagCompound(tag);
@@ -52,7 +52,7 @@ public class EntityPlayerConfiguration {
      *
      * @param tag The tag to load the data from.
      */
-    public void loadFromNBTTagCompound(CompoundTag tag) {
+    public void loadFromNBTTagCompound(NbtCompound tag) {
         this.givenHouseBuilder = tag.getBoolean(EntityPlayerConfiguration.GIVEN_HOUSEBUILDER_TAG);
         this.builtStarterHouse = tag.getBoolean(EntityPlayerConfiguration.Built_Starter_house_Tag);
     }
@@ -60,8 +60,8 @@ public class EntityPlayerConfiguration {
     /**
      * Saves this instance's data to the player tag.
      */
-    public CompoundTag createPlayerTag() {
-        CompoundTag compoundTag = new CompoundTag();
+    public NbtCompound createPlayerTag() {
+        NbtCompound compoundTag = new NbtCompound();
 
         compoundTag.putBoolean(EntityPlayerConfiguration.Built_Starter_house_Tag, this.builtStarterHouse);
         compoundTag.putBoolean(EntityPlayerConfiguration.GIVEN_HOUSEBUILDER_TAG, this.givenHouseBuilder);
