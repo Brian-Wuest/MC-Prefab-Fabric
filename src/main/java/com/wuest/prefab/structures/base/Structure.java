@@ -19,8 +19,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
@@ -186,8 +187,8 @@ public class Structure {
                 }
 
                 Identifier resourceLocation = Registry.BLOCK_ENTITY_TYPE.getId(tileEntity.getType());
-                CompoundTag tagCompound = new CompoundTag();
-                tagCompound = tileEntity.toTag(tagCompound);
+                NbtCompound tagCompound = new NbtCompound();
+                tagCompound = tileEntity.writeNbt(tagCompound);
 
                 BuildTileEntity buildTileEntity = new BuildTileEntity();
                 assert resourceLocation != null;
@@ -234,8 +235,8 @@ public class Structure {
                     buildEntity.entityFacing = entity.getHorizontalFacing().asString();
                 }
 
-                CompoundTag entityTagCompound = new CompoundTag();
-                entityTagCompound = entity.toTag(entityTagCompound);
+                NbtCompound entityTagCompound = new NbtCompound();
+                entityTagCompound = entity.writeNbt(entityTagCompound);
                 buildEntity.setEntityNBTData(entityTagCompound);
                 scannedStructure.entities.add(buildEntity);
             }
@@ -444,11 +445,11 @@ public class Structure {
                                 block.setSubBlock(subBlock);
                             }
 
-							if (priorityFiveBlock) {
-								this.priorityFiveBlocks.add(block);
-							} else if (priorityFourBlock) {
-								this.priorityFourBlocks.add(block);
-							} else if (priorityThreeBlock) {
+                            if (priorityFiveBlock) {
+                                this.priorityFiveBlocks.add(block);
+                            } else if (priorityFourBlock) {
+                                this.priorityFourBlocks.add(block);
+                            } else if (priorityThreeBlock) {
                                 this.priorityThreeBlocks.add(block);
                             } else if (foundBlock instanceof AirBlock) {
                                 this.airBlocks.add(block);
@@ -694,16 +695,32 @@ public class Structure {
     protected Boolean WaterReplacedWithCobbleStone(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos,
                                                    Direction assumedNorth, Block foundBlock, BlockState blockState, PlayerEntity player) {
         // Replace water blocks with cobblestone when this is not the overworld.
-        if (foundBlock instanceof FluidBlock && blockState.getMaterial() == Material.WATER
-                && (!World.OVERWORLD.getValue().toString().equals(world.getRegistryKey().getValue().toString()))) {
-            Identifier cobbleIdentifier = Registry.BLOCK.getId(Blocks.COBBLESTONE);
-            block.setBlockDomain(cobbleIdentifier.getNamespace());
-            block.setBlockName(cobbleIdentifier.getPath());
-            block.setBlockState(Blocks.COBBLESTONE.getDefaultState());
+        if (!World.OVERWORLD.getValue().toString().equals(world.getRegistryKey().getValue().toString())) {
+            boolean foundWaterLikeBlock = false;
+            if ((foundBlock instanceof FluidBlock && blockState.getMaterial() == Material.WATER)
+                    || foundBlock instanceof SeagrassBlock) {
+                foundWaterLikeBlock = true;
+            }
 
-            // Add this as a priority 3 block since it should be done at the end.
-            this.priorityThreeBlocks.add(block);
-            return true;
+            for (BuildProperty property : block.getProperties()) {
+                if (property.getName().equalsIgnoreCase(Properties.WATERLOGGED.getName())
+                        && property.getValue().equalsIgnoreCase(Properties.WATERLOGGED.name(true))) {
+                    // Found a waterlogged block. Replace with cobblestone.
+                    foundWaterLikeBlock = true;
+                    break;
+                }
+            }
+
+            if (foundWaterLikeBlock) {
+                Identifier cobbleIdentifier = Registry.BLOCK.getId(Blocks.COBBLESTONE);
+                block.setBlockDomain(cobbleIdentifier.getNamespace());
+                block.setBlockName(cobbleIdentifier.getPath());
+                block.setBlockState(Blocks.COBBLESTONE.getDefaultState());
+
+                // Add this as a priority 3 block since it should be done at the end.
+                this.priorityThreeBlocks.add(block);
+                return true;
+            }
         }
 
         return false;
