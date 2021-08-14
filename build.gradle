@@ -1,11 +1,14 @@
 plugins {
-	id 'fabric-loom' version '0.5-SNAPSHOT'
+	id 'fabric-loom' version '0.7-SNAPSHOT'
 	id 'maven-publish'
 }
 
 repositories {
+	// This is used for Cloth Config
 	maven { url "https://maven.shedaniel.me/" }
-	maven { url "https://maven.terraformersmc.com/releases/" }
+
+	// This is used for ModMenu
+	maven { url "https://maven.kotlindiscord.com/repository/terraformers/" }
 }
 
 minecraft {

@@ -29,7 +29,6 @@ out/
 classes/
 gradlew
 gradlew.bat
-gradle-wrapper.properties
 
 # eclipse
 
