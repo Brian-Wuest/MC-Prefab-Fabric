@@ -57,6 +57,7 @@ public class GuiStartHouseChooser extends GuiTabScreen {
         this.Tabs.setWidth(256);
         this.modifiedInitialXAxis = 198;
         this.modifiedInitialYAxis = 83;
+        this.structureConfiguration = StructureTagMessage.EnumStructureConfiguration.StartHouse;
     }
 
     @Override
