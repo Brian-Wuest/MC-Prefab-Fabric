@@ -8,6 +8,7 @@ import com.wuest.prefab.structures.config.BasicStructureConfiguration;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.items.*;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -15,6 +16,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -30,6 +32,10 @@ import java.util.function.Consumer;
  */
 public class ModRegistry {
     public static ArrayList<Consumer<Object>> guiRegistrations = new ArrayList<>();
+
+    public static final ItemGroup PREFAB_GROUP = FabricItemGroupBuilder.build(
+            new Identifier(Prefab.MODID, "logo"),
+            () -> new ItemStack(ModRegistry.LogoItem));
 
     /* *********************************** Blocks *********************************** */
 
@@ -50,21 +56,20 @@ public class ModRegistry {
 
     /* *********************************** Item Blocks *********************************** */
 
-    public static final BlockItem CompressedStoneItem = new BlockItem(ModRegistry.CompressedStone, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem DoubleCompressedStoneItem = new BlockItem(ModRegistry.DoubleCompressedStone, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem TripleCompressedStoneItem = new BlockItem(ModRegistry.TripleCompressedStone, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem CompressedDirtItem = new BlockItem(ModRegistry.CompressedDirt, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem DoubleCompressedDirtItem = new BlockItem(ModRegistry.DoubleCompressedDirt, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem CompressedGlowstoneItem = new BlockItem(ModRegistry.CompressedGlowstone, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem DoubleCompressedGlowstoneItem = new BlockItem(ModRegistry.DoubleCompressedGlowstone, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem CompressedObsidianItem = new BlockItem(ModRegistry.CompressedObsidian, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem DoubleCompressedObsidianItem = new BlockItem(ModRegistry.DoubleCompressedObsidian, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem GlassSlabItem = new BlockItem(ModRegistry.GlassSlab, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem GlassStairsItem = new BlockItem(ModRegistry.GlassStairs, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem PaperLanternItem = new BlockItem(ModRegistry.PaperLantern, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem PhasicItem = new BlockItem(ModRegistry.Phasic, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-    public static final BlockItem BoundaryItem = new BlockItem(ModRegistry.Boundary, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS));
-
+    public static final BlockItem CompressedStoneItem = new BlockItem(ModRegistry.CompressedStone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem DoubleCompressedStoneItem = new BlockItem(ModRegistry.DoubleCompressedStone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem TripleCompressedStoneItem = new BlockItem(ModRegistry.TripleCompressedStone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem CompressedDirtItem = new BlockItem(ModRegistry.CompressedDirt, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem DoubleCompressedDirtItem = new BlockItem(ModRegistry.DoubleCompressedDirt, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem CompressedGlowstoneItem = new BlockItem(ModRegistry.CompressedGlowstone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem DoubleCompressedGlowstoneItem = new BlockItem(ModRegistry.DoubleCompressedGlowstone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem CompressedObsidianItem = new BlockItem(ModRegistry.CompressedObsidian, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem DoubleCompressedObsidianItem = new BlockItem(ModRegistry.DoubleCompressedObsidian, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem GlassSlabItem = new BlockItem(ModRegistry.GlassSlab, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem GlassStairsItem = new BlockItem(ModRegistry.GlassStairs, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem PaperLanternItem = new BlockItem(ModRegistry.PaperLantern, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem PhasicItem = new BlockItem(ModRegistry.Phasic, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem BoundaryItem = new BlockItem(ModRegistry.Boundary, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
 
     /* *********************************** Messages *********************************** */
 
@@ -74,15 +79,16 @@ public class ModRegistry {
 
     /* *********************************** Items *********************************** */
 
-    public static final Item PileOfBricks = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-    public static final Item PalletOfBricks = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-    public static final Item BundleOfTimber = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-    public static final Item HeapOfTimber = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-    public static final Item TonOfTimber = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-    public static final Item StringOfLanterns = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
-    public static final Item CoilOfLanterns = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
+    public static final Item PileOfBricks = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item PalletOfBricks = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item BundleOfTimber = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item HeapOfTimber = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item TonOfTimber = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item StringOfLanterns = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item CoilOfLanterns = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
-    public static final Item WarehouseUpgrade = new Item(new Item.Settings().group(ItemGroup.MATERIALS));
+    public static final Item WarehouseUpgrade = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item LogoItem = new Item(new Item.Settings());
 
     /* *********************************** Blueprint Items *********************************** */
 
@@ -161,6 +167,7 @@ public class ModRegistry {
     }
 
     private static void registerItems() {
+        ModRegistry.registerItem("item_logo", ModRegistry.LogoItem);
         ModRegistry.registerItem("item_pile_of_bricks", ModRegistry.PileOfBricks);
         ModRegistry.registerItem("item_pallet_of_bricks", ModRegistry.PalletOfBricks);
         ModRegistry.registerItem("item_bundle_of_timber", ModRegistry.BundleOfTimber);

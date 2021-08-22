@@ -32,6 +32,8 @@
   "text.autoconfig.Prefab.category.chest_options": "Параметры сундуков",
   "text.autoconfig.Prefab.category.starter_options": "Параметры стартового дома",
 
+  "itemGroup.prefab.logo": "Prefab",
+
   "item.prefab.item_start_house": "Стартовый Дом",
   "item.prefab.item_warehouse": "Склад",
   "item.prefab.item_chicken_coop": "Курятник",
@@ -96,7 +98,7 @@
   "block.prefab.block_paper_lantern": "Бумажный Фонарь",
   "block.prefab.block_compressed_obsidian": "Сжатый Обсидиан",
   "block.prefab.block_double_compressed_obsidian": "Двойной Сжатый Обсидиан",
-  "block.prefab.block_phasing": "Фазовый Блок",
+  "block.prefab.block_phasic": "Фазовый Блок",
   "block.prefab.block_boundary": "Барьерный Блок",
   "block.prefab.block_glass_stairs": "Стеклянные Ступеньки",
   "block.prefab.block_glass_slab": "Стеклянная Плита",

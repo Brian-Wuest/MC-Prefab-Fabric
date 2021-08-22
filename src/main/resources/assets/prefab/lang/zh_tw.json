@@ -32,6 +32,8 @@
   "text.autoconfig.Prefab.category.chest_options": "保險箱選項",
   "text.autoconfig.Prefab.category.starter_options": "起始房屋選項",
 
+  "itemGroup.prefab.logo": "Prefab",
+
   "item.prefab.item_start_house": "起始小屋",
   "item.prefab.item_warehouse": "倉庫",
   "item.prefab.item_chicken_coop": "雞舍",

@@ -32,6 +32,8 @@
   "text.autoconfig.Prefab.category.chest_options": "Chest Options",
   "text.autoconfig.Prefab.category.starter_options": "Starter House Options",
 
+  "itemGroup.prefab.logo": "Prefab",
+
   "item.prefab.item_start_house": "Starting House",
   "item.prefab.item_warehouse": "Warehouse",
   "item.prefab.item_chicken_coop": "Chicken Coop",

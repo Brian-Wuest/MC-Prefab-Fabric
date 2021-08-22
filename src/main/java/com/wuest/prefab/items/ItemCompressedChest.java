@@ -1,5 +1,6 @@
 package com.wuest.prefab.items;
 
+import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Utils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -18,7 +19,7 @@ public class ItemCompressedChest extends Item {
 	 * Initializes a new instance of the ItemCondensedChest class.
 	 */
 	public ItemCompressedChest() {
-		super(new Item.Settings().group(ItemGroup.MATERIALS));
+		super(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
 
 	}
 

@@ -1,6 +1,7 @@
 package com.wuest.prefab.structures.items;
 
 import com.wuest.prefab.ClientModRegistry;
+import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.structures.gui.GuiStructure;
 import net.minecraft.item.Item;
@@ -19,7 +20,7 @@ public class StructureItem extends Item {
      * Initializes a new instance of the StructureItem class.
      */
     public StructureItem() {
-        super(new Item.Settings().group(ItemGroup.MISC));
+        super(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
         this.Initialize();
     }
 

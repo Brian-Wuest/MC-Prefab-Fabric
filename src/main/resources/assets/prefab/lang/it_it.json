@@ -32,6 +32,8 @@
   "text.autoconfig.Prefab.category.chest_options": "Opzioni scrigno",
   "text.autoconfig.Prefab.category.starter_options": "Avvia Opzioni casa",
 
+  "itemGroup.prefab.logo": "Prefab",
+
   "item.prefab.item_start_house": "Casa Di Partenza",
   "item.prefab.item_warehouse": "Magazzino",
   "item.prefab.item_chicken_coop": "Pollaio",
@@ -96,7 +98,7 @@
   "block.prefab.block_paper_lantern": "Lanterna di Carta",
   "block.prefab.block_compressed_obsidian": "Ossidiana Compressa",
   "block.prefab.block_double_compressed_obsidian": "Ossidiana Doppiamente Compressa",
-  "block.prefab.block_phasing": "Blocco di Fase",
+  "block.prefab.block_phasic": "Blocco di Fase",
   "block.prefab.block_boundary": "Blocco di Confine",
   "block.prefab.block_glass_stairs": "Scala di Vetro",
   "block.prefab.block_glass_slab": "Lastra di Vetro",
