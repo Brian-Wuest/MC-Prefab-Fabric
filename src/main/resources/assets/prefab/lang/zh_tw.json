@@ -1,10 +1,10 @@
 {
   "text.autoconfig.Prefab.title": "預製配置",
-  "text.autoconfig.Prefab.option.maximumStartingHouseSize": "最大起始房屋面積",
   "text.autoconfig.Prefab.option.enableLoftHouse": "啟用閣樓房",
   "text.autoconfig.Prefab.option.includeSpawnersInMasher": "在馬什爾包括主人",
   "text.autoconfig.Prefab.option.enableStructurePreview": "啟用結構預覽",
   "text.autoconfig.Prefab.option.allowBulldozerToCreateDrops": "挖掘機產生水滴",
+  "text.autoconfig.Prefab.option.allowWaterInNonOverworldDimensions": "非主世界維度的水",
   "text.autoconfig.Prefab.option.includeMineshaftChest": "包括礦井保險箱",
   "text.autoconfig.Prefab.option.startingItem": "起始項目",
   "text.autoconfig.Prefab.option.chestOptions.addSword": "添加劍",

@@ -4,6 +4,7 @@
     "text.autoconfig.Prefab.option.includeSpawnersInMasher": "Додати спавнера у ферму монстрів",
     "text.autoconfig.Prefab.option.enableStructurePreview": "Увімкнути перегляд структур",
     "text.autoconfig.Prefab.option.allowBulldozerToCreateDrops": "Випадання блоків у бульдозері",
+    "text.autoconfig.Prefab.option.allowWaterInNonOverworldDimensions": "Вода в несвітових розмірах",
     "text.autoconfig.Prefab.option.includeMineshaftChest": "Додати скриню у шахти",
     "text.autoconfig.Prefab.option.startingItem": "Початковий предмет",
     "text.autoconfig.Prefab.option.chestOptions.addSword": "Додати меч",

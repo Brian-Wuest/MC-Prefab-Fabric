@@ -1,10 +1,10 @@
 {
   "text.autoconfig.Prefab.title": "Prefab Configuration",
-  "text.autoconfig.Prefab.option.maximumStartingHouseSize": "Max Starting House Size",
   "text.autoconfig.Prefab.option.enableLoftHouse": "Enable Loft House",
   "text.autoconfig.Prefab.option.includeSpawnersInMasher": "Include Spawners In Masher",
   "text.autoconfig.Prefab.option.enableStructurePreview": "Enable Structure Preview",
   "text.autoconfig.Prefab.option.allowBulldozerToCreateDrops": "Bulldozer Creates Block Drops",
+  "text.autoconfig.Prefab.option.allowWaterInNonOverworldDimensions": "Water in non-overworld dimensions",
   "text.autoconfig.Prefab.option.includeMineshaftChest": "Include Mineshaft Chest",
   "text.autoconfig.Prefab.option.startingItem": "Starting Item",
   "text.autoconfig.Prefab.option.chestOptions.addSword": "Add Sword",

@@ -1,10 +1,10 @@
 {
   "text.autoconfig.Prefab.title": "Configuration préfabriquée",
-  "text.autoconfig.Prefab.option.maximumStartingHouseSize": "Taille maximale de la maison de départ",
   "text.autoconfig.Prefab.option.enableLoftHouse": "Activer Loft House",
   "text.autoconfig.Prefab.option.includeSpawnersInMasher": "Inclure les géniteurs dans Masher",
   "text.autoconfig.Prefab.option.enableStructurePreview": "Activer l'aperçu de la structure",
   "text.autoconfig.Prefab.option.allowBulldozerToCreateDrops": "L'excavatrice crée des gouttes",
+  "text.autoconfig.Prefab.option.allowWaterInNonOverworldDimensions": "L'eau dans des dimensions hors du monde",
   "text.autoconfig.Prefab.option.includeMineshaftChest": "Inclure le coffre de puits de mine",
   "text.autoconfig.Prefab.option.startingItem": "Élément de départ",
   "text.autoconfig.Prefab.option.chestOptions.addSword": "Ajouter une épée",

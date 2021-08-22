@@ -1,10 +1,10 @@
 {
   "text.autoconfig.Prefab.title": "Конфигурация Prefab",
-  "text.autoconfig.Prefab.option.maximumStartingHouseSize": "Максимальный размер стартового дома",
   "text.autoconfig.Prefab.option.enableLoftHouse": "Включить дом в стиле Лофт",
   "text.autoconfig.Prefab.option.includeSpawnersInMasher": "Добавить спавнера в ферму монстров",
   "text.autoconfig.Prefab.option.enableStructurePreview": "Включить предварительный просмотр структур",
   "text.autoconfig.Prefab.option.allowBulldozerToCreateDrops": "Выпадение блоков в бульдозере",
+  "text.autoconfig.Prefab.option.allowWaterInNonOverworldDimensions": "Вода в внеземных измерениях",
   "text.autoconfig.Prefab.option.includeMineshaftChest": "Добавлять сундук в шахты",
   "text.autoconfig.Prefab.option.startingItem": "Начальный предмет",
   "text.autoconfig.Prefab.option.chestOptions.addSword": "Добавить меч",
