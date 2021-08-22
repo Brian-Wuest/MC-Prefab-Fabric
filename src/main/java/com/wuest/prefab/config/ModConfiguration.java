@@ -27,6 +27,9 @@ public class ModConfiguration implements ConfigData {
     @Comment("Bulldozer makes drops.")
     public boolean allowBulldozerToCreateDrops = true;
 
+    @Comment("Allow water in the End or Custom Dimensions")
+    public boolean allowWaterInNonOverworldDimensions = true;
+
     @Comment("Generated mineshafts have chests with materials.")
     public boolean includeMineshaftChest = true;
 
@@ -56,6 +59,7 @@ public class ModConfiguration implements ConfigData {
         tag.putBoolean(ConfigKeyNames.enableStructurePreviewName, this.enableStructurePreview);
         tag.putBoolean(ConfigKeyNames.includeMineshaftChestName, this.includeMineshaftChest);
         tag.putBoolean(ConfigKeyNames.allowBulldozerToCreateDropsName, this.allowBulldozerToCreateDrops);
+        tag.putBoolean(ConfigKeyNames.allowWaterInNonOverworldDimensionsName, this.allowWaterInNonOverworldDimensions);
 
         tag.putBoolean(ConfigKeyNames.addSwordName, this.chestOptions.addSword);
         tag.putBoolean(ConfigKeyNames.addAxeName, this.chestOptions.addAxe);
@@ -92,6 +96,7 @@ public class ModConfiguration implements ConfigData {
         this.enableStructurePreview = tag.getBoolean(ConfigKeyNames.enableStructurePreviewName);
         this.includeMineshaftChest = tag.getBoolean(ConfigKeyNames.includeMineshaftChestName);
         this.allowBulldozerToCreateDrops = tag.getBoolean(ConfigKeyNames.allowBulldozerToCreateDropsName);
+        this.allowWaterInNonOverworldDimensions = tag.getBoolean(ConfigKeyNames.allowWaterInNonOverworldDimensionsName);
 
         this.chestOptions.addSword = tag.getBoolean(ConfigKeyNames.addSwordName);
         this.chestOptions.addAxe = tag.getBoolean(ConfigKeyNames.addAxeName);
@@ -242,5 +247,6 @@ public class ModConfiguration implements ConfigData {
         static String addChestContentsName = "Add Chest Contents";
         static String addMineshaftName = "Add Mineshaft";
         static String allowBulldozerToCreateDropsName = "Bulldozer Creates Drops";
+        static String allowWaterInNonOverworldDimensionsName = "Include Water In Overworld Dimension Only";
     }
 }

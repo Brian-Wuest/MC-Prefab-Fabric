@@ -694,20 +694,24 @@ public class Structure {
      */
     protected Boolean WaterReplacedWithCobbleStone(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos,
                                                    Direction assumedNorth, Block foundBlock, BlockState blockState, PlayerEntity player) {
-        // Replace water blocks with cobblestone when this is not the overworld.
-        if (!World.OVERWORLD.getValue().toString().equals(world.getRegistryKey().getValue().toString())) {
-            boolean foundWaterLikeBlock = false;
-            if ((foundBlock instanceof FluidBlock && blockState.getMaterial() == Material.WATER)
-                    || foundBlock instanceof SeagrassBlock) {
-                foundWaterLikeBlock = true;
-            }
+        // Replace water blocks and waterlogged blocks with cobblestone when this is not an ultra warm world type.
+        // Also check a configuration value to determine if water blocks are allowed in other non-overworld dimensions such as The End.
+        boolean isOverworld = World.OVERWORLD.getValue().toString().equals(world.getRegistryKey().getValue().toString());
 
-            for (BuildProperty property : block.getProperties()) {
-                if (property.getName().equalsIgnoreCase(Properties.WATERLOGGED.getName())
-                        && property.getValue().equalsIgnoreCase(Properties.WATERLOGGED.name(true))) {
-                    // Found a waterlogged block. Replace with cobblestone.
-                    foundWaterLikeBlock = true;
-                    break;
+        if (world.getDimension().isUltrawarm()
+                || (!isOverworld && Prefab.serverConfiguration.allowWaterInNonOverworldDimensions)) {
+            boolean foundWaterLikeBlock = (foundBlock instanceof FluidBlock && blockState.getMaterial() == Material.WATER)
+                    || foundBlock instanceof SeagrassBlock;
+
+            if (!foundWaterLikeBlock) {
+                // This is not a direct water block; check if it is waterlogged.
+                for (BuildProperty property : block.getProperties()) {
+                    if (property.getName().equalsIgnoreCase(Properties.WATERLOGGED.getName())
+                            && property.getValue().equalsIgnoreCase(Properties.WATERLOGGED.name(true))) {
+                        // Found a waterlogged block. Replace with cobblestone.
+                        foundWaterLikeBlock = true;
+                        break;
+                    }
                 }
             }
 
