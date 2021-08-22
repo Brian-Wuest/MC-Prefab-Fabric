@@ -8,7 +8,7 @@ repositories {
 	maven { url "https://maven.shedaniel.me/" }
 
 	// This is used for ModMenu
-	maven { url "https://maven.kotlindiscord.com/repository/terraformers/" }
+	maven { url "https://maven.terraformersmc.com/releases/" }
 }
 
 minecraft {
