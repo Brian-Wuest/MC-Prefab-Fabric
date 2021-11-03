@@ -16,7 +16,7 @@ public class ClientWorldMixin {
 		MinecraftClient mc = MinecraftClient.getInstance();
 
 		if (mc.player != null && (!mc.player.isSneaking())) {
-			StructureRenderHandler.renderPlayerLook(mc.player, mc.crosshairTarget, matrix, ci);
+			StructureRenderHandler.render(matrix);
 		}
 	}
 }

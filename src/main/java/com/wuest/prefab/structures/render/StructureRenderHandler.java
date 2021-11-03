@@ -10,25 +10,25 @@ import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
+import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author WuestMan
@@ -44,7 +44,9 @@ public class StructureRenderHandler {
     public static Direction assumedNorth;
     public static boolean rendering = false;
     public static boolean showedMessage = false;
+
     private static int dimension;
+    private static VertexBuffer vertexBuffer;
 
     /**
      * Resets the structure to show in the world.
@@ -64,61 +66,60 @@ public class StructureRenderHandler {
         if (mc.world != null) {
             StructureRenderHandler.dimension = mc.world.getDimension().getLogicalHeight();
         }
+
+        if (structure != null && mc.world != null) {
+            renderSetup(mc.world, mc.player);
+        } else {
+            rendering = false;
+            vertexBuffer.close();
+        }
     }
 
-    /**
-     * This is to render the currently bound structure.
-     *
-     * @param player The player to render the structure for.
-     * @param src    The ray trace for where the player is currently looking.
-     */
-    public static void renderPlayerLook(PlayerEntity player, HitResult src, MatrixStack matrixStack, CallbackInfo callbackInfo) {
+    public static void renderSetup(World world, PlayerEntity player) {
         if (StructureRenderHandler.currentStructure != null
                 && StructureRenderHandler.dimension == player.world.getDimension().getLogicalHeight()
                 && StructureRenderHandler.currentConfiguration != null
                 && Prefab.serverConfiguration.enableStructurePreview) {
             rendering = true;
 
-            VertexConsumerProvider.Immediate entityVertexConsumer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-
-            Frustum frustum = new Frustum(matrixStack.peek().getModel(), RenderSystem.getProjectionMatrix());
-            BlockPos cameraPos = player.getCameraBlockPos();
-            frustum.setPosition(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());
-
-            for (BuildBlock buildBlock : StructureRenderHandler.currentStructure.getBlocks()) {
-                Block foundBlock = Registry.BLOCK.get(buildBlock.getResourceLocation());
-
-                if (foundBlock != null) {
-                    // In order to get the proper relative position I also need the structure's original facing.
-                    BlockPos pos = buildBlock.getStartingPosition().getRelativePosition(
-                            StructureRenderHandler.currentConfiguration.pos,
-                            StructureRenderHandler.currentStructure.getClearSpace().getShape().getDirection(),
-                            StructureRenderHandler.currentConfiguration.houseFacing);
-
-                    // Don't render the block if it isn't visible (cull)
-                    Box box = new Box(pos.getX()-0.5, pos.getY()-0.5, pos.getZ()-0.5, pos.getX()+1.5, pos.getY()+1.5, pos.getZ()+1.5);
-                    if (!frustum.isVisible(box)) {
-                        continue;
-                    }
-
-                    // Get the unique block state for this block.
-                    BlockState blockState = foundBlock.getDefaultState();
-                    buildBlock = BuildBlock.SetBlockState(
-                            StructureRenderHandler.currentConfiguration,
-                            player.world,
-                            StructureRenderHandler.currentConfiguration.pos,
-                            StructureRenderHandler.assumedNorth,
-                            buildBlock,
-                            foundBlock,
-                            blockState,
-                            StructureRenderHandler.currentStructure);
-
-                    StructureRenderHandler.renderComponentInWorld(player.world, buildBlock, entityVertexConsumer, matrixStack, pos);
-                }
+            // Can only render on the render thread
+            if (!RenderSystem.isOnRenderThread()) {
+                throw new IllegalStateException("Prefab Structure Preview rendering attempted not on the render thread");
             }
 
-            // Draw function.
-            entityVertexConsumer.draw(RenderLayer.getTranslucent());
+            Set<BuildBlock> toRender = new HashSet<>();
+
+            for (BuildBlock buildBlock : currentStructure.getBlocks()) {
+                Block block = Registry.BLOCK.get(buildBlock.getResourceLocation());
+                if (block == null) continue;
+
+                BlockPos pos = buildBlock.getStartingPosition().getRelativePosition(
+                        currentConfiguration.pos,
+                        currentStructure.getClearSpace().getShape().getDirection(),
+                        currentConfiguration.houseFacing);
+
+                // Don't render block if it's outside the world height limit
+                if (pos.getY() > dimension) continue;
+
+                // Don't render block if it's not in air/liquid
+                BlockState targetBlock = world.getBlockState(pos);
+                if (!targetBlock.isAir() && !targetBlock.getMaterial().isLiquid()) continue;
+
+                BlockState blockState = block.getDefaultState();
+                buildBlock = BuildBlock.SetBlockState(
+                        currentConfiguration,
+                        player.world,
+                        currentConfiguration.pos,
+                        assumedNorth,
+                        buildBlock,
+                        block,
+                        blockState,
+                        currentStructure);
+
+                toRender.add(buildBlock);
+            }
+
+            buildVertexBuffer(toRender);
 
             if (!StructureRenderHandler.showedMessage) {
                 TranslatableText message = new TranslatableText(GuiLangKeys.GUI_PREVIEW_NOTICE);
@@ -134,74 +135,66 @@ public class StructureRenderHandler {
         }
     }
 
-    private static boolean renderComponentInWorld(World world, BuildBlock buildBlock, VertexConsumerProvider entityVertexConsumer, MatrixStack matrixStack, BlockPos pos) {
-        // Don't render this block if it's going to overlay a non-air/water block.
-        BlockState targetBlock = world.getBlockState(pos);
-        if (targetBlock.getMaterial() != Material.AIR && targetBlock.getMaterial() != Material.WATER) {
-            return false;
+    public static void render(MatrixStack stack) {
+        if (rendering) {
+            MinecraftClient minecraft = MinecraftClient.getInstance();
+            Camera camera = minecraft.getEntityRenderDispatcher().camera;
+            BlockPos pos = currentConfiguration.pos;
+
+            renderBlocks(vertexBuffer, pos, camera.getPos(), stack);
         }
-
-        StructureRenderHandler.doRenderComponent(world, buildBlock, pos, entityVertexConsumer, matrixStack);
-
-        if (buildBlock.getSubBlock() != null) {
-            Block foundBlock = Registry.BLOCK.get(buildBlock.getSubBlock().getResourceLocation());
-            BlockState blockState = foundBlock.getDefaultState();
-
-            BuildBlock subBlock = BuildBlock.SetBlockState(
-                    StructureRenderHandler.currentConfiguration,
-                    world, StructureRenderHandler.currentConfiguration.pos,
-                    assumedNorth,
-                    buildBlock.getSubBlock(),
-                    foundBlock,
-                    blockState,
-                    StructureRenderHandler.currentStructure);
-
-            BlockPos subBlockPos = subBlock.getStartingPosition().getRelativePosition(
-                    StructureRenderHandler.currentConfiguration.pos,
-                    StructureRenderHandler.currentStructure.getClearSpace().getShape().getDirection(),
-                    StructureRenderHandler.currentConfiguration.houseFacing);
-
-            return StructureRenderHandler.renderComponentInWorld(world, subBlock, entityVertexConsumer, matrixStack, subBlockPos);
-        }
-
-        return true;
     }
 
-    private static void doRenderComponent(World world, BuildBlock buildBlock, BlockPos pos, VertexConsumerProvider entityVertexConsumer, MatrixStack matrixStack) {
-        BlockState state = buildBlock.getBlockState();
-        StructureRenderHandler.renderBlock(world, matrixStack, new Vec3d(pos.getX(), pos.getY(), pos.getZ()), state, entityVertexConsumer, pos);
+    private static void buildVertexBuffer(Set<BuildBlock> blocks) {
+        vertexBuffer = new VertexBuffer();
+        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
+        buildBlockMesh(blocks, new MatrixStack(), bufferBuilder);
+        bufferBuilder.end();
+        vertexBuffer.upload(bufferBuilder);
     }
 
-    private static void renderBlock(World world, MatrixStack matrixStack, Vec3d pos, BlockState state, VertexConsumerProvider entityVertexConsumer, BlockPos blockPos) {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
-        Camera camera = minecraft.getEntityRenderDispatcher().camera;
-        Vec3d projectedView = camera.getPos();
+    private static void buildBlockMesh(Set<BuildBlock> blocks, MatrixStack matrixStack, VertexConsumer vertexConsumer) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        BlockRenderManager blockRenderManager = mc.getBlockRenderManager();
+        TranslucentVertexConsumer translucentConsumer = new TranslucentVertexConsumer(vertexConsumer, 100);
 
-        if (state.getRenderType() != BlockRenderType.INVISIBLE && state.getRenderType() == BlockRenderType.MODEL) {
-            matrixStack.push();
-            matrixStack.translate(-projectedView.getX(), -projectedView.getY(), -projectedView.getZ());
-            matrixStack.translate(pos.x, pos.y, pos.z);
+        for (BuildBlock block : blocks) {
+            BlockPos pos = block.getStartingPosition().getRelativePosition(
+                    new BlockPos(0, 0, 0),
+                    currentStructure.getClearSpace().getShape().getDirection(),
+                    currentConfiguration.houseFacing);
+            BlockState state = block.getBlockState();
 
-            BlockRenderManager blockRenderManager = minecraft.getBlockRenderManager();
-            VertexConsumer consumer = entityVertexConsumer.getBuffer(RenderLayer.getTranslucent());
-            TranslucentVertexConsumer translucentConsumer = new TranslucentVertexConsumer(consumer, 100);
-
-            int color = minecraft.getBlockColors().getColor(state, world, blockPos, 50);
+            int color = mc.getBlockColors().getColor(state, mc.world, pos, 50);
             float r = (float) (color >> 16 & 255) / 255.0F;
             float g = (float) (color >> 8 & 255) / 255.0F;
             float b = (float) (color & 255) / 255.0F;
 
-            blockRenderManager.getModelRenderer().render(
-                matrixStack.peek(),
-                translucentConsumer,
-                state,
-                blockRenderManager.getModel(state),
-                r, g, b,
-                0xF000F0, OverlayTexture.DEFAULT_UV);
+            BakedModel bakedModel = blockRenderManager.getModel(state);
 
+            matrixStack.push();
+            matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
+            blockRenderManager.getModelRenderer().render(matrixStack.peek(), translucentConsumer, state, bakedModel, r, g, b, 0xF000F0, OverlayTexture.DEFAULT_UV);
             matrixStack.pop();
         }
     }
+
+    private static void renderBlocks(VertexBuffer vertexBuffer, BlockPos pos, Vec3d cameraPos, MatrixStack matrixStack) {
+        matrixStack.push();
+        matrixStack.translate(pos.getX()-cameraPos.getX(), pos.getY()-cameraPos.getY(), pos.getZ()-cameraPos.getZ());
+
+        RenderSystem.disableBlend();
+
+        RenderLayer layer = RenderLayer.getTranslucent();
+        layer.startDrawing();
+        vertexBuffer.setShader(matrixStack.peek().getModel(), RenderSystem.getProjectionMatrix(), GameRenderer.getPositionColorTexLightmapShader());
+        layer.endDrawing();
+
+        matrixStack.pop();
+    }
+
+
 
     public static void RenderTest(World worldIn, MatrixStack matrixStack, double cameraX, double cameraY, double cameraZ) {
         if (StructureRenderHandler.currentStructure != null
