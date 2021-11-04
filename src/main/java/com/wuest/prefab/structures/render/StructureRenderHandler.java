@@ -91,7 +91,9 @@ public class StructureRenderHandler {
 
             for (BuildBlock buildBlock : currentStructure.getBlocks()) {
                 Block block = Registry.BLOCK.get(buildBlock.getResourceLocation());
-                if (block == null) continue;
+                if (block == null) {
+                    continue;
+                }
 
                 BlockPos pos = buildBlock.getStartingPosition().getRelativePosition(
                         currentConfiguration.pos,
@@ -99,11 +101,15 @@ public class StructureRenderHandler {
                         currentConfiguration.houseFacing);
 
                 // Don't render block if it's outside the world height limit
-                if (pos.getY() > dimension) continue;
+                if (pos.getY() > dimension) {
+                    continue;
+                }
 
                 // Don't render block if it's not in air/liquid
                 BlockState targetBlock = world.getBlockState(pos);
-                if (!targetBlock.isAir() && !targetBlock.getMaterial().isLiquid()) continue;
+                if (!targetBlock.isAir() && !targetBlock.getMaterial().isLiquid()) {
+                    continue;
+                }
 
                 BlockState blockState = block.getDefaultState();
                 buildBlock = BuildBlock.SetBlockState(
@@ -175,7 +181,8 @@ public class StructureRenderHandler {
 
             matrixStack.push();
             matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
-            blockRenderManager.getModelRenderer().render(matrixStack.peek(), translucentConsumer, state, bakedModel, r, g, b, 0xF000F0, OverlayTexture.DEFAULT_UV);
+            blockRenderManager.getModelRenderer().render(matrixStack.peek(), translucentConsumer,
+                    state, bakedModel, r, g, b, 0xF000F0, OverlayTexture.DEFAULT_UV);
             matrixStack.pop();
         }
     }
