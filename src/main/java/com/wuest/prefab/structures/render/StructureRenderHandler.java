@@ -31,9 +31,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author WuestMan
- * This class was derived from Botania's MultiBlockRenderer.
- * Most changes are for extra comments for myself as well as to use my blocks class structure.
+ * @author WuestMan, Dqu1J
+ * Some parts of this class have been derived from Botania's MultiBlockRenderer.
  * http://botaniamod.net/license.php
  */
 @SuppressWarnings({"WeakerAccess", "ConstantConditions"})
