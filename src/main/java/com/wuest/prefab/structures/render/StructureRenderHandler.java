@@ -9,6 +9,7 @@ import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.StructureConfiguration;
+import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -25,9 +26,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.World;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -180,9 +183,18 @@ public class StructureRenderHandler {
 
             matrixStack.push();
             matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
-            blockRenderManager.getModelRenderer().render(matrixStack.peek(), translucentConsumer,
-                    state, bakedModel, r, g, b, 0xF000F0, OverlayTexture.DEFAULT_UV);
+            renderBlockModel(mc.world, bakedModel, state, pos, matrixStack, translucentConsumer,
+                    mc.world.random);
             matrixStack.pop();
+        }
+    }
+
+    private static void renderBlockModel(BlockRenderView world, BakedModel bakedModel, BlockState state, BlockPos pos, MatrixStack matrix, VertexConsumer vertexConsumer, Random random) {
+        if (!((FabricBakedModel) bakedModel).isVanillaAdapter()) {
+            PrefabBakedModel prefabModel = new PrefabBakedModel(bakedModel);
+            MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(world, prefabModel, state, pos, matrix, vertexConsumer, true, random, 32, OverlayTexture.DEFAULT_UV);
+        } else {
+            MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(world, bakedModel, state, pos, matrix, vertexConsumer, true, random, 32, OverlayTexture.DEFAULT_UV);
         }
     }
 
