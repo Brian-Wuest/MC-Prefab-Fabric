@@ -49,6 +49,7 @@ public class StructureRenderHandler {
 
     private static int dimension;
     private static VertexBuffer vertexBuffer;
+    private static final RenderLayer renderLayer = PrefabRenderLayer.createRenderLayer();
 
     /**
      * Resets the structure to show in the world.
@@ -173,12 +174,6 @@ public class StructureRenderHandler {
                     currentStructure.getClearSpace().getShape().getDirection(),
                     currentConfiguration.houseFacing);
             BlockState state = block.getBlockState();
-
-            int color = mc.getBlockColors().getColor(state, mc.world, pos, 50);
-            float r = (float) (color >> 16 & 255) / 255.0F;
-            float g = (float) (color >> 8 & 255) / 255.0F;
-            float b = (float) (color & 255) / 255.0F;
-
             BakedModel bakedModel = blockRenderManager.getModel(state);
 
             matrixStack.push();
@@ -202,10 +197,9 @@ public class StructureRenderHandler {
         matrixStack.push();
         matrixStack.translate(pos.getX()-cameraPos.getX(), pos.getY()-cameraPos.getY(), pos.getZ()-cameraPos.getZ());
         
-        RenderLayer layer = RenderLayer.getTranslucent();
-        layer.startDrawing();
+        renderLayer.startDrawing();
         vertexBuffer.setShader(matrixStack.peek().getModel(), RenderSystem.getProjectionMatrix(), GameRenderer.getPositionColorTexLightmapShader());
-        layer.endDrawing();
+        renderLayer.endDrawing();
 
         matrixStack.pop();
     }
