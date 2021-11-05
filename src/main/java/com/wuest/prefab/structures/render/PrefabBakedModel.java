@@ -21,7 +21,11 @@ public class PrefabBakedModel extends ForwardingBakedModel {
     public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
         context.pushTransform((quad -> {
             Direction dir = quad.cullFace();
-            if (dir == null) return true;
+
+            if (dir == null) {
+                return true;
+            }
+
             return Block.shouldDrawSide(state, blockView, pos, dir, pos.offset(dir));
         }));
         super.emitBlockQuads(blockView, state, pos, randomSupplier, context);

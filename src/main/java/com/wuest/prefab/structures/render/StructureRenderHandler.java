@@ -71,7 +71,7 @@ public class StructureRenderHandler {
         }
 
         if (structure != null && mc.world != null) {
-            renderSetup(mc.world, mc.player);
+            StructureRenderHandler.renderSetup(mc.world, mc.player);
         } else {
             rendering = false;
             vertexBuffer.close();
@@ -128,7 +128,7 @@ public class StructureRenderHandler {
                 toRender.add(buildBlock);
             }
 
-            buildVertexBuffer(toRender);
+            StructureRenderHandler.buildVertexBuffer(toRender);
 
             if (!StructureRenderHandler.showedMessage) {
                 TranslatableText message = new TranslatableText(GuiLangKeys.GUI_PREVIEW_NOTICE);
@@ -150,7 +150,7 @@ public class StructureRenderHandler {
             Camera camera = minecraft.getEntityRenderDispatcher().camera;
             BlockPos pos = currentConfiguration.pos;
 
-            renderBlocks(vertexBuffer, pos, camera.getPos(), stack);
+            StructureRenderHandler.renderBlocks(vertexBuffer, pos, camera.getPos(), stack);
         }
     }
 
@@ -158,7 +158,7 @@ public class StructureRenderHandler {
         vertexBuffer = new VertexBuffer();
         BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
-        buildBlockMesh(blocks, new MatrixStack(), bufferBuilder);
+        StructureRenderHandler.buildBlockMesh(blocks, new MatrixStack(), bufferBuilder);
         bufferBuilder.end();
         vertexBuffer.upload(bufferBuilder);
     }
@@ -178,8 +178,8 @@ public class StructureRenderHandler {
 
             matrixStack.push();
             matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
-            renderBlockModel(mc.world, bakedModel, state, pos, matrixStack, translucentConsumer,
-                    mc.world.random);
+            StructureRenderHandler.renderBlockModel(mc.world, bakedModel, state, pos, matrixStack,
+                    translucentConsumer, mc.world.random);
             matrixStack.pop();
         }
     }
