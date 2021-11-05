@@ -167,6 +167,7 @@ public class StructureRenderHandler {
         MinecraftClient mc = MinecraftClient.getInstance();
         BlockRenderManager blockRenderManager = mc.getBlockRenderManager();
         TranslucentVertexConsumer translucentConsumer = new TranslucentVertexConsumer(vertexConsumer, 100);
+        PrefabRenderView renderView = currentStructure.asRenderView(currentConfiguration.houseFacing);
 
         for (BuildBlock block : blocks) {
             BlockPos pos = block.getStartingPosition().getRelativePosition(
@@ -178,7 +179,7 @@ public class StructureRenderHandler {
 
             matrixStack.push();
             matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
-            StructureRenderHandler.renderBlockModel(mc.world, bakedModel, state, pos, matrixStack,
+            StructureRenderHandler.renderBlockModel(renderView, bakedModel, state, pos, matrixStack,
                     translucentConsumer, mc.world.random);
             matrixStack.pop();
         }

@@ -10,6 +10,7 @@ import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.events.StructureEventHandler;
+import com.wuest.prefab.structures.render.PrefabRenderView;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
@@ -738,5 +739,9 @@ public class Structure {
         }
 
         return false;
+    }
+
+    public PrefabRenderView asRenderView(Direction facing) {
+        return new PrefabRenderView(this.getBlocks(), this.getClearSpace().getShape().getDirection(), facing);
     }
 }
