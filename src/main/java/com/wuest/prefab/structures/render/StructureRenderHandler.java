@@ -196,8 +196,8 @@ public class StructureRenderHandler {
 
     private static void renderBlocks(VertexBuffer vertexBuffer, BlockPos pos, Vec3d cameraPos, MatrixStack matrixStack) {
         matrixStack.push();
-        matrixStack.translate(pos.getX()-cameraPos.getX(), pos.getY()-cameraPos.getY()+0.001, pos.getZ()-cameraPos.getZ());
-        
+        matrixStack.translate(pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY() + 0.001, pos.getZ() - cameraPos.getZ());
+
         renderLayer.startDrawing();
         vertexBuffer.setShader(matrixStack.peek().getModel(), RenderSystem.getProjectionMatrix(), GameRenderer.getPositionColorTexLightmapShader());
         renderLayer.endDrawing();
