@@ -47,7 +47,8 @@ public class StructureRenderHandler {
     public static boolean rendering = false;
     public static boolean showedMessage = false;
 
-    private static int dimension;
+    private static int dimensionTop;
+    private static int dimensionBottom;
     private static VertexBuffer vertexBuffer;
     private static final RenderLayer renderLayer = PrefabRenderLayer.createRenderLayer();
 
@@ -67,7 +68,9 @@ public class StructureRenderHandler {
         MinecraftClient mc = MinecraftClient.getInstance();
 
         if (mc.world != null) {
-            StructureRenderHandler.dimension = mc.world.getDimension().getLogicalHeight();
+            StructureRenderHandler.dimensionTop = mc.world.getDimension().getLogicalHeight();
+            StructureRenderHandler.dimensionBottom = mc.world.getDimension().getMinimumY();
+            // Actually getting the world bottom instead of setting it to 0 because of 1.18 changes
         }
 
         if (structure != null && mc.world != null) {
@@ -80,7 +83,6 @@ public class StructureRenderHandler {
 
     public static void renderSetup(World world, PlayerEntity player) {
         if (StructureRenderHandler.currentStructure != null
-                && StructureRenderHandler.dimension == player.world.getDimension().getLogicalHeight()
                 && StructureRenderHandler.currentConfiguration != null
                 && Prefab.serverConfiguration.enableStructurePreview) {
             rendering = true;
@@ -103,8 +105,8 @@ public class StructureRenderHandler {
                         currentStructure.getClearSpace().getShape().getDirection(),
                         currentConfiguration.houseFacing);
 
-                // Don't render block if it's outside the world height limit
-                if (pos.getY() > dimension) {
+                // Don't render block if it's outside the world height
+                if (pos.getY() > dimensionTop || pos.getY() < dimensionBottom) {
                     continue;
                 }
 
@@ -209,7 +211,6 @@ public class StructureRenderHandler {
 
     public static void RenderTest(World worldIn, MatrixStack matrixStack, double cameraX, double cameraY, double cameraZ) {
         if (StructureRenderHandler.currentStructure != null
-                && StructureRenderHandler.dimension == MinecraftClient.getInstance().player.world.getDimension().getLogicalHeight()
                 && StructureRenderHandler.currentConfiguration != null
                 && Prefab.serverConfiguration.enableStructurePreview) {
             BlockPos originalPos = StructureRenderHandler.currentConfiguration.pos.up();
