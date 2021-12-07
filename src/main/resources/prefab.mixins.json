@@ -4,13 +4,14 @@
   "package": "com.wuest.prefab.mixins",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "SavePlayerDataMixin",
-    "AnvilScreenHandlerMixin"
+    "AnvilScreenHandlerMixin",
+    "SavePlayerDataMixin"
   ],
   "client": [
     "ClientWorldMixin",
-    "RenderIndicatorMixin",
-    "MinecraftClientInitMixin"
+    "MinecraftClientInitMixin",
+    "GameRendererMixin",
+    "RenderIndicatorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

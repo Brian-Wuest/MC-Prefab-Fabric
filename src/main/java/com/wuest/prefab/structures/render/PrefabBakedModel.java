@@ -19,7 +19,7 @@ public class PrefabBakedModel extends ForwardingBakedModel {
 
     @Override
     public void emitBlockQuads(BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
-        context.pushTransform((quad -> {
+        context.pushTransform(quad -> {
             Direction dir = quad.cullFace();
 
             if (dir == null) {
@@ -27,7 +27,7 @@ public class PrefabBakedModel extends ForwardingBakedModel {
             }
 
             return Block.shouldDrawSide(state, blockView, pos, dir, pos.offset(dir));
-        }));
+        });
         super.emitBlockQuads(blockView, state, pos, randomSupplier, context);
         context.popTransform();
     }

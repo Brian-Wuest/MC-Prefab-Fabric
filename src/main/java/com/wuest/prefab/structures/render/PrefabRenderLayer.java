@@ -14,7 +14,7 @@ public class PrefabRenderLayer extends RenderLayer {
 
     public static RenderLayer createRenderLayer() {
         RenderLayer.MultiPhaseParameters parameters = MultiPhaseParameters.builder()
-                .shader(TRANSLUCENT_SHADER)
+                .shader(ShaderManager.PREFAB_PREVIEW)
                 .transparency(TRANSLUCENT_TRANSPARENCY)
                 .texture(MIPMAP_BLOCK_ATLAS_TEXTURE)
                 .writeMaskState(COLOR_MASK)
