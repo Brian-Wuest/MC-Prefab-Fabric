@@ -6,7 +6,7 @@ public class MachineryTowerOptions extends BaseOption {
             "assets/prefab/structures/machinery_tower.zip",
             "textures/gui/machinery_tower_topdown.png",
             false,
-            false);
+            true);
 
     protected MachineryTowerOptions(String translationString,
                                     String assetLocation,

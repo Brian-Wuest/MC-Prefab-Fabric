@@ -6,6 +6,8 @@
     "prefab:block_grass_stairs",
     "prefab:block_dirt_stairs",
     "prefab:block_dirt_wall",
-    "prefab:block_grass_wall"
+    "prefab:block_grass_wall",
+    "prefab:block_compressed_dirt",
+    "prefab:block_double_compressed_dirt"
   ]
 }

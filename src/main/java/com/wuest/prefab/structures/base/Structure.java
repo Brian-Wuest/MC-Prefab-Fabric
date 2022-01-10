@@ -3,9 +3,8 @@ package com.wuest.prefab.structures.base;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import com.wuest.prefab.Prefab;
-import com.wuest.prefab.Triple;
-import com.wuest.prefab.ZipUtil;
+import com.wuest.prefab.*;
+import com.wuest.prefab.blocks.BlockFlags;
 import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.config.StructureConfiguration;
@@ -22,7 +21,9 @@ import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Style;
@@ -35,6 +36,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 
 import java.io.StringWriter;
@@ -49,12 +52,8 @@ import java.util.Collection;
 @SuppressWarnings({"unchecked", "WeakerAccess", "ConstantConditions"})
 public class Structure {
     public ArrayList<BlockPos> allBlockPositions = new ArrayList<>();
-    public ArrayList<BlockPos> clearedBlockPos = new ArrayList<BlockPos>();
-    public ArrayList<BuildBlock> priorityOneBlocks = new ArrayList<BuildBlock>();
-    public ArrayList<BuildBlock> priorityTwoBlocks = new ArrayList<>();
-    public ArrayList<BuildBlock> priorityThreeBlocks = new ArrayList<>();
-    public ArrayList<BuildBlock> priorityFourBlocks = new ArrayList<>();
-    public ArrayList<BuildBlock> priorityFiveBlocks = new ArrayList<>();
+    public ArrayList<BlockPos> clearedBlockPos = new ArrayList<>();
+    public ArrayList<BuildBlock> priorityOneBlocks = new ArrayList<>();
     public ArrayList<BuildBlock> airBlocks = new ArrayList<>();
     public StructureConfiguration configuration;
     public ServerWorld world;
@@ -64,9 +63,9 @@ public class Structure {
     public boolean entitiesRemoved = false;
 
     @Expose
-    public ArrayList<BuildTileEntity> tileEntities = new ArrayList<BuildTileEntity>();
+    public ArrayList<BuildTileEntity> tileEntities = new ArrayList<>();
     @Expose
-    public ArrayList<BuildEntity> entities = new ArrayList<BuildEntity>();
+    public ArrayList<BuildEntity> entities = new ArrayList<>();
     @Expose
     private String name;
     @Expose
@@ -87,7 +86,7 @@ public class Structure {
      * @return Null if the resource wasn't found or the JSON could not be parsed, otherwise the de-serialized object.
      */
     public static <T extends Structure> T CreateInstance(String resourceLocation, Class<? extends Structure> child) {
-        T structure = null;
+        T structure;
 
         Gson file = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         structure = (T) file.fromJson(ZipUtil.decompressResource(resourceLocation), child);
@@ -216,7 +215,7 @@ public class Structure {
 
             if (entity instanceof AbstractDecorationEntity) {
                 // Use the AbstractDecorationEntity getDecorationBlockPos function instead since it is more accurate for itemframes and paintings.
-                entityPos = ((AbstractDecorationEntity)entity).getDecorationBlockPos();
+                entityPos = ((AbstractDecorationEntity) entity).getDecorationBlockPos();
             }
 
             if (entityPos.getX() >= x_radiusRangeBegin && entityPos.getX() <= x_radiusRangeEnd
@@ -365,8 +364,9 @@ public class Structure {
      */
     public boolean BuildStructure(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
         BlockPos startBlockPos = this.clearSpace.getStartingPosition().getRelativePosition(originalPos, this.clearSpace.getShape().getDirection(), configuration.houseFacing);
-        BlockPos endBlockPos = startBlockPos.offset(configuration.houseFacing.rotateYCounterclockwise(), this.clearSpace.getShape().getWidth() - 1)
-                .offset(configuration.houseFacing.getOpposite(), this.clearSpace.getShape().getWidth() - 1)
+        BlockPos endBlockPos = startBlockPos
+                .offset(configuration.houseFacing.rotateYCounterclockwise(), this.clearSpace.getShape().getWidth() - 1)
+                .offset(configuration.houseFacing.getOpposite(), this.clearSpace.getShape().getLength() - 1)
                 .offset(Direction.UP, this.clearSpace.getShape().getHeight());
 
         // Make sure this structure can be placed here.
@@ -387,120 +387,109 @@ public class Structure {
             return false;
         }
 
+        if (Prefab.serverConfiguration.playBuildingSound) {
+            // Play the building sound.
+            world.playSound(null, originalPos, ModRegistry.BuildingBlueprint, SoundCategory.NEUTRAL, 0.8f, 0.8f);
+        }
+
         if (!this.BeforeBuilding(configuration, world, originalPos, assumedNorth, player)) {
-            // First, clear the area where the structure will be built.
-            this.ClearSpace(configuration, world, originalPos, assumedNorth);
+            try {
+                // First, clear the area where the structure will be built.
+                this.ClearSpace(configuration, world, startBlockPos, endBlockPos);
 
-            boolean blockPlacedWithCobbleStoneInstead = false;
+                ArrayList<Tuple<BlockState, BlockPos>> laterBlocks = new ArrayList<>();
+                boolean blockPlacedWithCobbleStoneInstead = false;
 
-            // Now place all of the blocks.
-            for (BuildBlock block : this.getBlocks()) {
-                Block foundBlock = Registry.BLOCK.get(block.getResourceLocation());
+                // Now place all of the blocks.
+                for (BuildBlock block : this.getBlocks()) {
+                    Block foundBlock = Registry.BLOCK.get(block.getResourceLocation());
 
-                if (foundBlock != null) {
-                    BlockState blockState = foundBlock.getDefaultState();
-                    BuildBlock subBlock = null;
+                    if (foundBlock != null) {
+                        BlockState blockState = foundBlock.getDefaultState();
+                        BuildBlock subBlock = null;
 
-                    // Check if water should be replaced with cobble.
-                    if (!this.WaterReplacedWithCobbleStone(configuration, block, world, originalPos, assumedNorth, foundBlock, blockState, player)
-                            && !this.CustomBlockProcessingHandled(configuration, block, world, originalPos, assumedNorth, foundBlock, blockState, player)) {
-                        block = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block, foundBlock, blockState, this);
+                        // Check if water should be replaced with cobble.
+                        if (!this.WaterReplacedWithCobbleStone(configuration, block, world, originalPos, assumedNorth, foundBlock, blockState, player)
+                                && !this.CustomBlockProcessingHandled(configuration, block, world, originalPos, assumedNorth, foundBlock, blockState, player)) {
+                            // Set the glass color if this structure can have the glass configured.
+                            if (!this.processedGlassBlock(configuration, block, world, originalPos, foundBlock)) {
+                                block = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block, foundBlock, blockState, this);
+                            }
 
-                        if (block.getSubBlock() != null) {
-                            foundBlock = Registry.BLOCK.get(block.getSubBlock().getResourceLocation());
-                            blockState = foundBlock.getDefaultState();
+                            if (block.getSubBlock() != null) {
+                                foundBlock = Registry.BLOCK.get(block.getSubBlock().getResourceLocation());
+                                blockState = foundBlock.getDefaultState();
 
-                            subBlock = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block.getSubBlock(), foundBlock, blockState, this);
-                        }
+                                subBlock = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block.getSubBlock(), foundBlock, blockState, this);
+                            }
 
-                        if (subBlock != null) {
-                            block.setSubBlock(subBlock);
-                        }
+                            BlockPos setBlockPos = block.getStartingPosition().getRelativePosition(originalPos,
+                                    this.getClearSpace().getShape().getDirection(), configuration.houseFacing);
 
-                        boolean priorityTwoBlock = foundBlock instanceof HopperBlock || foundBlock instanceof LeverBlock;
+                            Block blockToPlace = block.getBlockState().getBlock();
+                            
+                            // Some blocks need to happen later because they attach to solid blocks and have no collision logic.
+                            // Fluid blocks may not have collision; but they should always be placed.
+                            if (!blockToPlace.collidable && !(blockToPlace instanceof FluidBlock)) {
+                                laterBlocks.add(new Tuple<>(block.getBlockState(), setBlockPos));
+                            } else {
+                                world.setBlockState(setBlockPos, block.getBlockState(), BlockFlags.DEFAULT);
+                            }
 
-                        boolean priorityThreeBlock = foundBlock instanceof TorchBlock
-                                || foundBlock instanceof AbstractSignBlock
-                                || foundBlock instanceof AbstractButtonBlock
-                                || foundBlock instanceof BedBlock
-                                || foundBlock instanceof CarpetBlock
-                                || foundBlock instanceof FlowerPotBlock
-                                || foundBlock instanceof SugarCaneBlock
-                                || foundBlock instanceof AbstractPressurePlateBlock
-                                || foundBlock instanceof DoorBlock
-                                || foundBlock instanceof LadderBlock
-                                || foundBlock instanceof VineBlock
-                                || foundBlock instanceof RedstoneWireBlock
-                                || foundBlock instanceof AbstractRedstoneGateBlock
-                                || foundBlock instanceof AbstractBannerBlock
-                                || foundBlock instanceof LanternBlock
-                                || foundBlock instanceof MushroomBlock
-                                || foundBlock instanceof AbstractRailBlock;
-
-                        boolean priorityFourBlock = foundBlock instanceof SandBlock;
-
-                        boolean priorityFiveBlock = foundBlock instanceof SugarCaneBlock ||
-                                foundBlock instanceof CactusBlock
-                                || foundBlock instanceof DeadBushBlock
-                                || foundBlock instanceof CoralBlock
-                                || foundBlock instanceof RedstoneTorchBlock;
-
-                        if (!block.getHasFacing()) {
                             if (subBlock != null) {
-                                block.setSubBlock(subBlock);
-                            }
+                                BlockPos subBlockPos = subBlock.getStartingPosition().getRelativePosition(originalPos,
+                                        this.getClearSpace().getShape().getDirection(), configuration.houseFacing);
 
-                            if (priorityFiveBlock) {
-                                this.priorityFiveBlocks.add(block);
-                            } else if (priorityFourBlock) {
-                                this.priorityFourBlocks.add(block);
-                            } else if (priorityThreeBlock) {
-                                this.priorityThreeBlocks.add(block);
-                            } else if (foundBlock instanceof AirBlock) {
-                                this.airBlocks.add(block);
-                            } else if (foundBlock instanceof BlockEntityProvider || priorityTwoBlock) {
-                                this.priorityTwoBlocks.add(block);
-                            } else {
-                                this.priorityOneBlocks.add(block);
-                            }
-                        } else {
-                            // These blocks may be attached to other facing blocks and must be done later.
-                            if (priorityThreeBlock) {
-                                this.priorityThreeBlocks.add(block);
-                            } else {
-                                this.priorityTwoBlocks.add(block);
+                                world.setBlockState(subBlockPos, subBlock.getBlockState(), BlockFlags.DEFAULT);
                             }
                         }
-                    }
-                } else {
-                    // Cannot find this block in the registry. This can happen if a structure file has a mod block that
-                    // no longer exists.
-                    // In this case, print an informational message and replace it with cobblestone.
-                    String blockTypeNotFound = block.getResourceLocation().toString();
-                    block = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block, Blocks.COBBLESTONE, Blocks.COBBLESTONE.getDefaultState(), this);
-                    this.priorityOneBlocks.add(block);
+                    } else {
+                        // Cannot find this block in the registry. This can happen if a structure file has a mod block that
+                        // no longer exists.
+                        // In this case, print an informational message and replace it with cobblestone.
+                        String blockTypeNotFound = block.getResourceLocation().toString();
+                        block = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block, Blocks.COBBLESTONE, Blocks.COBBLESTONE.getDefaultState(), this);
+                        this.priorityOneBlocks.add(block);
 
-                    if (!blockPlacedWithCobbleStoneInstead) {
-                        blockPlacedWithCobbleStoneInstead = true;
-                        Prefab.logger
-                                .warn("A Block was in the structure, but it is not registered. This block was replaced with vanilla cobblestone instead. Block type not found: ["
-                                        + blockTypeNotFound + "]");
+                        if (!blockPlacedWithCobbleStoneInstead) {
+                            blockPlacedWithCobbleStoneInstead = true;
+                            Prefab.logger
+                                    .warn("A Block was in the structure, but it is not registered. This block was replaced with vanilla cobblestone instead. Block type not found: ["
+                                            + blockTypeNotFound + "]");
+                        }
                     }
                 }
+
+                for (Tuple<BlockState, BlockPos> block : laterBlocks) {
+                    world.setBlockState(block.getSecond(), block.getFirst(), BlockFlags.DEFAULT);
+                }
+
+                this.configuration = configuration;
+                this.world = world;
+                this.assumedNorth = assumedNorth;
+                this.originalPos = originalPos;
+
+                // Set all the tile entities here.
+                this.setBlockEntities();
+
+                this.AfterBuilding(this.configuration, this.world, this.originalPos, this.assumedNorth, player);
+            } catch (Exception ex) {
+                Prefab.logger.error(ex);
             }
 
-            this.configuration = configuration;
-            this.world = world;
-            this.assumedNorth = assumedNorth;
-            this.originalPos = originalPos;
+            for (BlockPos pos : BlockPos.iterate(startBlockPos, endBlockPos)) {
+                Block block = world.getBlockState(pos).getBlock();
+                world.updateNeighbors(pos, block);
+            }
 
             if (StructureEventHandler.structuresToBuild.containsKey(player)) {
                 StructureEventHandler.structuresToBuild.get(player).add(this);
             } else {
-                ArrayList<Structure> structures = new ArrayList<Structure>();
+                ArrayList<Structure> structures = new ArrayList<>();
                 structures.add(this);
                 StructureEventHandler.structuresToBuild.put(player, structures);
             }
+
         }
 
         return true;
@@ -515,118 +504,6 @@ public class Structure {
     }
 
     public void BeforeHangingEntityRemoved(AbstractDecorationEntity hangingEntity) {
-    }
-
-    public BlockState getStainedGlassBlock(FullDyeColor color) {
-        switch (color) {
-            case BLACK: {
-                return Blocks.BLACK_STAINED_GLASS.getDefaultState();
-            }
-            case BLUE: {
-                return Blocks.BLUE_STAINED_GLASS.getDefaultState();
-            }
-            case BROWN: {
-                return Blocks.BROWN_STAINED_GLASS.getDefaultState();
-            }
-            case GRAY: {
-                return Blocks.GRAY_STAINED_GLASS.getDefaultState();
-            }
-            case GREEN: {
-                return Blocks.GREEN_STAINED_GLASS.getDefaultState();
-            }
-            case LIGHT_BLUE: {
-                return Blocks.LIGHT_BLUE_STAINED_GLASS.getDefaultState();
-            }
-            case LIGHT_GRAY: {
-                return Blocks.LIGHT_GRAY_STAINED_GLASS.getDefaultState();
-            }
-            case LIME: {
-                return Blocks.LIME_STAINED_GLASS.getDefaultState();
-            }
-            case MAGENTA: {
-                return Blocks.MAGENTA_STAINED_GLASS.getDefaultState();
-            }
-            case ORANGE: {
-                return Blocks.ORANGE_STAINED_GLASS.getDefaultState();
-            }
-            case PINK: {
-                return Blocks.PINK_STAINED_GLASS.getDefaultState();
-            }
-            case PURPLE: {
-                return Blocks.PURPLE_STAINED_GLASS.getDefaultState();
-            }
-            case RED: {
-                return Blocks.RED_STAINED_GLASS.getDefaultState();
-            }
-            case WHITE: {
-                return Blocks.WHITE_STAINED_GLASS.getDefaultState();
-            }
-            case YELLOW: {
-                return Blocks.YELLOW_STAINED_GLASS.getDefaultState();
-            }
-            case CLEAR: {
-                return Blocks.GLASS.getDefaultState();
-            }
-            default: {
-                return Blocks.CYAN_STAINED_GLASS.getDefaultState();
-            }
-        }
-    }
-
-    public BlockState getStainedGlassPaneBlock(FullDyeColor color) {
-        switch (color) {
-            case BLACK: {
-                return Blocks.BLACK_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case BLUE: {
-                return Blocks.BLUE_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case BROWN: {
-                return Blocks.BROWN_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case GRAY: {
-                return Blocks.GRAY_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case GREEN: {
-                return Blocks.GREEN_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case LIGHT_BLUE: {
-                return Blocks.LIGHT_BLUE_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case LIGHT_GRAY: {
-                return Blocks.LIGHT_GRAY_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case LIME: {
-                return Blocks.LIME_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case MAGENTA: {
-                return Blocks.MAGENTA_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case ORANGE: {
-                return Blocks.ORANGE_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case PINK: {
-                return Blocks.PINK_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case PURPLE: {
-                return Blocks.PURPLE_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case RED: {
-                return Blocks.RED_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case WHITE: {
-                return Blocks.WHITE_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case YELLOW: {
-                return Blocks.YELLOW_STAINED_GLASS_PANE.getDefaultState();
-            }
-            case CLEAR: {
-                return Blocks.GLASS_PANE.getDefaultState();
-            }
-            default: {
-                return Blocks.CYAN_STAINED_GLASS_PANE.getDefaultState();
-            }
-        }
     }
 
     /**
@@ -656,23 +533,15 @@ public class Structure {
     public void AfterBuilding(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
     }
 
-    protected void ClearSpace(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth) {
+    protected void ClearSpace(StructureConfiguration configuration, World world, BlockPos startBlockPos, BlockPos endBlockPos) {
         if (this.clearSpace.getShape().getWidth() > 0
                 && this.clearSpace.getShape().getLength() > 0) {
-            BlockPos startBlockPos = this.clearSpace.getStartingPosition().getRelativePosition(originalPos, this.clearSpace.getShape().getDirection(), configuration.houseFacing);
-
-            BlockPos endBlockPos = startBlockPos
-                    .offset(configuration.houseFacing.getOpposite().rotateYClockwise(), this.clearSpace.getShape().getWidth() - 1)
-                    .offset(configuration.houseFacing.getOpposite(), this.clearSpace.getShape().getLength() - 1)
-                    .offset(Direction.UP, this.clearSpace.getShape().getHeight());
 
             this.clearedBlockPos = new ArrayList<>();
 
             for (BlockPos pos : BlockPos.iterate(startBlockPos, endBlockPos)) {
-
                 if (this.BlockShouldBeClearedDuringConstruction(configuration, world, originalPos, assumedNorth, pos)) {
-                    this.clearedBlockPos.add(new BlockPos(pos));
-                    this.allBlockPositions.add(new BlockPos(pos));
+                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
                 }
             }
         } else {
@@ -732,8 +601,10 @@ public class Structure {
                 block.setBlockName(cobbleIdentifier.getPath());
                 block.setBlockState(Blocks.COBBLESTONE.getDefaultState());
 
-                // Add this as a priority 3 block since it should be done at the end.
-                this.priorityThreeBlocks.add(block);
+                BlockPos setBlockPos = block.getStartingPosition().getRelativePosition(originalPos,
+                        this.getClearSpace().getShape().getDirection(), configuration.houseFacing);
+
+                world.setBlockState(setBlockPos, block.getBlockState(), BlockFlags.DEFAULT);
                 return true;
             }
         }
@@ -741,7 +612,81 @@ public class Structure {
         return false;
     }
 
+
     public PrefabRenderView asRenderView(Direction facing) {
         return new PrefabRenderView(this.getBlocks(), this.getClearSpace().getShape().getDirection(), facing);
+    }
+  
+    protected boolean processedGlassBlock(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos, Block foundBlock) {
+        if (!this.hasGlassColor(configuration)) {
+            return false;
+        }
+
+        Identifier blockIdentifier = Registry.BLOCK.getId(foundBlock);
+        Identifier glassIdentifier = Registry.BLOCK.getId(Blocks.WHITE_STAINED_GLASS);
+        Identifier glassPaneIdentifier = Registry.BLOCK.getId(Blocks.WHITE_STAINED_GLASS_PANE);
+
+        if (blockIdentifier.getNamespace().equals(glassIdentifier.getNamespace())
+                && blockIdentifier.getPath().endsWith("glass")) {
+            BlockState blockState = BuildingMethods.getStainedGlassBlock(this.getGlassColor(configuration));
+
+            block.setBlockState(blockState);
+
+            return true;
+        } else if (blockIdentifier.getNamespace().equals(glassPaneIdentifier.getNamespace())
+                && blockIdentifier.getPath().endsWith("glass_pane")) {
+            BlockState blockState = BuildingMethods.getStainedGlassPaneBlock(this.getGlassColor(configuration));
+
+            BuildBlock.SetBlockState(
+                    configuration,
+                    world,
+                    originalPos,
+                    assumedNorth,
+                    block,
+                    foundBlock,
+                    blockState,
+                    this);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    protected boolean hasGlassColor(StructureConfiguration configuration) {
+        return false;
+    }
+
+    protected FullDyeColor getGlassColor(StructureConfiguration configuration) {
+        return FullDyeColor.CLEAR;
+    }
+
+    protected void setBlockEntities() {
+        try {
+            for (BuildTileEntity buildTileEntity : this.tileEntities) {
+                BlockPos tileEntityPos = buildTileEntity.getStartingPosition().getRelativePosition(this.originalPos,
+                        this.getClearSpace().getShape().getDirection(), this.configuration.houseFacing);
+                BlockEntity tileEntity = this.world.getBlockEntity(tileEntityPos);
+                BlockState tileBlock = this.world.getBlockState(tileEntityPos);
+
+                if (tileEntity == null) {
+                    BlockEntity.createFromNbt(tileEntityPos, tileBlock, buildTileEntity.getEntityDataTag());
+                } else {
+                    this.world.removeBlockEntity(tileEntityPos);
+                    tileEntity = BlockEntity.createFromNbt(tileEntityPos, tileBlock, buildTileEntity.getEntityDataTag());
+                    this.world.addBlockEntity(tileEntity);
+                    this.world.getChunk(tileEntityPos).setShouldSave(true);
+                    tileEntity.markDirty();
+                    BlockEntityUpdateS2CPacket packet = tileEntity.toUpdatePacket();
+
+                    if (packet != null) {
+                        this.world.getServer().getPlayerManager().sendToAll(packet);
+                    }
+                }
+            }
+        }
+        catch (Exception ex) {
+            Prefab.logger.error(ex);
+        }
     }
 }

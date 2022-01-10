@@ -36,6 +36,9 @@ public class ModConfiguration implements ConfigData {
     @Comment("Generated mineshafts have chests with materials")
     public boolean includeMineshaftChest = true;
 
+    @Comment("Play building sound when generating blueprint")
+    public boolean playBuildingSound = true;
+
     @ConfigEntry.Category("recipes")
     public HashMap<String, Boolean> recipes = new HashMap<>();
 
@@ -64,6 +67,7 @@ public class ModConfiguration implements ConfigData {
         tag.putBoolean(ConfigKeyNames.allowBulldozerToCreateDropsName, this.allowBulldozerToCreateDrops);
         tag.putBoolean(ConfigKeyNames.allowWaterInNonOverworldDimensionsName, this.allowWaterInNonOverworldDimensions);
         tag.putBoolean(ConfigKeyNames.enableAutomationOptionsFromModerateFarmName, this.enableAutomationOptionsFromModerateFarm);
+        tag.putBoolean(ConfigKeyNames.playBuildingSoundName, this.playBuildingSound);
 
         tag.putBoolean(ConfigKeyNames.addSwordName, this.chestOptions.addSword);
         tag.putBoolean(ConfigKeyNames.addAxeName, this.chestOptions.addAxe);
@@ -102,6 +106,7 @@ public class ModConfiguration implements ConfigData {
         this.allowBulldozerToCreateDrops = tag.getBoolean(ConfigKeyNames.allowBulldozerToCreateDropsName);
         this.allowWaterInNonOverworldDimensions = tag.getBoolean(ConfigKeyNames.allowWaterInNonOverworldDimensionsName);
         this.enableAutomationOptionsFromModerateFarm = tag.getBoolean(ConfigKeyNames.enableAutomationOptionsFromModerateFarmName);
+        this.playBuildingSound = tag.getBoolean(ConfigKeyNames.playBuildingSoundName);
 
         this.chestOptions.addSword = tag.getBoolean(ConfigKeyNames.addSwordName);
         this.chestOptions.addAxe = tag.getBoolean(ConfigKeyNames.addAxeName);
@@ -235,6 +240,7 @@ public class ModConfiguration implements ConfigData {
         static String enableAutomationOptionsFromModerateFarmName = "Enable Automation Options For Moderate Farm";
         static String allowBulldozerToCreateDropsName = "Bulldozer Creates Drops";
         static String allowWaterInNonOverworldDimensionsName = "Include Water In Overworld Dimension Only";
+        static String playBuildingSoundName = "Play Building Sound";
 
         // Chest content option names.
         static String addSwordName = "Add Sword";

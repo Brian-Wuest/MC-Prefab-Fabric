@@ -16,7 +16,7 @@ import java.util.Random;
 public class BlockDirtSlab extends SlabBlock implements IGrassSpreadable {
     public BlockDirtSlab() {
         super(FabricBlockSettings.of(Material.AGGREGATE, MapColor.DIRT_BROWN).sounds(BlockSoundGroup.GRAVEL)
-                .strength(0.5f, 0.5f).breakByTool(FabricToolTags.SHOVELS, 0));
+                .strength(0.5f, 0.5f));
     }
 
     /**

@@ -20,7 +20,7 @@ public class BlockCompressedStone extends Block {
 	public BlockCompressedStone(EnumType typeOfStone) {
 		super(AbstractBlock.Settings.of(Material.AGGREGATE)
 				.strength(1.5F, 10.0F)
-				.sounds(BlockSoundGroup.STONE)
+				.sounds(typeOfStone.getSoundType())
 				.luminance(value -> typeOfStone == EnumType.COMPRESSED_GLOWSTONE || typeOfStone == EnumType.DOUBLE_COMPRESSED_GLOWSTONE ? 15 : 0));
 
 		this.typeofStone = typeOfStone;
@@ -33,13 +33,13 @@ public class BlockCompressedStone extends Block {
 	 */
 	@SuppressWarnings({"NullableProblems", "SpellCheckingInspection"})
 	public enum EnumType implements StringIdentifiable {
-		COMPRESSED_STONE(0, "block_compressed_stone", "block_compressed_stone"),
-		DOUBLE_COMPRESSED_STONE(1, "block_double_compressed_stone", "block_double_compressed_stone"),
-		TRIPLE_COMPRESSED_STONE(2, "block_triple_compressed_stone", "block_triple_compressed_stone"),
-		COMPRESSED_GLOWSTONE(3, "block_compressed_glowstone", "block_compressed_glowstone"),
-		DOUBLE_COMPRESSED_GLOWSTONE(4, "block_double_compressed_glowstone", "block_double_compressed_glowstone"),
-		COMPRESSED_DIRT(5, "block_compressed_dirt", "block_compressed_dirt"),
-		DOUBLE_COMPRESSED_DIRT(6, "block_double_compressed_dirt", "block_double_compressed_dirt");
+		COMPRESSED_STONE(0, "block_compressed_stone", "block_compressed_stone", BlockSoundGroup.STONE),
+		DOUBLE_COMPRESSED_STONE(1, "block_double_compressed_stone", "block_double_compressed_stone", BlockSoundGroup.STONE),
+		TRIPLE_COMPRESSED_STONE(2, "block_triple_compressed_stone", "block_triple_compressed_stone", BlockSoundGroup.STONE),
+		COMPRESSED_GLOWSTONE(3, "block_compressed_glowstone", "block_compressed_glowstone", BlockSoundGroup.GLASS),
+		DOUBLE_COMPRESSED_GLOWSTONE(4, "block_double_compressed_glowstone", "block_double_compressed_glowstone", BlockSoundGroup.GLASS),
+		COMPRESSED_DIRT(5, "block_compressed_dirt", "block_compressed_dirt", BlockSoundGroup.GRAVEL),
+		DOUBLE_COMPRESSED_DIRT(6, "block_double_compressed_dirt", "block_double_compressed_dirt", BlockSoundGroup.GRAVEL);
 
 		private final int meta;
 		/**
@@ -48,10 +48,13 @@ public class BlockCompressedStone extends Block {
 		private final String name;
 		private final String unlocalizedName;
 
-		EnumType(int meta, String name, String unlocalizedName) {
+		private final BlockSoundGroup soundType;
+
+		EnumType(int meta, String name, String unlocalizedName, BlockSoundGroup soundType) {
 			this.meta = meta;
 			this.name = name;
 			this.unlocalizedName = unlocalizedName;
+			this.soundType = soundType;
 		}
 
 		/**
@@ -61,6 +64,10 @@ public class BlockCompressedStone extends Block {
 		 */
 		public int getMetadata() {
 			return this.meta;
+		}
+
+		public BlockSoundGroup getSoundType() {
+			return this.soundType;
 		}
 
 		/**

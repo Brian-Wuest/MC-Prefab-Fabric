@@ -122,14 +122,14 @@ public final class StructureEventHandler {
                 player.getInventory().insertStack(stack);
                 player.currentScreenHandler.sendContentUpdates();
 
-                // Make sure to set the tag for this player so they don't get the item again.
+                // Make sure to set the tag for this player; so they don't get the item again.
                 playerConfig.givenHouseBuilder = true;
 
                 //playerConfig.saveToCache(player);
             }
         }
 
-        // Send the persist tag to the client.
+        // Send the tag to the client.
         PlayerEntityTagMessage message = new PlayerEntityTagMessage();
         PacketByteBuf messagePacket = Utils.createMessageBuffer(playerConfig.createPlayerTag());
         ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ModRegistry.PlayerConfigSync, messagePacket);
@@ -143,60 +143,66 @@ public final class StructureEventHandler {
 
         StructureEventHandler.ticksSinceLastEntitiesGenerated++;
 
-        if (StructureEventHandler.ticksSinceLastEntitiesGenerated > 40) {
-            // Process any entities; this is done about every 2 seconds.
-            StructureEventHandler.processStructureEntities();
+        if (StructureEventHandler.entitiesToGenerate.size() > 0) {
+            StructureEventHandler.ticksSinceLastEntitiesGenerated++;
 
-            StructureEventHandler.ticksSinceLastEntitiesGenerated = 0;
+            if (StructureEventHandler.ticksSinceLastEntitiesGenerated > 40) {
+                // Process any entities.
+                StructureEventHandler.processStructureEntities();
+
+                StructureEventHandler.ticksSinceLastEntitiesGenerated = 0;
+            }
         }
 
-        for (Entry<PlayerEntity, ArrayList<Structure>> entry : StructureEventHandler.structuresToBuild.entrySet()) {
-            ArrayList<Structure> structuresToRemove = new ArrayList<Structure>();
+        if (StructureEventHandler.structuresToBuild.size() > 0) {
+            for (Entry<PlayerEntity, ArrayList<Structure>> entry : StructureEventHandler.structuresToBuild.entrySet()) {
+                ArrayList<Structure> structuresToRemove = new ArrayList<>();
 
-            // Build the first 100 blocks of each structure for this player.
-            for (Structure structure : entry.getValue()) {
-                if (!structure.entitiesRemoved) {
-                    // Go through each block and find any entities there. If there are any; kill them if they aren't players.
-                    // If there is a player there...they will probably die anyways.....
-                    for (BlockPos clearedPos : structure.clearedBlockPos) {
-                        Box axisPos = VoxelShapes.fullCube().getBoundingBox().offset(clearedPos);
+                // Build the first 100 blocks of each structure for this player.
+                for (Structure structure : entry.getValue()) {
+                    if (!structure.entitiesRemoved) {
+                        // Go through each block and find any entities there. If there are any; kill them if they aren't players.
+                        // If there is a player there...they will probably die anyways.....
+                        for (BlockPos clearedPos : structure.clearedBlockPos) {
+                            Box axisPos = VoxelShapes.fullCube().getBoundingBox().offset(clearedPos);
 
-                        List<Entity> list = structure.world.getOtherEntities(null, axisPos);
+                            List<Entity> list = structure.world.getOtherEntities(null, axisPos);
 
-                        if (!list.isEmpty()) {
-                            for (Entity entity : list) {
-                                // Don't kill living entities.
-                                if (!(entity instanceof LivingEntity)) {
-                                    if (entity instanceof AbstractDecorationEntity) {
-                                        structure.BeforeHangingEntityRemoved((AbstractDecorationEntity) entity);
+                            if (!list.isEmpty()) {
+                                for (Entity entity : list) {
+                                    // Don't kill living entities.
+                                    if (!(entity instanceof LivingEntity)) {
+                                        if (entity instanceof AbstractDecorationEntity) {
+                                            structure.BeforeHangingEntityRemoved((AbstractDecorationEntity) entity);
+                                        }
+
+                                        entity.remove(Entity.RemovalReason.DISCARDED);
                                     }
-
-                                    entity.remove(Entity.RemovalReason.DISCARDED);
                                 }
                             }
                         }
+
+                        structure.entitiesRemoved = true;
                     }
 
-                    structure.entitiesRemoved = true;
+                    if (structure.airBlocks.size() > 0) {
+                        structure.hasAirBlocks = true;
+                    }
+
+                    for (int i = 0; i < 100; i++) {
+                        i = StructureEventHandler.setBlock(i, structure, structuresToRemove);
+                    }
+
+                    // After building the blocks for this tick, find waterlogged blocks and remove them.
+                    StructureEventHandler.removeWaterLogging(structure);
                 }
 
-                if (structure.airBlocks.size() > 0) {
-                    structure.hasAirBlocks = true;
+                // Update the list of structures to remove this structure since it's done building.
+                StructureEventHandler.removeStructuresFromList(structuresToRemove, entry);
+
+                if (entry.getValue().size() == 0) {
+                    playersToRemove.add(entry.getKey());
                 }
-
-                for (int i = 0; i < 100; i++) {
-                    i = StructureEventHandler.setBlock(i, structure, structuresToRemove);
-                }
-
-                // After building the blocks for this tick, find waterlogged blocks and remove them.
-                StructureEventHandler.removeWaterLogging(structure);
-            }
-
-            // Update the list of structures to remove this structure since it's done building.
-            StructureEventHandler.removeStructuresFromList(structuresToRemove, entry);
-
-            if (entry.getValue().size() == 0) {
-                playersToRemove.add(entry.getKey());
             }
         }
 
@@ -291,21 +297,6 @@ public final class StructureEventHandler {
         if (structure.priorityOneBlocks.size() > 0) {
             currentBlock = structure.priorityOneBlocks.get(0);
             structure.priorityOneBlocks.remove(0);
-        } else if (structure.priorityTwoBlocks.size() > 0) {
-            currentBlock = structure.priorityTwoBlocks.get(0);
-            structure.priorityTwoBlocks.remove(0);
-        } else if (structure.airBlocks.size() > 0) {
-            currentBlock = structure.airBlocks.get(0);
-            structure.airBlocks.remove(0);
-        } else if (structure.priorityThreeBlocks.size() > 0) {
-            currentBlock = structure.priorityThreeBlocks.get(0);
-            structure.priorityThreeBlocks.remove(0);
-        } else if (structure.priorityFourBlocks.size() > 0) {
-            currentBlock = structure.priorityFourBlocks.get(0);
-            structure.priorityFourBlocks.remove(0);
-        } else if (structure.priorityFiveBlocks.size() > 0) {
-            currentBlock = structure.priorityFiveBlocks.get(0);
-            structure.priorityFiveBlocks.remove(0);
         } else {
             // There are no more blocks to set.
             structuresToRemove.add(structure);
@@ -317,7 +308,7 @@ public final class StructureEventHandler {
         BlockPos setBlockPos = currentBlock.getStartingPosition().getRelativePosition(structure.originalPos,
                 structure.getClearSpace().getShape().getDirection(), structure.configuration.houseFacing);
 
-        BuildingMethods.ReplaceBlock(structure.world, setBlockPos, state);
+        BuildingMethods.ReplaceBlock(structure.world, setBlockPos, state, 2);
 
         // After placing the initial block, set the sub-block. This needs to happen as the list isn't always in the
         // correct order.
@@ -333,26 +324,6 @@ public final class StructureEventHandler {
 
     private static void removeStructuresFromList(ArrayList<Structure> structuresToRemove, Entry<PlayerEntity, ArrayList<Structure>> entry) {
         for (Structure structure : structuresToRemove) {
-            for (BuildTileEntity buildTileEntity : structure.tileEntities) {
-                BlockPos tileEntityPos = buildTileEntity.getStartingPosition().getRelativePosition(structure.originalPos,
-                        structure.getClearSpace().getShape().getDirection(), structure.configuration.houseFacing);
-                BlockEntity tileEntity = structure.world.getBlockEntity(tileEntityPos);
-                BlockState tileBlock = structure.world.getBlockState(tileEntityPos);
-
-                if (tileEntity != null) {
-                    structure.world.removeBlockEntity(tileEntityPos);
-                    tileEntity = BlockEntity.createFromNbt(tileEntityPos, tileBlock, buildTileEntity.getEntityDataTag());
-                    structure.world.addBlockEntity(tileEntity);
-                    structure.world.getChunk(tileEntityPos).setShouldSave(true);
-                    tileEntity.markDirty();
-                    BlockEntityUpdateS2CPacket packet = tileEntity.toUpdatePacket();
-
-                    if (packet != null) {
-                        structure.world.getServer().getPlayerManager().sendToAll(packet);
-                    }
-                }
-            }
-
             StructureEventHandler.removeWaterLogging(structure);
 
             for (BuildEntity buildEntity : structure.entities) {
@@ -364,7 +335,6 @@ public final class StructureEventHandler {
             }
 
             // This structure is done building. Do any post-building operations.
-            structure.AfterBuilding(structure.configuration, structure.world, structure.originalPos, structure.assumedNorth, entry.getKey());
             entry.getValue().remove(structure);
         }
     }
@@ -429,9 +399,9 @@ public final class StructureEventHandler {
                 if (currentState.contains(Properties.WATERLOGGED)) {
                     // This is a water loggable block and there were air blocks, make sure that it's no longer water logged.
                     currentState = currentState.with((Properties.WATERLOGGED), false);
-                    structure.world.setBlockState(currentPos, currentState);
+                    structure.world.setBlockState(currentPos, currentState, 3);
                 } else if (currentState.getMaterial() == Material.WATER) {
-                    structure.world.setBlockState(currentPos, Blocks.AIR.getDefaultState());
+                    structure.world.setBlockState(currentPos, Blocks.AIR.getDefaultState(), 3);
 
                 }
             }

@@ -1,24 +1,29 @@
 package com.wuest.prefab.structures.predefined;
 
+import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Tuple;
+import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.BuildingMethods;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration.EnumBasicStructureName;
 import com.wuest.prefab.structures.config.StructureConfiguration;
+import com.wuest.prefab.structures.config.enums.AdvancedFarmOptions;
 import com.wuest.prefab.structures.config.enums.BaseOption;
 import com.wuest.prefab.structures.config.enums.ModerateFarmOptions;
-import com.wuest.prefab.structures.config.enums.StarterFarmOptions;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.MobSpawnerBlockEntity;
+import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.ChickenEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -31,7 +36,8 @@ import java.util.ArrayList;
  */
 public class StructureBasic extends Structure {
     private BlockPos customBlockPos = null;
-    private ArrayList<Tuple<BlockPos, BlockPos>> bedPositions = new ArrayList<>();
+    private final ArrayList<BlockPos> mobSpawnerPos = new ArrayList<>();
+    private BlockPos signPosition = null;
 
     @Override
     protected Boolean CustomBlockProcessingHandled(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos,
@@ -66,37 +72,75 @@ public class StructureBasic extends Structure {
                     this.getClearSpace().getShape().getDirection(),
                     configuration.houseFacing);
 
-            this.bedPositions.add(new Tuple<>(bedHeadPosition, bedFootPosition));
+            Tuple<BlockState, BlockState> blockStateTuple = BuildingMethods.getBedState(bedHeadPosition, bedFootPosition, config.bedColor);
+            block.setBlockState(blockStateTuple.getFirst());
+            block.getSubBlock().setBlockState(blockStateTuple.getSecond());
 
+            this.priorityOneBlocks.add(block);
             return true;
+        } else if (foundBlock instanceof SpawnerBlock && structureName.equals(EnumBasicStructureName.AdvancedFarm.getName()) && chosenOption == AdvancedFarmOptions.MonsterMasher
+                && Prefab.serverConfiguration.includeSpawnersInMasher) {
+            this.mobSpawnerPos.add(block.getStartingPosition().getRelativePosition(
+                    originalPos,
+                    this.getClearSpace().getShape().getDirection(),
+                    configuration.houseFacing));
+        } else if (foundBlock instanceof AbstractSignBlock && structureName.equals(EnumBasicStructureName.AdvancedFarm.getName()) && chosenOption == AdvancedFarmOptions.MonsterMasher) {
+            this.signPosition = block.getStartingPosition().getRelativePosition(
+                    originalPos,
+                    this.getClearSpace().getShape().getDirection(),
+                    configuration.houseFacing);
         }
 
-        Identifier foundBlockIdentifier = Registry.BLOCK.getId(foundBlock);
-        if (foundBlockIdentifier.getNamespace().equals(Registry.BLOCK.getId(Blocks.WHITE_STAINED_GLASS).getNamespace())
-                && foundBlockIdentifier.getPath().endsWith("glass")
-                && config.chosenOption.getHasGlassColor()) {
-            blockState = this.getStainedGlassBlock(config.glassColor);
-            block.setBlockState(blockState);
-            this.priorityOneBlocks.add(block);
+        if (structureName.equals(EnumBasicStructureName.AdvancedFarm.getName()) && chosenOption == AdvancedFarmOptions.MonsterMasher) {
+            int monstersPlaced = 0;
 
-            return true;
-        } else if (foundBlockIdentifier.getNamespace().equals(Registry.BLOCK.getId(Blocks.WHITE_STAINED_GLASS_PANE).getNamespace())
-                && foundBlockIdentifier.getPath().endsWith("glass_pane")
-                && config.chosenOption.getHasGlassColor()) {
-            blockState = this.getStainedGlassPaneBlock(config.glassColor);
+            // Set the spawner.
+            for (BlockPos pos : this.mobSpawnerPos) {
+                BlockEntity tileEntity = world.getBlockEntity(pos);
 
-            BuildBlock.SetBlockState(
-                    configuration,
-                    world,
-                    originalPos,
-                    assumedNorth,
-                    block,
-                    foundBlock,
-                    blockState,
-                    this);
+                if (tileEntity instanceof MobSpawnerBlockEntity) {
+                    MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity) tileEntity;
 
-            this.priorityOneBlocks.add(block);
-            return true;
+                    switch (monstersPlaced) {
+                        case 0: {
+                            // Zombie.
+                            spawner.getLogic().setEntityId(EntityType.ZOMBIE);
+                            break;
+                        }
+
+                        case 1: {
+                            // Skeleton.
+                            spawner.getLogic().setEntityId(EntityType.SKELETON);
+                            break;
+                        }
+
+                        case 2: {
+                            // Spider.
+                            spawner.getLogic().setEntityId(EntityType.SPIDER);
+                            break;
+                        }
+
+                        default: {
+                            // Creeper.
+                            spawner.getLogic().setEntityId(EntityType.CREEPER);
+                            break;
+                        }
+                    }
+
+                    monstersPlaced++;
+                }
+            }
+
+            if (this.signPosition != null) {
+                BlockEntity tileEntity = world.getBlockEntity(this.signPosition);
+
+                if (tileEntity instanceof SignBlockEntity) {
+                    SignBlockEntity signTile = (SignBlockEntity) tileEntity;
+                    signTile.setTextOnRow(0, new LiteralText("Lamp On=Mobs"));
+
+                    signTile.setTextOnRow(2, new LiteralText("Lamp Off=No Mobs"));
+                }
+            }
         }
 
         return false;
@@ -139,19 +183,13 @@ public class StructureBasic extends Structure {
                     entity.setPos(this.customBlockPos.getX(), this.customBlockPos.up().getY(), this.customBlockPos.getZ());
                     world.spawnEntity(entity);
                 }
-            }else if (structureName.equals(EnumBasicStructureName.MineshaftEntrance.getName())
+            } else if (structureName.equals(EnumBasicStructureName.MineshaftEntrance.getName())
                     || structureName.equals(BasicStructureConfiguration.EnumBasicStructureName.WorkShop.getName())) {
                 // Build the mineshaft where the trap door exists.
                 BuildingMethods.PlaceMineShaft(world, this.customBlockPos.down(), configuration.houseFacing, true);
             }
 
             this.customBlockPos = null;
-        }
-
-        if (this.bedPositions.size() > 0) {
-            for (Tuple<BlockPos, BlockPos> bedPosition : this.bedPositions) {
-                BuildingMethods.PlaceColoredBed(world, bedPosition.getFirst(), bedPosition.getSecond(), config.bedColor);
-            }
         }
 
         if (structureName.equals(EnumBasicStructureName.AquaBase.getName())
@@ -193,5 +231,18 @@ public class StructureBasic extends Structure {
             airPos = airPos.up();
             world.removeBlock(airPos, false);
         }
+    }
+
+    @Override
+    protected boolean hasGlassColor(StructureConfiguration configuration) {
+        BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
+        BaseOption chosenOption = config.chosenOption;
+        return chosenOption.getHasGlassColor();
+    }
+
+    @Override
+    protected FullDyeColor getGlassColor(StructureConfiguration configuration) {
+        BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
+        return config.glassColor;
     }
 }

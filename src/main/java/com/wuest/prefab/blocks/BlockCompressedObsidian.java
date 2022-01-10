@@ -24,8 +24,7 @@ public class BlockCompressedObsidian extends Block {
 		super(FabricBlockSettings.of((new FabricMaterialBuilder(MapColor.GRAY)).build())
 				.strength(50.0f, 2000.0f)
 				.sounds(BlockSoundGroup.STONE)
-				.requiresTool()
-				.breakByTool(FabricToolTags.PICKAXES, 3));
+				.requiresTool());
 
 		this.typeofStone = stoneType;
 	}

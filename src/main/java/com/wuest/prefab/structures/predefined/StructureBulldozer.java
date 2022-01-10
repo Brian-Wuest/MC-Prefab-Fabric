@@ -5,6 +5,7 @@ import com.wuest.prefab.structures.base.BuildClear;
 import com.wuest.prefab.structures.base.BuildingMethods;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.BulldozerConfiguration;
+import com.wuest.prefab.structures.config.StructureConfiguration;
 import net.fabricmc.fabric.impl.tool.attribute.ToolManagerImpl;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,6 +17,7 @@ import net.minecraft.item.Items;
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 
@@ -60,29 +62,30 @@ public class StructureBulldozer extends Structure {
     /**
      * This method is to process before a clear space block is set to air.
      *
-     * @param pos The block position being processed.
      */
     @Override
-    public void BeforeClearSpaceBlockReplaced(BlockPos pos) {
-        BlockState state = this.world.getBlockState(pos);
-        BulldozerConfiguration configuration = (BulldozerConfiguration) this.configuration;
+    protected Boolean BlockShouldBeClearedDuringConstruction(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, BlockPos blockPos) {
+        BlockState state = world.getBlockState(blockPos);
+        BulldozerConfiguration specificConfiguration = (BulldozerConfiguration) configuration;
 
         boolean pickAxeEffective = ToolManagerImpl.handleIsEffectiveOnIgnoresVanilla(state, StructureBulldozer.diamondPickaxeStack, null, StructureBulldozer.diamondPickaxe.isSuitableFor(state));
         boolean axeEffective = ToolManagerImpl.handleIsEffectiveOnIgnoresVanilla(state, StructureBulldozer.diamondAxeStack, null, StructureBulldozer.diamondAxe.isSuitableFor(state));
         boolean shovelEffective = ToolManagerImpl.handleIsEffectiveOnIgnoresVanilla(state, StructureBulldozer.diamondShovelStack, null, StructureBulldozer.diamondShovel.isSuitableFor(state));
 
-        if (!configuration.creativeMode &&
+        if (!specificConfiguration.creativeMode &&
                 Prefab.serverConfiguration.allowBulldozerToCreateDrops
                 && ((state.isToolRequired() && pickAxeEffective || axeEffective || shovelEffective)
                 || !state.isToolRequired())
-                && state.getHardness(world, pos) >= 0.0f) {
-            Block.dropStacks(state, this.world, pos);
+                && state.getHardness(world, blockPos) >= 0.0f) {
+            Block.dropStacks(state, world, blockPos);
         }
 
-        if (configuration.creativeMode && state.getBlock() instanceof FluidBlock) {
-            // This is a fluid block, replace it with stone so it can be cleared.
-            BuildingMethods.ReplaceBlock(this.world, pos, Blocks.STONE);
+        if (specificConfiguration.creativeMode && state.getBlock() instanceof FluidBlock) {
+            // This is a fluid block, replace it with stone; so it can be cleared.
+            BuildingMethods.ReplaceBlock(world, blockPos, Blocks.STONE);
         }
+
+        return true;
     }
 
     @Override

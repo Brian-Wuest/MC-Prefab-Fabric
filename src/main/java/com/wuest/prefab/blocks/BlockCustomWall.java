@@ -21,8 +21,7 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
         super(FabricBlockSettings.of(Material.AGGREGATE)
                 .strength(modelBlock.getHardness(),
                         modelBlock.getBlastResistance() * 5.0F / 3.0F)
-                .sounds(modelBlock.getSoundGroup(modelBlock.getDefaultState()))
-                .breakByTool(FabricToolTags.SHOVELS, 0));
+                .sounds(modelBlock.getSoundGroup(modelBlock.getDefaultState())));
 
         this.BlockVariant = variant;
     }

@@ -4,7 +4,6 @@ import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.structures.gui.GuiStartHouseChooser;
-import com.wuest.prefab.structures.predefined.StructureAlternateStart;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.Direction;
@@ -40,51 +39,6 @@ public class ItemStartHouse extends StructureItem {
 
     @Override
     public void scanningMode(ItemUsageContext context) {
-		/*StructureAlternateStart.ScanBasicHouseStructure(
-				context.getWorld(),
-				context.getBlockPos(),
-				context.getPlayer().getHorizontalFacing());*/
-
-        /*StructureAlternateStart.ScanRanchStructure(
-                context.getWorld(),
-                context.getBlockPos(),
-                context.getPlayer().getHorizontalFacing());*/
-
-		/*StructureAlternateStart.ScanLoftStructure(
-				context.getWorld(),
-				context.getBlockPos(),
-				context.getPlayer().getHorizontalFacing());*/
-
-        /*StructureAlternateStart.ScanHobbitStructure(
-                context.getWorld(),
-                context.getBlockPos(),
-                context.getPlayer().getHorizontalFacing());*/
-
-        /*StructureAlternateStart.ScanStructure(
-                context.getWorld(),
-                context.getBlockPos(),
-                context.getPlayer().getHorizontalFacing(),
-                "desert_house",
-                false,
-                false);*/
-
-		/*StructureAlternateStart.ScanStructure(
-				context.getWorld(),
-				context.getBlockPos(),
-				context.getPlayer().getHorizontalFacing(),
-				"snowy_house",
-				false,
-				false);*/
-
-        StructureAlternateStart.ScanDesert2Structure(
-                context.getWorld(),
-                context.getBlockPos(),
-                context.getPlayer().getHorizontalFacing());
-
-        /*StructureAlternateStart.ScanSubAquaticStructure(
-                context.getWorld(),
-                context.getBlockPos(),
-                context.getPlayer().getHorizontalFacing());*/
     }
 
     /**

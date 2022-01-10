@@ -25,6 +25,7 @@ public class GuiCheckBox extends PressableWidget {
     private static final Identifier buttonTexture = new Identifier("prefab", "textures/gui/prefab_checkbox.png");
     private static final Identifier buttonTexturePressed = new Identifier("prefab", "textures/gui/prefab_checkbox_selected.png");
     private static final Identifier buttonTextureHover = new Identifier("prefab", "textures/gui/prefab_checkbox_hover.png");
+    private static final Identifier buttonTextureHoverSelected = new Identifier("prefab", "textures/gui/prefab_checkbox_hover_selected.png");
 
     protected int boxWidth;
     protected int boxHeight;
@@ -125,6 +126,10 @@ public class GuiCheckBox extends PressableWidget {
 
             if (this.isChecked()) {
                 resourceLocation = GuiCheckBox.buttonTexturePressed;
+
+                if (this.hovered) {
+                    resourceLocation = GuiCheckBox.buttonTextureHoverSelected;
+                }
             } else if (this.hovered) {
                 resourceLocation = GuiCheckBox.buttonTextureHover;
             }

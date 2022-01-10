@@ -3,10 +3,7 @@ package com.wuest.prefab;
 import com.wuest.prefab.blocks.*;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.StructureScannerConfig;
-import com.wuest.prefab.items.ItemCompressedChest;
-import com.wuest.prefab.items.ItemSickle;
-import com.wuest.prefab.items.ItemSwiftBlade;
-import com.wuest.prefab.items.ItemWoodenCrate;
+import com.wuest.prefab.items.*;
 import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.recipe.ConditionedShapedRecipe;
 import com.wuest.prefab.recipe.ConditionedShaplessRecipe;
@@ -18,9 +15,7 @@ import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.*;
@@ -28,10 +23,15 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.tag.ItemTags;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Lazy;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.BlockView;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -79,6 +79,16 @@ public class ModRegistry {
     public static final BlockDirtStairs DirtStairs = new BlockDirtStairs();
     public static final BlockDirtSlab DirtSlab = new BlockDirtSlab();
     public static final BlockStructureScanner StructureScanner = new BlockStructureScanner();
+    public static final BlockRotatableHorizontalShaped PileOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PileOfBricks, AbstractBlock.Settings.of(Material.ORGANIC_PRODUCT, MapColor.RED).nonOpaque().solidBlock(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped PalletOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PalletOfBricks, AbstractBlock.Settings.of(Material.ORGANIC_PRODUCT, MapColor.RED).nonOpaque().solidBlock(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped BundleOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.BundleOfTimber, AbstractBlock.Settings.of(Material.WOOD, MapColor.BROWN).sounds(BlockSoundGroup.WOOD).nonOpaque().solidBlock(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped HeapOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.HeapOfTimber, AbstractBlock.Settings.of(Material.WOOD, MapColor.BROWN).sounds(BlockSoundGroup.WOOD).nonOpaque().solidBlock(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped TonOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.TonOfTimber, AbstractBlock.Settings.of(Material.WOOD, MapColor.BROWN).sounds(BlockSoundGroup.WOOD).nonOpaque().solidBlock(ModRegistry::never));
+    public static final BlockRotatable EmptyCrate = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
+    public static final BlockRotatable CartonOfEggs = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
+    public static final BlockRotatable CrateOfPotatoes = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
+    public static final BlockRotatable CrateOfCarrots = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
+    public static final BlockRotatable CrateOfBeets = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
 
     /* *********************************** Item Blocks *********************************** */
     public static final BlockItem CompressedStoneItem = new BlockItem(ModRegistry.CompressedStone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
@@ -111,11 +121,11 @@ public class ModRegistry {
     public static final Identifier StructureScannerAction = new Identifier(Prefab.MODID, "structure_scanner_action");
 
     /* *********************************** Items *********************************** */
-    public static final Item PileOfBricks = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-    public static final Item PalletOfBricks = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-    public static final Item BundleOfTimber = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-    public static final Item HeapOfTimber = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-    public static final Item TonOfTimber = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item ItemPileOfBricks = new BlockItem(ModRegistry.PileOfBricks, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item ItemPalletOfBricks = new BlockItem(ModRegistry.PalletOfBricks, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item ItemBundleOfTimber = new BlockItem(ModRegistry.BundleOfTimber, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item ItemHeapOfTimber = new BlockItem(ModRegistry.HeapOfTimber, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final Item ItemTonOfTimber = new BlockItem(ModRegistry.TonOfTimber, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final Item StringOfLanterns = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final Item CoilOfLanterns = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
@@ -142,15 +152,15 @@ public class ModRegistry {
     public static final ItemSickle SickleNetherite = new ItemSickle(ToolMaterials.NETHERITE);
 
     // Note: Empty crate must be registered first to avoid null-pointer errors with the rest of the ItemWoodenCrate items.
-    public static final ItemWoodenCrate EmptyCrate = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Empty);
+    public static final ItemBlockWoodenCrate ItemEmptyCrate = new ItemBlockWoodenCrate(ModRegistry.EmptyCrate, ItemWoodenCrate.CrateType.Empty);
     public static final ItemWoodenCrate ClutchOfEggs = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Clutch_Of_Eggs);
-    public static final ItemWoodenCrate CartonOfEggs = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Carton_Of_Eggs);
+    public static final ItemBlockWoodenCrate ItemCartonOfEggs = new ItemBlockWoodenCrate(ModRegistry.CartonOfEggs, ItemWoodenCrate.CrateType.Carton_Of_Eggs);
     public static final ItemWoodenCrate BunchOfPotatoes = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Bunch_Of_Potatoes);
-    public static final ItemWoodenCrate CrateOfPotatoes = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Crate_Of_Potatoes);
+    public static final ItemBlockWoodenCrate ItemCrateOfPotatoes = new ItemBlockWoodenCrate(ModRegistry.CrateOfPotatoes, ItemWoodenCrate.CrateType.Crate_Of_Potatoes);
     public static final ItemWoodenCrate BunchOfCarrots = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Bunch_Of_Carrots);
-    public static final ItemWoodenCrate CrateOfCarrots = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Crate_Of_Carrots);
+    public static final ItemBlockWoodenCrate ItemCrateOfCarrots = new ItemBlockWoodenCrate(ModRegistry.CrateOfCarrots, ItemWoodenCrate.CrateType.Crate_Of_Carrots);
     public static final ItemWoodenCrate BunchOfBeets = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Bunch_Of_Beets);
-    public static final ItemWoodenCrate CrateOfBeets = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Crate_Of_Beets);
+    public static final ItemBlockWoodenCrate ItemCrateOfBeets = new ItemBlockWoodenCrate(ModRegistry.CrateOfBeets, ItemWoodenCrate.CrateType.Crate_Of_Beets);
 
     /* *********************************** Blueprint Items *********************************** */
     public static final ItemInstantBridge InstantBridge = new ItemInstantBridge();
@@ -187,7 +197,12 @@ public class ModRegistry {
     public static final RecipeSerializer<ConditionedShapedRecipe> ConditionedShapedRecipeSeriaizer = new ConditionedShapedRecipe.Serializer();
     public static final RecipeSerializer<ConditionedShaplessRecipe> ConditionedShapelessRecipeSeriaizer = new ConditionedShaplessRecipe.Serializer();
 
+    /* *********************************** Sounds *********************************** */
+    public static final SoundEvent BuildingBlueprint = new SoundEvent(new Identifier(Prefab.MODID, "building_blueprint"));
+
     public static void registerModComponents() {
+        ModRegistry.registerSounds();
+
         ModRegistry.registerBlockEntities();
 
         ModRegistry.registerBlocks();
@@ -201,6 +216,11 @@ public class ModRegistry {
         ModRegistry.RegisterClientToServerMessageHandlers();
 
         ModRegistry.RegisterRecipeSerializers();
+    }
+
+    private static void registerSounds()
+    {
+        Registry.register(Registry.SOUND_EVENT, new Identifier(Prefab.MODID, "building_blueprint"), ModRegistry.BuildingBlueprint);
     }
 
     private static void registerBlockEntities() {
@@ -236,6 +256,18 @@ public class ModRegistry {
         ModRegistry.registerBlock("block_dirt_stairs", ModRegistry.DirtStairs);
         ModRegistry.registerBlock("block_dirt_slab", ModRegistry.DirtSlab);
 
+        ModRegistry.registerBlock("item_pile_of_bricks", ModRegistry.PileOfBricks);
+        ModRegistry.registerBlock("item_pallet_of_bricks", ModRegistry.PalletOfBricks);
+        ModRegistry.registerBlock("item_bundle_of_timber", ModRegistry.BundleOfTimber);
+        ModRegistry.registerBlock("item_heap_of_timber", ModRegistry.HeapOfTimber);
+        ModRegistry.registerBlock("item_ton_of_timber", ModRegistry.TonOfTimber);
+
+        ModRegistry.registerBlock("item_wooden_crate", ModRegistry.EmptyCrate);
+        ModRegistry.registerBlock("item_carton_of_eggs", ModRegistry.CartonOfEggs);
+        ModRegistry.registerBlock("item_crate_of_potatoes", ModRegistry.CrateOfPotatoes);
+        ModRegistry.registerBlock("item_crate_of_carrots", ModRegistry.CrateOfCarrots);
+        ModRegistry.registerBlock("item_crate_of_beets", ModRegistry.CrateOfBeets);
+
         if (Prefab.isDebug) {
             ModRegistry.registerBlock("block_structure_scanner", ModRegistry.StructureScanner);
         }
@@ -243,11 +275,11 @@ public class ModRegistry {
 
     private static void registerItems() {
         ModRegistry.registerItem("item_logo", ModRegistry.LogoItem);
-        ModRegistry.registerItem("item_pile_of_bricks", ModRegistry.PileOfBricks);
-        ModRegistry.registerItem("item_pallet_of_bricks", ModRegistry.PalletOfBricks);
-        ModRegistry.registerItem("item_bundle_of_timber", ModRegistry.BundleOfTimber);
-        ModRegistry.registerItem("item_heap_of_timber", ModRegistry.HeapOfTimber);
-        ModRegistry.registerItem("item_ton_of_timber", ModRegistry.TonOfTimber);
+        ModRegistry.registerItem("item_pile_of_bricks", ModRegistry.ItemPileOfBricks);
+        ModRegistry.registerItem("item_pallet_of_bricks", ModRegistry.ItemPalletOfBricks);
+        ModRegistry.registerItem("item_bundle_of_timber", ModRegistry.ItemBundleOfTimber);
+        ModRegistry.registerItem("item_heap_of_timber", ModRegistry.ItemHeapOfTimber);
+        ModRegistry.registerItem("item_ton_of_timber", ModRegistry.ItemTonOfTimber);
         ModRegistry.registerItem("item_string_of_lanterns", ModRegistry.StringOfLanterns);
         ModRegistry.registerItem("item_coil_of_lanterns", ModRegistry.CoilOfLanterns);
         ModRegistry.registerItem("item_compressed_chest", ModRegistry.CompressedChest);
@@ -272,15 +304,15 @@ public class ModRegistry {
         ModRegistry.registerItem("item_sickle_diamond", ModRegistry.SickleDiamond);
         ModRegistry.registerItem("item_sickle_netherite", ModRegistry.SickleNetherite);
 
-        ModRegistry.registerItem("item_wooden_crate", ModRegistry.EmptyCrate);
+        ModRegistry.registerItem("item_wooden_crate", ModRegistry.ItemEmptyCrate);
         ModRegistry.registerItem("item_clutch_of_eggs", ModRegistry.ClutchOfEggs);
-        ModRegistry.registerItem("item_carton_of_eggs", ModRegistry.CartonOfEggs);
+        ModRegistry.registerItem("item_carton_of_eggs", ModRegistry.ItemCartonOfEggs);
         ModRegistry.registerItem("item_bunch_of_potatoes", ModRegistry.BunchOfPotatoes);
-        ModRegistry.registerItem("item_crate_of_potatoes", ModRegistry.CrateOfPotatoes);
+        ModRegistry.registerItem("item_crate_of_potatoes", ModRegistry.ItemCrateOfPotatoes);
         ModRegistry.registerItem("item_bunch_of_carrots", ModRegistry.BunchOfCarrots);
-        ModRegistry.registerItem("item_crate_of_carrots", ModRegistry.CrateOfCarrots);
+        ModRegistry.registerItem("item_crate_of_carrots", ModRegistry.ItemCrateOfCarrots);
         ModRegistry.registerItem("item_bunch_of_beets", ModRegistry.BunchOfBeets);
-        ModRegistry.registerItem("item_crate_of_beets", ModRegistry.CrateOfBeets);
+        ModRegistry.registerItem("item_crate_of_beets", ModRegistry.ItemCrateOfBeets);
     }
 
     private static void registerBluePrints() {
@@ -411,6 +443,14 @@ public class ModRegistry {
                 StructureScannerBlockEntity.ScanShape(config, player, player.getServerWorld());
             });
         });
+    }
+
+    public static boolean always(BlockState state, BlockView world, BlockPos pos) {
+        return true;
+    }
+
+    public static boolean never(BlockState state, BlockView world, BlockPos pos) {
+        return false;
     }
 
     public enum CustomItemTier implements ToolMaterial {
