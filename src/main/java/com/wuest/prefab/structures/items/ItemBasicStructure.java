@@ -2,13 +2,9 @@ package com.wuest.prefab.structures.items;
 
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration;
-import com.wuest.prefab.structures.config.enums.ModernBuildingsOptions;
-import com.wuest.prefab.structures.config.enums.TownHallOptions;
 import com.wuest.prefab.structures.gui.GuiBasicStructure;
-import com.wuest.prefab.structures.predefined.StructureBasic;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 

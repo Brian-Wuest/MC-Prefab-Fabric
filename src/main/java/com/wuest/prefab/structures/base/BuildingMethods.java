@@ -516,12 +516,14 @@ public class BuildingMethods {
 			blocksToNotAdd.add(Item.fromBlock(Blocks.MOSSY_STONE_BRICKS));
 		}
 
-		Tuple<ArrayList<ItemStack>, ArrayList<BlockPos>> ladderShaftResults = BuildingMethods.CreateLadderShaft(world, pos, stacks, facing, blocksToNotAdd);
+		int minimumHeightForMineshaft = world.getBottomY() + 21;
+
+		Tuple<ArrayList<ItemStack>, ArrayList<BlockPos>> ladderShaftResults = BuildingMethods.CreateLadderShaft(world, pos, stacks, facing, blocksToNotAdd, minimumHeightForMineshaft);
 		stacks = ladderShaftResults.getFirst();
 		ArrayList<BlockPos> torchPositions = ladderShaftResults.getSecond();
 
-		// Get to Y11;
-		pos = pos.down(pos.getY() - 10);
+		// Get 20 blocks above the void.
+		pos = pos.withY(minimumHeightForMineshaft);
 
 		ArrayList<ItemStack> tempStacks = new ArrayList<ItemStack>();
 
@@ -651,8 +653,13 @@ public class BuildingMethods {
 		}
 	}
 
-	private static Tuple<ArrayList<ItemStack>, ArrayList<BlockPos>> CreateLadderShaft(ServerWorld world, BlockPos pos, ArrayList<ItemStack> originalStacks, Direction houseFacing,
-																					  ArrayList<Item> blocksToNotAdd) {
+	private static Tuple<ArrayList<ItemStack>, ArrayList<BlockPos>> CreateLadderShaft(
+			ServerWorld world,
+			BlockPos pos,
+			ArrayList<ItemStack> originalStacks,
+			Direction houseFacing,
+			ArrayList<Item> blocksToNotAdd,
+			int minimumHeightForMineshaft) {
 		int torchCounter = 0;
 
 		// Keep the "west" facing.
@@ -665,7 +672,9 @@ public class BuildingMethods {
 		BuildingMethods.ReplaceBlock(world, pos, Blocks.AIR);
 		ArrayList<BlockPos> torchPositions = new ArrayList<>();
 
-		while (pos.getY() > 8) {
+		int lastHeightForTorch = minimumHeightForMineshaft + 6;
+
+		while (pos.getY() > minimumHeightForMineshaft) {
 			BlockState state = world.getBlockState(pos);
 			Block block = state.getBlock();
 			torchCounter++;
@@ -676,27 +685,21 @@ public class BuildingMethods {
 				Direction facing = houseFacing;
 
 				switch (i) {
-					case 1: {
+					case 1 -> {
 						facing = houseFacing.rotateYClockwise();
-						break;
 					}
-					case 2: {
+					case 2 -> {
 						facing = houseFacing.getOpposite();
-						break;
 					}
-					case 3: {
+					case 3 -> {
 						facing = houseFacing.rotateYCounterclockwise();
-						break;
-					}
-					default: {
-						facing = houseFacing;
 					}
 				}
 
 				// Every 6 blocks, place a torch on the west wall.
 				// If we are close to the bottom, don't place a torch. Do the
 				// normal processing.
-				if (facing == westWall && torchCounter == 6 && pos.getY() > 14) {
+				if (facing == westWall && torchCounter == 6 && pos.getY() > lastHeightForTorch) {
 					// First make sure the blocks around this block are stone, then place the torch.
 					for (int j = 0; j <= 2; j++) {
 						BlockPos tempPos = null;
@@ -748,7 +751,7 @@ public class BuildingMethods {
 			originalStacks = BuildingMethods.ConsolidateDrops(world, pos, state, originalStacks, blocksToNotAdd);
 
 			// Don't place a ladder at this location since it will be destroyed.
-			if (pos.getY() >= 10) {
+			if (pos.getY() >= minimumHeightForMineshaft) {
 				BuildingMethods.ReplaceBlock(world, pos, ladderState);
 			}
 

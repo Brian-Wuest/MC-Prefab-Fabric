@@ -4,7 +4,6 @@ import com.wuest.prefab.Prefab;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
@@ -20,89 +19,87 @@ import java.lang.reflect.Type;
  * @author WuestMan
  */
 public abstract class TileEntityBase<T extends BaseConfig> extends BlockEntity {
-	protected T config;
+    protected T config;
 
-	protected TileEntityBase(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
-		super(tileEntityTypeIn, pos, state);
-	}
+    protected TileEntityBase(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
+        super(tileEntityTypeIn, pos, state);
+    }
 
-	/**
-	 * @return Gets the configuration class used by this tile entity.
-	 */
-	public T getConfig() {
-		return this.config;
-	}
+    /**
+     * @return Gets the configuration class used by this tile entity.
+     */
+    public T getConfig() {
+        return this.config;
+    }
 
-	/**
-	 * Sets the configuration class used by this tile entity.
-	 *
-	 * @param value The updated tile entity.
-	 */
-	public void setConfig(T value) {
-		this.config = value;
-		this.markDirty();
-	}
+    /**
+     * Sets the configuration class used by this tile entity.
+     *
+     * @param value The updated tile entity.
+     */
+    public void setConfig(T value) {
+        this.config = value;
+        this.markDirty();
+    }
 
-	public Class<T> getTypeParameterClass() {
-		Type type = getClass().getGenericSuperclass();
-		ParameterizedType paramType = (ParameterizedType) type;
-		return (Class<T>) paramType.getActualTypeArguments()[0];
-	}
+    public Class<T> getTypeParameterClass() {
+        Type type = getClass().getGenericSuperclass();
+        ParameterizedType paramType = (ParameterizedType) type;
+        return (Class<T>) paramType.getActualTypeArguments()[0];
+    }
 
-	/**
-	 * Allows for a specialized description packet to be created. This is often used
-	 * to sync tile entity data from the server to the client easily. For example
-	 * this is used by signs to synchronize the text to be displayed.
-	 */
-	@Override
-	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		// Don't send the packet until the position has been set.
-		if (this.pos.getX() == 0 && this.pos.getY() == 0 && this.pos.getZ() == 0) {
-			return super.toUpdatePacket();
-		}
+    /**
+     * Allows for a specialized description packet to be created. This is often used
+     * to sync tile entity data from the server to the client easily. For example
+     * this is used by signs to synchronize the text to be displayed.
+     */
+    @Override
+    public BlockEntityUpdateS2CPacket toUpdatePacket() {
+        // Don't send the packet until the position has been set.
+        if (this.pos.getX() == 0 && this.pos.getY() == 0 && this.pos.getZ() == 0) {
+            return null;
+        }
 
-		NbtCompound tag = new NbtCompound();
-		this.writeNbt(tag);
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
 
-		return new BlockEntityUpdateS2CPacket(this.getPos(), 1, tag);
-	}
+    @Override
+    public boolean onSyncedBlockEvent(int id, int type) {
+        return true;
+    }
 
-	@Override
-	public boolean onSyncedBlockEvent(int id, int type) {
-		return true;
-	}
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+    	NbtCompound tag = new NbtCompound();
+        this.writeNbt(tag);
 
-	@Override
-	public NbtCompound toInitialChunkDataNbt() {
-		return this.writeNbt(new NbtCompound());
-	}
+        return tag;
+    }
 
-	@Override
-	public NbtCompound writeNbt(NbtCompound compound) {
-		compound = super.writeNbt(compound);
+    @Override
+    public void writeNbt(NbtCompound compound) {
+        super.writeNbt(compound);
 
-		if (this.config != null) {
-			this.config.WriteToNBTCompound(compound);
-		}
+        if (this.config != null) {
+            this.config.WriteToNBTCompound(compound);
+        }
+    }
 
-		return compound;
-	}
+    @Override
+    public void readNbt(NbtCompound compound) {
+        super.readNbt(compound);
 
-	@Override
-	public void readNbt(NbtCompound compound) {
-		super.readNbt(compound);
+        this.config = this.createConfigInstance().ReadFromCompoundNBT(compound);
+    }
 
-		this.config = this.createConfigInstance().ReadFromCompoundNBT(compound);
-	}
+    public T createConfigInstance() {
+        try {
+            return this.getTypeParameterClass().newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            Prefab.logger.log(Level.ERROR, e.getMessage());
+            e.printStackTrace();
+        }
 
-	public T createConfigInstance() {
-		try {
-			return this.getTypeParameterClass().newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			Prefab.logger.log(Level.ERROR, e.getMessage());
-			e.printStackTrace();
-		}
-
-		return null;
-	}
+        return null;
+    }
 }

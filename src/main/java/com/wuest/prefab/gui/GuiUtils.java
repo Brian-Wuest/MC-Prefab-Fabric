@@ -34,7 +34,7 @@ public class GuiUtils {
      * @param textureHeight The height of the texture.
      */
     public static void drawTexture(MatrixStack matrixStack, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
-        DrawableHelper.drawTexture(matrixStack, x, y, z, 0, 0, width, height, textureHeight, textureWidth);
+        DrawableHelper.drawTexture(matrixStack, x, y, z, 0, 0, width, height, textureWidth, textureHeight);
     }
 
     /**

@@ -39,7 +39,9 @@ public class BlockCompressedStone extends Block {
 		COMPRESSED_GLOWSTONE(3, "block_compressed_glowstone", "block_compressed_glowstone", BlockSoundGroup.GLASS),
 		DOUBLE_COMPRESSED_GLOWSTONE(4, "block_double_compressed_glowstone", "block_double_compressed_glowstone", BlockSoundGroup.GLASS),
 		COMPRESSED_DIRT(5, "block_compressed_dirt", "block_compressed_dirt", BlockSoundGroup.GRAVEL),
-		DOUBLE_COMPRESSED_DIRT(6, "block_double_compressed_dirt", "block_double_compressed_dirt", BlockSoundGroup.GRAVEL);
+		DOUBLE_COMPRESSED_DIRT(6, "block_double_compressed_dirt", "block_double_compressed_dirt", BlockSoundGroup.GRAVEL),
+		COMPRESSED_QUARTZCRETE(7, "block_compressed_quartz_crete", "block_compressed_quartz_crete", BlockSoundGroup.STONE),
+		DOUBLE_COMPRESSED_QUARTZCRETE(8, "block_double_compressed_quartz_crete", "block_double_compressed_quartz_crete", BlockSoundGroup.STONE);
 
 		private final int meta;
 		/**

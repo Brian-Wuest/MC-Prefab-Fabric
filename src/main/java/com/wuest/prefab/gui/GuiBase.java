@@ -83,7 +83,7 @@ public abstract class GuiBase extends Screen {
      * Returns true if this GUI should pause the game when it is displayed in single-player
      */
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return this.pauseGame;
     }
 

@@ -1,26 +1,26 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "config": "Sickle",
-    "group": "Sickle",
-    "pattern": [
-        " a ",
-        "  a",
-        "ba "
+  "type": "prefab:condition_crafting_shaped",
+  "config": "Sickle",
+  "group": "Sickle",
+  "pattern": [
+    " a ",
+    "  a",
+    "ba "
+  ],
+  "key": {
+    "a": [
+      {
+        "item": "minecraft:iron_ingot"
+      }
     ],
-    "key": {
-        "a": [
-            {
-                "item": "minecraft:iron_ingot"
-            }
-        ],
-        "b" : [
-            {
-                "item": "minecraft:stick"
-            }
-        ]
-    },
-    "result": {
-        "item": "prefab:item_sickle_iron",
-        "count": 1
-    }
+    "b": [
+      {
+        "item": "minecraft:stick"
+      }
+    ]
+  },
+  "result": {
+    "item": "prefab:item_sickle_iron",
+    "count": 1
+  }
 }

@@ -91,6 +91,57 @@ public class StructureBasic extends Structure {
                     configuration.houseFacing);
         }
 
+
+
+        return false;
+    }
+
+    @Override
+    protected Boolean BlockShouldBeClearedDuringConstruction(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, BlockPos blockPos) {
+        BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
+
+        if (config.basicStructureName.getName().equals(EnumBasicStructureName.AquaBase.getName())
+                || config.basicStructureName.getName().equals(EnumBasicStructureName.AdvancedAquaBase.getName())) {
+            BlockState blockState = world.getBlockState(blockPos);
+            // Don't clear water blocks for this building.
+            return blockState.getMaterial() != Material.WATER;
+        }
+
+        return true;
+    }
+
+    /**
+     * This method is used after the main building is build for any additional structures or modifications.
+     *
+     * @param configuration The structure configuration.
+     * @param world         The current world.
+     * @param originalPos   The original position clicked on.
+     * @param assumedNorth  The assumed northern direction.
+     * @param player        The player which initiated the construction.
+     */
+    @Override
+    public void AfterBuilding(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
+        BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
+        String structureName = config.basicStructureName.getName();
+        BaseOption chosenOption = config.chosenOption;
+
+        if (this.customBlockPos != null) {
+            if (structureName.equals(EnumBasicStructureName.ModerateFarm.getName()) && chosenOption == ModerateFarmOptions.AutomatedChickenCoop) {
+                // For the advanced chicken coop, spawn 4 chickens above the hopper.
+                for (int i = 0; i < 4; i++) {
+                    ChickenEntity entity = new ChickenEntity(EntityType.CHICKEN, world);
+                    entity.setPos(this.customBlockPos.getX(), this.customBlockPos.up().getY(), this.customBlockPos.getZ());
+                    world.spawnEntity(entity);
+                }
+            } else if (structureName.equals(EnumBasicStructureName.MineshaftEntrance.getName())
+                    || structureName.equals(BasicStructureConfiguration.EnumBasicStructureName.WorkShop.getName())) {
+                // Build the mineshaft where the trap door exists.
+                BuildingMethods.PlaceMineShaft(world, this.customBlockPos.down(), configuration.houseFacing, true);
+            }
+
+            this.customBlockPos = null;
+        }
+
         if (structureName.equals(EnumBasicStructureName.AdvancedFarm.getName()) && chosenOption == AdvancedFarmOptions.MonsterMasher) {
             int monstersPlaced = 0;
 
@@ -141,55 +192,6 @@ public class StructureBasic extends Structure {
                     signTile.setTextOnRow(2, new LiteralText("Lamp Off=No Mobs"));
                 }
             }
-        }
-
-        return false;
-    }
-
-    @Override
-    protected Boolean BlockShouldBeClearedDuringConstruction(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, BlockPos blockPos) {
-        BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
-
-        if (config.basicStructureName.getName().equals(EnumBasicStructureName.AquaBase.getName())
-                || config.basicStructureName.getName().equals(EnumBasicStructureName.AdvancedAquaBase.getName())) {
-            BlockState blockState = world.getBlockState(blockPos);
-            // Don't clear water blocks for this building.
-            return blockState.getMaterial() != Material.WATER;
-        }
-
-        return true;
-    }
-
-    /**
-     * This method is used after the main building is build for any additional structures or modifications.
-     *
-     * @param configuration The structure configuration.
-     * @param world         The current world.
-     * @param originalPos   The original position clicked on.
-     * @param assumedNorth  The assumed northern direction.
-     * @param player        The player which initiated the construction.
-     */
-    @Override
-    public void AfterBuilding(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
-        BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
-        String structureName = config.basicStructureName.getName();
-        BaseOption chosenOption = config.chosenOption;
-
-        if (this.customBlockPos != null) {
-            if (structureName.equals(EnumBasicStructureName.ModerateFarm.getName()) && chosenOption == ModerateFarmOptions.AutomatedChickenCoop) {
-                // For the advanced chicken coop, spawn 4 chickens above the hopper.
-                for (int i = 0; i < 4; i++) {
-                    ChickenEntity entity = new ChickenEntity(EntityType.CHICKEN, world);
-                    entity.setPos(this.customBlockPos.getX(), this.customBlockPos.up().getY(), this.customBlockPos.getZ());
-                    world.spawnEntity(entity);
-                }
-            } else if (structureName.equals(EnumBasicStructureName.MineshaftEntrance.getName())
-                    || structureName.equals(BasicStructureConfiguration.EnumBasicStructureName.WorkShop.getName())) {
-                // Build the mineshaft where the trap door exists.
-                BuildingMethods.PlaceMineShaft(world, this.customBlockPos.down(), configuration.houseFacing, true);
-            }
-
-            this.customBlockPos = null;
         }
 
         if (structureName.equals(EnumBasicStructureName.AquaBase.getName())

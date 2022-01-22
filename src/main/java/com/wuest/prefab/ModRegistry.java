@@ -4,9 +4,9 @@ import com.wuest.prefab.blocks.*;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.items.*;
-import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.recipe.ConditionedShapedRecipe;
 import com.wuest.prefab.recipe.ConditionedShaplessRecipe;
+import com.wuest.prefab.recipe.ConditionedSmeltingRecipe;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.items.*;
@@ -26,7 +26,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.tag.ItemTags;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Lazy;
 import net.minecraft.util.math.BlockPos;
@@ -37,6 +36,8 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static net.minecraft.block.Blocks.*;
+
 /**
  * This is the mod registry so there is a way to get to all instances of the blocks/items created by this mod.
  *
@@ -44,27 +45,18 @@ import java.util.function.Supplier;
  */
 public class ModRegistry {
     public static final ArrayList<Consumer<Object>> guiRegistrations = new ArrayList<>();
+
+    /* *********************************** Blocks *********************************** */
     public static final BlockCompressedStone CompressedStone = new BlockCompressedStone(BlockCompressedStone.EnumType.COMPRESSED_STONE);
-
-    public static final ItemGroup PREFAB_GROUP = FabricItemGroupBuilder.build(
-            new Identifier(Prefab.MODID, "logo"),
-            () -> new ItemStack(ModRegistry.LogoItem));
-
-    /* *********************************** Block Entities Types *********************************** */
-    public static BlockEntityType<StructureScannerBlockEntity> StructureScannerEntityType;
-
-    /* *********************************** Blocks *********************************** */
-
-    /* *********************************** Block Entities *********************************** */
-    public static StructureScannerBlockEntity StructureScannerEntity;
-
-    /* *********************************** Blocks *********************************** */
     public static final BlockCompressedStone DoubleCompressedStone = new BlockCompressedStone(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_STONE);
     public static final BlockCompressedStone TripleCompressedStone = new BlockCompressedStone(BlockCompressedStone.EnumType.TRIPLE_COMPRESSED_STONE);
     public static final BlockCompressedStone CompressedDirt = new BlockCompressedStone(BlockCompressedStone.EnumType.COMPRESSED_DIRT);
     public static final BlockCompressedStone DoubleCompressedDirt = new BlockCompressedStone(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_DIRT);
     public static final BlockCompressedStone CompressedGlowstone = new BlockCompressedStone(BlockCompressedStone.EnumType.COMPRESSED_GLOWSTONE);
     public static final BlockCompressedStone DoubleCompressedGlowstone = new BlockCompressedStone(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_GLOWSTONE);
+    public static final BlockCompressedStone CompressedQuartzCrete = new BlockCompressedStone(BlockCompressedStone.EnumType.COMPRESSED_QUARTZCRETE);
+    public static final BlockCompressedStone DoubleCompressedQuartzCrete = new BlockCompressedStone(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_QUARTZCRETE);
+
     public static final BlockCompressedObsidian CompressedObsidian = new BlockCompressedObsidian(BlockCompressedObsidian.EnumType.COMPRESSED_OBSIDIAN);
     public static final BlockCompressedObsidian DoubleCompressedObsidian = new BlockCompressedObsidian(BlockCompressedObsidian.EnumType.DOUBLE_COMPRESSED_OBSIDIAN);
     public static final BlockGlassSlab GlassSlab = new BlockGlassSlab(AbstractBlock.Settings.copy(Blocks.GLASS));
@@ -89,6 +81,29 @@ public class ModRegistry {
     public static final BlockRotatable CrateOfPotatoes = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
     public static final BlockRotatable CrateOfCarrots = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
     public static final BlockRotatable CrateOfBeets = new BlockRotatable(AbstractBlock.Settings.of(Material.WOOD).sounds(BlockSoundGroup.WOOD));
+    public static final Block QuartzCrete = new Block(AbstractBlock.Settings.copy(QUARTZ_BLOCK));
+    public static final WallBlock QuartzCreteWall = new WallBlock(AbstractBlock.Settings.copy(ModRegistry.QuartzCrete));
+    public static final Block QuartzCreteBricks = new Block(AbstractBlock.Settings.copy(ModRegistry.QuartzCrete));
+    public static final Block ChiseledQuartzCrete = new Block(AbstractBlock.Settings.copy(CHISELED_QUARTZ_BLOCK));
+    public static final PillarBlock QuartzCretePillar = new PillarBlock(AbstractBlock.Settings.copy(QUARTZ_PILLAR));
+    public static final BlockCustomStairs QuartzCreteStairs = new BlockCustomStairs(ModRegistry.QuartzCrete.getDefaultState(), AbstractBlock.Settings.copy(ModRegistry.QuartzCrete));
+    public static final SlabBlock QuartzCreteSlab = new SlabBlock(AbstractBlock.Settings.copy(ModRegistry.QuartzCrete));
+    public static final Block SmoothQuartzCrete = new Block(AbstractBlock.Settings.copy(ModRegistry.QuartzCrete));
+    public static final WallBlock SmoothQuartzCreteWall = new WallBlock(AbstractBlock.Settings.copy(ModRegistry.SmoothQuartzCrete));
+    public static final BlockCustomStairs SmoothQuartzCreteStairs = new BlockCustomStairs(ModRegistry.SmoothQuartzCrete.getDefaultState(), AbstractBlock.Settings.copy(ModRegistry.SmoothQuartzCrete));
+    public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(AbstractBlock.Settings.copy(SmoothQuartzCrete));
+
+    /* *********************************** Messages *********************************** */
+    public static final Identifier ConfigSync = new Identifier(Prefab.MODID, "config_sync");
+    public static final Identifier PlayerConfigSync = new Identifier(Prefab.MODID, "player_config_sync");
+    public static final Identifier StructureBuild = new Identifier(Prefab.MODID, "structure_build");
+    public static final Identifier StructureScannerSync = new Identifier(Prefab.MODID, "structure_scanner_sync");
+    public static final Identifier StructureScannerAction = new Identifier(Prefab.MODID, "structure_scanner_action");
+    public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
+    public static final Item LogoItem = new Item(new Item.Settings());
+    public static final ItemGroup PREFAB_GROUP = FabricItemGroupBuilder.build(
+            new Identifier(Prefab.MODID, "logo"),
+            () -> new ItemStack(ModRegistry.LogoItem));
 
     /* *********************************** Item Blocks *********************************** */
     public static final BlockItem CompressedStoneItem = new BlockItem(ModRegistry.CompressedStone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
@@ -98,6 +113,9 @@ public class ModRegistry {
     public static final BlockItem DoubleCompressedDirtItem = new BlockItem(ModRegistry.DoubleCompressedDirt, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final BlockItem CompressedGlowstoneItem = new BlockItem(ModRegistry.CompressedGlowstone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final BlockItem DoubleCompressedGlowstoneItem = new BlockItem(ModRegistry.DoubleCompressedGlowstone, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem CompressedQuartzCreteItem = new BlockItem(ModRegistry.CompressedQuartzCrete, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem DoubleCompressedQuartzCreteItem = new BlockItem(ModRegistry.DoubleCompressedQuartzCrete, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+
     public static final BlockItem CompressedObsidianItem = new BlockItem(ModRegistry.CompressedObsidian, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final BlockItem DoubleCompressedObsidianItem = new BlockItem(ModRegistry.DoubleCompressedObsidian, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final BlockItem GlassSlabItem = new BlockItem(ModRegistry.GlassSlab, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
@@ -112,13 +130,17 @@ public class ModRegistry {
     public static final BlockItem DirtStairsItem = new BlockItem(ModRegistry.DirtStairs, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final BlockItem DirtSlabItem = new BlockItem(ModRegistry.DirtSlab, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final BlockItem StructureScannerItem = new BlockItem(ModRegistry.StructureScanner, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-
-    /* *********************************** Messages *********************************** */
-    public static final Identifier ConfigSync = new Identifier(Prefab.MODID, "config_sync");
-    public static final Identifier PlayerConfigSync = new Identifier(Prefab.MODID, "player_config_sync");
-    public static final Identifier StructureBuild = new Identifier(Prefab.MODID, "structure_build");
-    public static final Identifier StructureScannerSync = new Identifier(Prefab.MODID, "structure_scanner_sync");
-    public static final Identifier StructureScannerAction = new Identifier(Prefab.MODID, "structure_scanner_action");
+    public static final BlockItem QuartzCreteItem = new BlockItem(ModRegistry.QuartzCrete, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem QuartzCreteWallItem = new BlockItem(ModRegistry.QuartzCreteWall, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem QuartzCreteBricksItem = new BlockItem(ModRegistry.QuartzCreteBricks, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem ChiseledQuartzCreteItem = new BlockItem(ModRegistry.ChiseledQuartzCrete, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem QuartzCretePillarItem = new BlockItem(ModRegistry.QuartzCretePillar, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem QuartzCreteStairsItem = new BlockItem(ModRegistry.QuartzCreteStairs, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem QuartzCreteSlabItem = new BlockItem(ModRegistry.QuartzCreteSlab, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem SmoothQuartzCreteItem = new BlockItem(ModRegistry.SmoothQuartzCrete, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem SmoothQuartzCreteWallItem = new BlockItem(ModRegistry.SmoothQuartzCreteWall, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem SmoothQuartzCreteStairsItem = new BlockItem(ModRegistry.SmoothQuartzCreteStairs, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem SmoothQuartzCreteSlabItem = new BlockItem(ModRegistry.SmoothQuartzCreteSlab, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
 
     /* *********************************** Items *********************************** */
     public static final Item ItemPileOfBricks = new BlockItem(ModRegistry.PileOfBricks, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
@@ -128,10 +150,7 @@ public class ModRegistry {
     public static final Item ItemTonOfTimber = new BlockItem(ModRegistry.TonOfTimber, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final Item StringOfLanterns = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
     public static final Item CoilOfLanterns = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-    public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
     public static final Item WarehouseUpgrade = new Item(new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-    public static final Item LogoItem = new Item(new Item.Settings());
-
     public static final Item SwiftBladeWood = new ItemSwiftBlade(ToolMaterials.WOOD, 2, .5f);
     public static final Item SwiftBladeStone = new ItemSwiftBlade(ToolMaterials.STONE, 2, .5f);
     public static final Item SwiftBladeIron = new ItemSwiftBlade(ToolMaterials.IRON, 2, .5f);
@@ -143,7 +162,6 @@ public class ModRegistry {
     public static final Item SwiftBladeSteel = new ItemSwiftBlade(CustomItemTier.STEEL, 2, .5f);
     public static final Item SwiftBladeObsidian = new ItemSwiftBlade(CustomItemTier.OBSIDIAN, 2, .5f);
     public static final Item SwiftBladeNetherite = new ItemSwiftBlade(ToolMaterials.NETHERITE, 2, .5f);
-
     public static final ItemSickle SickleWood = new ItemSickle(ToolMaterials.WOOD);
     public static final ItemSickle SickleStone = new ItemSickle(ToolMaterials.STONE);
     public static final ItemSickle SickleGold = new ItemSickle(ToolMaterials.GOLD);
@@ -188,7 +206,9 @@ public class ModRegistry {
     public static final ItemBasicStructure Warehouse = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.Warehouse);
     public static final ItemBasicStructure AdvancedWareHouse = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.AdvancedWarehouse);
     public static final ItemBasicStructure VillagerHouses = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.VillagerHouses, 10);
-    public static final ItemBasicStructure ModernBuildings = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.ModernBuildings, 5);
+    public static final ItemBasicStructure ModernBuildings = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.ModernBuildings);
+    public static final ItemBasicStructure ModerateModernBuildings = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.ModerateModernBuildings);
+    public static final ItemBasicStructure AdvancedModernBuildings = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.AdvancedModernBuildings);
     public static final ItemBasicStructure StarterFarm = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.StarterFarm);
     public static final ItemBasicStructure ModerateFarm = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.ModerateFarm);
     public static final ItemBasicStructure AdvancedFarm = new ItemBasicStructure(BasicStructureConfiguration.EnumBasicStructureName.AdvancedFarm);
@@ -196,9 +216,16 @@ public class ModRegistry {
     /* *********************************** Recipe Serializers *********************************** */
     public static final RecipeSerializer<ConditionedShapedRecipe> ConditionedShapedRecipeSeriaizer = new ConditionedShapedRecipe.Serializer();
     public static final RecipeSerializer<ConditionedShaplessRecipe> ConditionedShapelessRecipeSeriaizer = new ConditionedShaplessRecipe.Serializer();
+    public static final RecipeSerializer<ConditionedSmeltingRecipe> ConditionedSmeltingRecipeSeriaizer = new ConditionedSmeltingRecipe.Serializer();
 
     /* *********************************** Sounds *********************************** */
     public static final SoundEvent BuildingBlueprint = new SoundEvent(new Identifier(Prefab.MODID, "building_blueprint"));
+
+    /* *********************************** Block Entities Types *********************************** */
+    public static BlockEntityType<StructureScannerBlockEntity> StructureScannerEntityType;
+
+    /* *********************************** Block Entities *********************************** */
+    public static StructureScannerBlockEntity StructureScannerEntity;
 
     public static void registerModComponents() {
         ModRegistry.registerSounds();
@@ -218,19 +245,18 @@ public class ModRegistry {
         ModRegistry.RegisterRecipeSerializers();
     }
 
-    private static void registerSounds()
-    {
+    private static void registerSounds() {
         Registry.register(Registry.SOUND_EVENT, new Identifier(Prefab.MODID, "building_blueprint"), ModRegistry.BuildingBlueprint);
     }
 
     private static void registerBlockEntities() {
         if (Prefab.isDebug) {
-        StructureScannerEntityType = Registry.register(
-                Registry.BLOCK_ENTITY_TYPE,
-                "prefab:structure_scanner_entity",
-                FabricBlockEntityTypeBuilder
-                        .create(StructureScannerBlockEntity::new, ModRegistry.StructureScanner)
-                        .build(null));
+            StructureScannerEntityType = Registry.register(
+                    Registry.BLOCK_ENTITY_TYPE,
+                    "prefab:structure_scanner_entity",
+                    FabricBlockEntityTypeBuilder
+                            .create(StructureScannerBlockEntity::new, ModRegistry.StructureScanner)
+                            .build(null));
         }
     }
 
@@ -242,6 +268,8 @@ public class ModRegistry {
         ModRegistry.registerBlock(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_DIRT.getUnlocalizedName(), ModRegistry.DoubleCompressedDirt);
         ModRegistry.registerBlock(BlockCompressedStone.EnumType.COMPRESSED_GLOWSTONE.getUnlocalizedName(), ModRegistry.CompressedGlowstone);
         ModRegistry.registerBlock(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_GLOWSTONE.getUnlocalizedName(), ModRegistry.DoubleCompressedGlowstone);
+        ModRegistry.registerBlock(BlockCompressedStone.EnumType.COMPRESSED_QUARTZCRETE.getUnlocalizedName(), ModRegistry.CompressedQuartzCrete);
+        ModRegistry.registerBlock(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_QUARTZCRETE.getUnlocalizedName(), ModRegistry.DoubleCompressedQuartzCrete);
         ModRegistry.registerBlock(BlockCompressedObsidian.EnumType.COMPRESSED_OBSIDIAN.asString(), ModRegistry.CompressedObsidian);
         ModRegistry.registerBlock(BlockCompressedObsidian.EnumType.DOUBLE_COMPRESSED_OBSIDIAN.asString(), ModRegistry.DoubleCompressedObsidian);
         ModRegistry.registerBlock("block_glass_slab", ModRegistry.GlassSlab);
@@ -271,6 +299,18 @@ public class ModRegistry {
         if (Prefab.isDebug) {
             ModRegistry.registerBlock("block_structure_scanner", ModRegistry.StructureScanner);
         }
+
+        ModRegistry.registerBlock("block_quartz_crete", ModRegistry.QuartzCrete);
+        ModRegistry.registerBlock("block_quartz_crete_wall", ModRegistry.QuartzCreteWall);
+        ModRegistry.registerBlock("block_quartz_crete_bricks", ModRegistry.QuartzCreteBricks);
+        ModRegistry.registerBlock("block_quartz_crete_chiseled", ModRegistry.ChiseledQuartzCrete);
+        ModRegistry.registerBlock("block_quartz_crete_pillar", ModRegistry.QuartzCretePillar);
+        ModRegistry.registerBlock("block_quartz_crete_stairs", ModRegistry.QuartzCreteStairs);
+        ModRegistry.registerBlock("block_quartz_crete_slab", ModRegistry.QuartzCreteSlab);
+        ModRegistry.registerBlock("block_quartz_crete_smooth", ModRegistry.SmoothQuartzCrete);
+        ModRegistry.registerBlock("block_quartz_crete_smooth_wall", ModRegistry.SmoothQuartzCreteWall);
+        ModRegistry.registerBlock("block_quartz_crete_smooth_stairs", ModRegistry.SmoothQuartzCreteStairs);
+        ModRegistry.registerBlock("block_quartz_crete_smooth_slab", ModRegistry.SmoothQuartzCreteSlab);
     }
 
     private static void registerItems() {
@@ -343,6 +383,8 @@ public class ModRegistry {
         ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.AdvancedWarehouse.getItemTextureLocation().getPath(), ModRegistry.AdvancedWareHouse);
         ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.VillagerHouses.getItemTextureLocation().getPath(), ModRegistry.VillagerHouses);
         ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.ModernBuildings.getItemTextureLocation().getPath(), ModRegistry.ModernBuildings);
+        ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.ModerateModernBuildings.getItemTextureLocation().getPath(), ModRegistry.ModerateModernBuildings);
+        ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.AdvancedModernBuildings.getItemTextureLocation().getPath(), ModRegistry.AdvancedModernBuildings);
         ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.StarterFarm.getItemTextureLocation().getPath(), ModRegistry.StarterFarm);
         ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.ModerateFarm.getItemTextureLocation().getPath(), ModRegistry.ModerateFarm);
         ModRegistry.registerItem(BasicStructureConfiguration.EnumBasicStructureName.AdvancedFarm.getItemTextureLocation().getPath(), ModRegistry.AdvancedFarm);
@@ -356,6 +398,8 @@ public class ModRegistry {
         ModRegistry.registerItem(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_DIRT.getUnlocalizedName(), ModRegistry.DoubleCompressedDirtItem);
         ModRegistry.registerItem(BlockCompressedStone.EnumType.COMPRESSED_GLOWSTONE.getUnlocalizedName(), ModRegistry.CompressedGlowstoneItem);
         ModRegistry.registerItem(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_GLOWSTONE.getUnlocalizedName(), ModRegistry.DoubleCompressedGlowstoneItem);
+        ModRegistry.registerItem(BlockCompressedStone.EnumType.COMPRESSED_QUARTZCRETE.getUnlocalizedName(), ModRegistry.CompressedQuartzCreteItem);
+        ModRegistry.registerItem(BlockCompressedStone.EnumType.DOUBLE_COMPRESSED_QUARTZCRETE.getUnlocalizedName(), ModRegistry.DoubleCompressedQuartzCreteItem);
         ModRegistry.registerItem(BlockCompressedObsidian.EnumType.COMPRESSED_OBSIDIAN.asString(), ModRegistry.CompressedObsidianItem);
         ModRegistry.registerItem(BlockCompressedObsidian.EnumType.DOUBLE_COMPRESSED_OBSIDIAN.asString(), ModRegistry.DoubleCompressedObsidianItem);
         ModRegistry.registerItem("block_glass_slab", ModRegistry.GlassSlabItem);
@@ -373,6 +417,18 @@ public class ModRegistry {
         if (Prefab.isDebug) {
             ModRegistry.registerItem("block_structure_scanner", ModRegistry.StructureScannerItem);
         }
+
+        ModRegistry.registerItem("block_quartz_crete", ModRegistry.QuartzCreteItem);
+        ModRegistry.registerItem("block_quartz_crete_wall", ModRegistry.QuartzCreteWallItem);
+        ModRegistry.registerItem("block_quartz_crete_bricks", ModRegistry.QuartzCreteBricksItem);
+        ModRegistry.registerItem("block_quartz_crete_chiseled", ModRegistry.ChiseledQuartzCreteItem);
+        ModRegistry.registerItem("block_quartz_crete_pillar", ModRegistry.QuartzCretePillarItem);
+        ModRegistry.registerItem("block_quartz_crete_stairs", ModRegistry.QuartzCreteStairsItem);
+        ModRegistry.registerItem("block_quartz_crete_slab", ModRegistry.QuartzCreteSlabItem);
+        ModRegistry.registerItem("block_quartz_crete_smooth", ModRegistry.SmoothQuartzCreteItem);
+        ModRegistry.registerItem("block_quartz_crete_smooth_wall", ModRegistry.SmoothQuartzCreteWallItem);
+        ModRegistry.registerItem("block_quartz_crete_smooth_stairs", ModRegistry.SmoothQuartzCreteStairsItem);
+        ModRegistry.registerItem("block_quartz_crete_smooth_slab", ModRegistry.SmoothQuartzCreteSlabItem);
     }
 
     /**
@@ -390,6 +446,7 @@ public class ModRegistry {
     private static void RegisterRecipeSerializers() {
         Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(Prefab.MODID, "condition_crafting_shaped"), ModRegistry.ConditionedShapedRecipeSeriaizer);
         Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(Prefab.MODID, "condition_crafting_shapeless"), ModRegistry.ConditionedShapelessRecipeSeriaizer);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(Prefab.MODID, "condition_smelting"), ModRegistry.ConditionedSmeltingRecipeSeriaizer);
     }
 
     private static void registerBlock(String registryName, Block block) {
@@ -412,7 +469,7 @@ public class ModRegistry {
                         // This is now on the "main" server thread and things can be done in the world!
                         StructureConfiguration configuration = structureConfig.structureConfig.ReadFromCompoundNBT(message.getMessageTag());
 
-                        configuration.BuildStructure(serverPlayerEntity, serverPlayerEntity.getServerWorld());
+                        configuration.BuildStructure(serverPlayerEntity, serverPlayerEntity.getWorld());
                     });
                 }
         );
@@ -424,7 +481,7 @@ public class ModRegistry {
             StructureScannerConfig config = (new StructureScannerConfig()).ReadFromCompoundNBT(compound);
 
             server.execute(() -> {
-                BlockEntity blockEntity = player.getServerWorld().getBlockEntity(config.blockPos);
+                BlockEntity blockEntity = player.getWorld().getBlockEntity(config.blockPos);
 
                 if (blockEntity instanceof StructureScannerBlockEntity) {
                     StructureScannerBlockEntity actualEntity = (StructureScannerBlockEntity) blockEntity;
@@ -440,7 +497,7 @@ public class ModRegistry {
             StructureScannerConfig config = (new StructureScannerConfig()).ReadFromCompoundNBT(compound);
 
             server.execute(() -> {
-                StructureScannerBlockEntity.ScanShape(config, player, player.getServerWorld());
+                StructureScannerBlockEntity.ScanShape(config, player, player.getWorld());
             });
         });
     }

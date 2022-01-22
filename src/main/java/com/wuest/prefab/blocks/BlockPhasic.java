@@ -70,7 +70,7 @@ public class BlockPhasic extends Block {
 
 			if (progress == EnumPhasingProgress.base) {
 				// Only trigger the phasing when this block is not currently phasing.
-				world.getBlockTickScheduler().schedule(pos, this, this.tickRate);
+				world.createAndScheduleBlockTick(pos, this, this.tickRate);
 			}
 		}
 
@@ -159,7 +159,7 @@ public class BlockPhasic extends Block {
 				Block currentBlock = worldIn.getBlockState(pos.offset(facing)).getBlock();
 
 				if (currentBlock instanceof BlockPhasic && !ServerEvents.RedstoneAffectedBlockPositions.contains(pos.offset(facing))) {
-					worldIn.getBlockTickScheduler().schedule(pos.offset(facing), currentBlock, tickDelay);
+					worldIn.createAndScheduleBlockTick(pos.offset(facing), currentBlock, tickDelay);
 				}
 			}
 
@@ -199,7 +199,7 @@ public class BlockPhasic extends Block {
         }*/
 
 		if (tickDelay > 0) {
-			worldIn.getBlockTickScheduler().schedule(pos, this, tickDelay);
+			worldIn.createAndScheduleBlockTick(pos, this, tickDelay);
 		}
 	}
 
