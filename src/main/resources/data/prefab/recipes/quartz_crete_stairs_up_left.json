@@ -1,0 +1,19 @@
+{
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Quartz-Crete",
+  "group": "Quartz-Crete",
+  "pattern": [
+    "a  ",
+    "aa ",
+    "aaa"
+  ],
+  "key": {
+    "a": {
+      "tag": "c:quartz_crete_blocks"
+    }
+  },
+  "result": {
+    "item": "prefab:block_quartz_crete_stairs",
+    "count": 4
+  }
+}

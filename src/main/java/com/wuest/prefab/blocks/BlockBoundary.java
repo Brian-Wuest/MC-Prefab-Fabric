@@ -85,7 +85,6 @@ public class BlockBoundary extends Block {
 	 * @param world  The current world
 	 * @param player The player damaging the block, may be null
 	 * @param pos    Block position in world
-	 * @return True if the block is actually destroyed.
 	 */
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {

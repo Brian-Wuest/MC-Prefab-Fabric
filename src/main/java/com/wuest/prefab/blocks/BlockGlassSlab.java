@@ -136,7 +136,7 @@ public class BlockGlassSlab extends GlassBlock implements Waterloggable {
 		if (!state.get(Properties.WATERLOGGED) && fluidStateIn.getFluid() == Fluids.WATER) {
 			if (!worldIn.isClient()) {
 				worldIn.setBlockState(pos, state.with(Properties.WATERLOGGED, Boolean.TRUE), 3);
-				worldIn.getFluidTickScheduler().schedule(pos, fluidStateIn.getFluid(), fluidStateIn.getFluid().getTickRate(worldIn));
+				worldIn.createAndScheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
 			}
 
 			return true;
@@ -164,7 +164,7 @@ public class BlockGlassSlab extends GlassBlock implements Waterloggable {
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState stateIn, Direction facing, BlockState facingState, WorldAccess worldIn, BlockPos currentPos, BlockPos facingPos) {
 		if (stateIn.get(WATERLOGGED)) {
-			worldIn.getFluidTickScheduler().schedule(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+			worldIn.createAndScheduleFluidTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
 		}
 
 		return super.getStateForNeighborUpdate(stateIn, facing, facingState, worldIn, currentPos, facingPos);

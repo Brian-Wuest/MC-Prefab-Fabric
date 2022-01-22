@@ -8,7 +8,8 @@
   "authors": [
     "WuestMan",
     "Kaojinn",
-    "NerdySpider"
+    "NerdySpider",
+    "Dqu1J"
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/prefab-fabric",
@@ -38,8 +39,8 @@
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",
-    "minecraft": "1.17.x",
-    "java": ">=16"
+    "minecraft": "1.18.x",
+    "java": ">=17"
   },
   "suggests": {
     "flamingo": "*"

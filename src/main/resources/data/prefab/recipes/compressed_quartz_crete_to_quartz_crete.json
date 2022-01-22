@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "Compressed dirt to normal dirt"
+  ],
+  "type": "prefab:condition_crafting_shapeless",
+  "config": "Quartz-Crete",
+  "group": "Quartz-Crete",
+  "ingredients": [
+    {
+      "tag": "c:compressed_quartz_crete"
+    }
+  ],
+  "result": {
+    "item": "prefab:block_quartz_crete",
+    "count": 9
+  }
+}
