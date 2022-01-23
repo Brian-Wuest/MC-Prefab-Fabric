@@ -396,7 +396,7 @@ public abstract class GuiBase extends Screen {
      *
      * @param button The button which was clicked.
      */
-    public abstract void buttonClicked(PressableWidget button);
+    public abstract void buttonClicked(PressableWidget button, boolean isRightClick);
 
     protected abstract void preButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks);
 

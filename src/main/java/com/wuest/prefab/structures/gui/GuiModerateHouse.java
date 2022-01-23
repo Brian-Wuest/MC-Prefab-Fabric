@@ -67,9 +67,9 @@ public class GuiModerateHouse extends GuiStructure {
         // Create the buttons.
         this.btnHouseStyle = this.createAndAddButton(grayBoxX + 8, grayBoxY + 25, 90, 20, this.configuration.houseStyle.getDisplayName(), false, GuiLangKeys.translateString(GuiLangKeys.STARTER_HOUSE_STYLE));
         this.btnBedColor = this.createAndAddDyeButton(grayBoxX + 8, grayBoxY + 60, 90, 20, this.configuration.bedColor, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR));
-        this.btnAddChest = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 120, GuiLangKeys.STARTER_HOUSE_ADD_CHEST, this.configuration.addChests, this::buttonClicked);
-        this.btnAddMineShaft = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 137, GuiLangKeys.STARTER_HOUSE_BUILD_MINESHAFT, this.configuration.addChestContents, this::buttonClicked);
-        this.btnAddChestContents = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 154, GuiLangKeys.STARTER_HOUSE_ADD_CHEST_CONTENTS, this.configuration.addMineshaft, this::buttonClicked);
+        this.btnAddChest = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 120, GuiLangKeys.STARTER_HOUSE_ADD_CHEST, this.configuration.addChests, this::leftButtonClicked);
+        this.btnAddMineShaft = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 137, GuiLangKeys.STARTER_HOUSE_BUILD_MINESHAFT, this.configuration.addChestContents, this::leftButtonClicked);
+        this.btnAddChestContents = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 154, GuiLangKeys.STARTER_HOUSE_ADD_CHEST_CONTENTS, this.configuration.addMineshaft, this::leftButtonClicked);
 
         // Create the standard buttons.
         this.btnVisualize = this.createAndAddCustomButton(grayBoxX + 24, grayBoxY + 177, 90, 20, GuiLangKeys.GUI_BUTTON_PREVIEW);
@@ -119,8 +119,12 @@ public class GuiModerateHouse extends GuiStructure {
     /**
      * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
      */
+    public void leftButtonClicked(PressableWidget button) {
+        this.buttonClicked(button, false);
+    }
+
     @Override
-    public void buttonClicked(PressableWidget button) {
+    public void buttonClicked(PressableWidget button, boolean rightClick) {
         this.configuration.addChests = this.btnAddChest.visible && this.btnAddChest.isChecked();
         this.configuration.addChestContents = this.allowItemsInChestAndFurnace && (this.btnAddChestContents.visible && this.btnAddChestContents.isChecked());
         this.configuration.addMineshaft = this.btnAddMineShaft.visible && this.btnAddMineShaft.isChecked();
@@ -128,15 +132,33 @@ public class GuiModerateHouse extends GuiStructure {
         this.performCancelOrBuildOrHouseFacing(this.configuration, button);
 
         if (button == this.btnHouseStyle) {
-            int id = this.configuration.houseStyle.getValue() + 1;
-            this.configuration.houseStyle = ModerateHouseConfiguration.HouseStyle.ValueOf(id);
+            int id;
+            if (rightClick) {
+                id = this.configuration.houseStyle.getValue() - 1;
+                if (id < 0) {
+                    id = ModerateHouseConfiguration.HouseStyle.values().length - 1;
+                }
+            } else {
+                id = this.configuration.houseStyle.getValue() + 1;
+            }
 
+            this.configuration.houseStyle = ModerateHouseConfiguration.HouseStyle.ValueOf(id);
             GuiUtils.setButtonText(btnHouseStyle, this.configuration.houseStyle.getDisplayName());
         } else if (button == this.btnVisualize) {
             StructureModerateHouse structure = StructureModerateHouse.CreateInstance(this.configuration.houseStyle.getStructureLocation(), StructureModerateHouse.class);
             this.performPreview(structure, this.configuration);
         } else if (button == this.btnBedColor) {
-            this.configuration.bedColor = DyeColor.byId(this.configuration.bedColor.getId() + 1);
+            if (rightClick) {
+                int id = this.configuration.bedColor.getId() - 1;
+                if (id < 0) {
+                    id = DyeColor.values().length - 1;
+                }
+
+                this.configuration.bedColor = DyeColor.byId(id);
+            } else {
+                this.configuration.bedColor = DyeColor.byId(this.configuration.bedColor.getId() + 1);
+            }
+
             GuiUtils.setButtonText(btnBedColor, GuiLangKeys.translateDye(this.configuration.bedColor));
         }
     }

@@ -2,6 +2,7 @@ package com.wuest.prefab.structures.gui;
 
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Tuple;
+import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.gui.GuiUtils;
 import com.wuest.prefab.gui.controls.ExtendedButton;
@@ -54,9 +55,9 @@ public class GuiInstantBridge extends GuiStructure {
 
         // Create the buttons.
         this.btnMaterialType = this.createAndAddButton(grayBoxX + 15, grayBoxY + 45, 90, 20, this.configuration.bridgeMaterial.getName());
-        this.sldrBridgeLength = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 85, 90, 20, "", "", 25, 75, this.configuration.bridgeLength, false, true, this::buttonClicked);
-        this.chckIncludeRoof = this.createAndAddCheckBox(grayBoxX + 15, grayBoxY + 112, GuiLangKeys.INCLUDE_ROOF, this.configuration.includeRoof, this::buttonClicked);
-        this.sldrInteriorHeight = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 140, 90, 20, "", "", 3, 8, this.configuration.interiorHeight, false, true, this::buttonClicked);
+        this.sldrBridgeLength = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 85, 90, 20, "", "", 25, 75, this.configuration.bridgeLength, false, true, this::leftButtonClicked);
+        this.chckIncludeRoof = this.createAndAddCheckBox(grayBoxX + 15, grayBoxY + 112, GuiLangKeys.INCLUDE_ROOF, this.configuration.includeRoof, this::leftButtonClicked);
+        this.sldrInteriorHeight = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 140, 90, 20, "", "", 3, 8, this.configuration.interiorHeight, false, true, this::leftButtonClicked);
         this.sldrInteriorHeight.visible = this.chckIncludeRoof.isChecked();
 
         // Create the standard buttons.
@@ -108,8 +109,12 @@ public class GuiInstantBridge extends GuiStructure {
     /**
      * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
      */
+    public void leftButtonClicked(PressableWidget button) {
+        this.buttonClicked(button, false);
+    }
+
     @Override
-    public void buttonClicked(PressableWidget button) {
+    public void buttonClicked(PressableWidget button, boolean rightClick) {
         int sliderValue = this.sldrBridgeLength.getValueInt();
 
         if (sliderValue > 75) {
@@ -139,7 +144,17 @@ public class GuiInstantBridge extends GuiStructure {
             this.sldrInteriorHeight.visible = this.configuration.includeRoof;
         }
         if (button == this.btnMaterialType) {
-            this.configuration.bridgeMaterial = EnumStructureMaterial.getMaterialByNumber(this.configuration.bridgeMaterial.getNumber() + 1);
+            int id;
+            if (rightClick) {
+                id = this.configuration.bridgeMaterial.getNumber() - 1;
+                if (id < 0) {
+                    id = EnumStructureMaterial.values().length - 1;
+                }
+            } else {
+                id = this.configuration.bridgeMaterial.getNumber() + 1;
+            }
+
+            this.configuration.bridgeMaterial = EnumStructureMaterial.getMaterialByNumber(id);
             GuiUtils.setButtonText(btnMaterialType, this.configuration.bridgeMaterial.getTranslatedName());
         } else if (button == this.btnVisualize) {
             StructureInstantBridge structure = new StructureInstantBridge();

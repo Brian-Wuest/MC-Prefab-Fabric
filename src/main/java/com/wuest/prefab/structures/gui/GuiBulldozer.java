@@ -61,7 +61,7 @@ public class GuiBulldozer extends GuiStructure {
      * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
      */
     @Override
-    public void buttonClicked(PressableWidget button) {
+    public void buttonClicked(PressableWidget button, boolean rightClick) {
         this.configuration.houseFacing = this.getMinecraft().player.getHorizontalFacing().getOpposite();
         this.performCancelOrBuildOrHouseFacing(this.configuration, button);
     }

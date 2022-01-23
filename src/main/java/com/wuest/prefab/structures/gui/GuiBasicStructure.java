@@ -195,39 +195,56 @@ public class GuiBasicStructure extends GuiStructure {
     }
 
     @Override
-    public void buttonClicked(PressableWidget button) {
+    public void buttonClicked(PressableWidget button, boolean rightClick) {
         this.performCancelOrBuildOrHouseFacing(this.configuration, button);
 
         if (button == this.btnVisualize) {
             StructureBasic structure = StructureBasic.CreateInstance(this.configuration.chosenOption.getAssetLocation(), StructureBasic.class);
             this.performPreview(structure, this.configuration);
         } else if (button == this.btnBedColor) {
-            this.configuration.bedColor = DyeColor.byId(this.configuration.bedColor.getId() + 1);
+            if (rightClick) {
+                int id = this.configuration.bedColor.getId() - 1;
+                if (id < 0) {
+                    id = DyeColor.values().length - 1;
+                }
+
+                this.configuration.bedColor = DyeColor.byId(id);
+            } else {
+                this.configuration.bedColor = DyeColor.byId(this.configuration.bedColor.getId() + 1);
+            }
+
             GuiUtils.setButtonText(this.btnBedColor, GuiLangKeys.translateDye(this.configuration.bedColor));
         } else if (button == this.btnGlassColor) {
-            this.configuration.glassColor = FullDyeColor.byId(this.configuration.glassColor.getId() + 1);
+            if (rightClick) {
+                int id = this.configuration.glassColor.getId() - 1;
+                if (id < 0) {
+                    id = FullDyeColor.values().length - 1;
+                }
+
+                this.configuration.glassColor = FullDyeColor.byId(id);
+            } else {
+                this.configuration.glassColor = FullDyeColor.byId(this.configuration.glassColor.getId() + 1);
+            }
+
             GuiUtils.setButtonText(this.btnGlassColor, GuiLangKeys.translateFullDye(this.configuration.glassColor));
         } else if (button == this.btnStructureOptions) {
-            for (int i = 0; i < this.availableOptions.size(); i++) {
-                BaseOption option = this.availableOptions.get(i);
-                BaseOption chosenOption = null;
+            int selectedOptionIndex = this.availableOptions.indexOf(this.configuration.chosenOption);
 
-                if (this.configuration.chosenOption.getTranslationString().equals(option.getTranslationString())) {
-                    if (i == this.availableOptions.size() - 1) {
-                        // This is the last option, set the text to the first option.
-                        chosenOption = this.availableOptions.get(0);
-                    } else {
-                        chosenOption = this.availableOptions.get(i + 1);
-                    }
-                }
-
-                if (chosenOption != null) {
-                    this.configuration.chosenOption = chosenOption;
-                    this.structureImageLocation = this.configuration.chosenOption.getPictureLocation();
-                    GuiUtils.setButtonText(btnStructureOptions, GuiLangKeys.translateString(chosenOption.getTranslationString()));
-                    break;
-                }
+            if (rightClick) {
+                selectedOptionIndex--;
+            } else {
+                selectedOptionIndex++;
             }
+
+            if (selectedOptionIndex >= this.availableOptions.size()) {
+                selectedOptionIndex = 0;
+            } else if (selectedOptionIndex < 0) {
+                selectedOptionIndex = this.availableOptions.size() - 1;
+            }
+
+            this.configuration.chosenOption = this.availableOptions.get(selectedOptionIndex);
+            this.structureImageLocation = this.configuration.chosenOption.getPictureLocation();
+            GuiUtils.setButtonText(btnStructureOptions, GuiLangKeys.translateString(this.configuration.chosenOption.getTranslationString()));
         }
     }
 }

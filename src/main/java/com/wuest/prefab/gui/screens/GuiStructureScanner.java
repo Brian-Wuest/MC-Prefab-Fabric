@@ -116,7 +116,7 @@ public class GuiStructureScanner extends GuiBase {
     }
 
     @Override
-    public void buttonClicked(PressableWidget button) {
+    public void buttonClicked(PressableWidget button, boolean rightClick) {
         this.config.structureZipName = this.txtZipName.getText();
 
         if (this.config.structureZipName.trim().equals("")) {
