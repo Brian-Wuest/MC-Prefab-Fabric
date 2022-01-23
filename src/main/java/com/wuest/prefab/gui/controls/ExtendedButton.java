@@ -15,18 +15,37 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 
 public class ExtendedButton extends PressableWidget {
 	public float fontScale = 1;
 	private final String label;
 	private static final ButtonWidget.TooltipSupplier tooltipSupplier = (button, matrices, mouseX, mouseY) -> {};
 	private final PressAction pressAction;
+	private final boolean shouldRenderTooltip;
 
 	public ExtendedButton(int xPos, int yPos, int width, int height, Text displayString, PressAction handler, @Nullable String label) {
 		super(xPos, yPos, width, height, displayString);
 		pressAction = handler;
 		this.label = label;
+		this.shouldRenderTooltip = true;
+	}
+
+	public ExtendedButton(int xPos, int yPos, int width, int height, Text displayString, PressAction handler) {
+		super(xPos, yPos, width, height, displayString);
+		pressAction = handler;
+		this.label = null;
+		this.shouldRenderTooltip = true;
+	}
+
+	public ExtendedButton(int xPos, int yPos, int width, int height, Text displayString, PressAction handler, @Nullable String label, boolean shouldRenderTooltip) {
+		super(xPos, yPos, width, height, displayString);
+		pressAction = handler;
+		this.label = label;
+		this.shouldRenderTooltip = shouldRenderTooltip;
 	}
 
 	@Override
@@ -114,6 +133,15 @@ public class ExtendedButton extends PressableWidget {
 
 			DrawableHelper.drawCenteredText(originalStack, mc.textRenderer, buttonText, xPosition, yPosition, this.getFGColor());
 			originalStack.pop();
+
+			ArrayList<Text> texts = new ArrayList<>();
+			texts.add(new TranslatableText("prefab.gui.button_desc.1"));
+			texts.add(new TranslatableText("prefab.gui.button_desc.2"));
+
+			if (mc.currentScreen == null) return;
+			if (!isMouseOver(mouseX, mouseY)) return;
+			if (!shouldRenderTooltip) return;
+			mc.currentScreen.renderTooltip(mStack, texts, mouseX, mouseY);
 		}
 	}
 

@@ -129,6 +129,23 @@ public abstract class GuiBase extends Screen {
      * @param width  The width of the button.
      * @param height The height of the button.
      * @param text   The text of the button.
+     * @param tooltip Should render the tooltip
+     * @return A new button.
+     */
+    public ExtendedButton createAndAddButton(int x, int y, int width, int height, boolean tooltip, String text) {
+        ExtendedButton returnValue = new ExtendedButton(x, y, width, height, GuiLangKeys.translateToComponent(text), this::buttonClicked, null, tooltip);
+
+        return this.addDrawableChild(returnValue);
+    }
+
+    /**
+     * Creates a button using the button clicked event as the handler. Then adds it to the buttons list and returns the created object.
+     *
+     * @param x      The x-axis position.
+     * @param y      The y-axis position.
+     * @param width  The width of the button.
+     * @param height The height of the button.
+     * @param text   The text of the button.
      * @param label  The label of the button.
      * @return A new button.
      */
@@ -149,7 +166,7 @@ public abstract class GuiBase extends Screen {
      * @return A new button.
      */
     public ExtendedButton createAndAddButton(int x, int y, int width, int height, String text, boolean translate) {
-        ExtendedButton returnValue = new ExtendedButton(x, y, width, height, translate ? GuiLangKeys.translateToComponent(text) : Utils.createTextComponent(text), this::buttonClicked, null);
+        ExtendedButton returnValue = new ExtendedButton(x, y, width, height, translate ? GuiLangKeys.translateToComponent(text) : Utils.createTextComponent(text), this::buttonClicked);
 
         return this.addDrawableChild(returnValue);
     }

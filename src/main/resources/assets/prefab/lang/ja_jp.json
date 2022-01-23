@@ -250,6 +250,8 @@
   "prefab.gui.bulldozer_desc": "このアイテムは16x16x16のスペースを空にし、各ブロックからのドロップを提供します。",
   "prefab.gui.compressed_chest_desc": "直接保管ではなく、構造物のレシピで使用されます",
   "prefab.gui.sickle_desc": "草、花、葉を簡単にカット！",
+  "prefab.gui.button_desc.1": "左クリックして切り替えます",
+  "prefab.gui.button_desc.2": "右クリックして後方に切り替えます",
 
   "prefab.ceiling.block.type.stone": "石レンガ",
   "prefab.ceiling.block.type.brick": "レンガ",

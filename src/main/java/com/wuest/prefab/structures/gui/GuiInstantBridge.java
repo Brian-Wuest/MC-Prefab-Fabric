@@ -63,7 +63,7 @@ public class GuiInstantBridge extends GuiStructure {
         // Create the standard buttons.
         this.btnVisualize = this.createAndAddCustomButton(grayBoxX + 25, grayBoxY + 177, 90, 20, GuiLangKeys.GUI_BUTTON_PREVIEW);
         this.btnBuild = this.createAndAddCustomButton(grayBoxX + 310, grayBoxY + 177, 90, 20, GuiLangKeys.GUI_BUTTON_BUILD);
-        this.btnCancel = this.createAndAddButton(grayBoxX + 150, grayBoxY + 177, 90, 20, GuiLangKeys.GUI_BUTTON_CANCEL);
+        this.btnCancel = this.createAndAddButton(grayBoxX + 150, grayBoxY + 177, 90, 20, false, GuiLangKeys.GUI_BUTTON_CANCEL);
     }
 
     @Override

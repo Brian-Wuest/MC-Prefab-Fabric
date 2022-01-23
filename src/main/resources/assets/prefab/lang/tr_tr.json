@@ -251,6 +251,8 @@
   "prefab.gui.bulldozer_desc": "Bu eşya 16x16x16'lık bir alanı temizleyecek ve düşen bloklar eşya olarak geri dönecek.",
   "prefab.gui.compressed_chest_desc": "Doğrudan depolama için değil, yapılar için tariflerde kullanılır",
   "prefab.gui.sickle_desc": "Çimleri, çiçekleri ve yaprakları kolaylıkla kesin!",
+  "prefab.gui.button_desc.1": "Geçiş yapmak için Sol Tıklayın",
+  "prefab.gui.button_desc.2": "Geriye doğru geçiş yapmak için Sağ Tıklayın",
 
   "prefab.ceiling.block.type.stone": "Taş Tuğla",
   "prefab.ceiling.block.type.brick": "Tuğla",
