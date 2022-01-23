@@ -141,6 +141,10 @@ public class ExtendedButton extends PressableWidget {
 			if (mc.currentScreen == null) return;
 			if (!isMouseOver(mouseX, mouseY)) return;
 			if (!shouldRenderTooltip) return;
+
+			// Make it not overlap the button
+			mouseY += this.height * 1.25;
+
 			mc.currentScreen.renderTooltip(mStack, texts, mouseX, mouseY);
 		}
 	}
