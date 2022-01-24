@@ -250,8 +250,8 @@
   "prefab.gui.bulldozer_desc": "Questo oggetto sgombrerà uno spazio di 16x16x16 e fornirà il drop di ogni blocco.",
   "prefab.gui.compressed_chest_desc": "Utilizzato nelle ricette per strutture, non per lo stoccaggio diretto",
   "prefab.gui.sickle_desc": "Taglia erba, fiori e foglie con facilità!",
-  "prefab.gui.button_desc.1": "Fare clic con il tasto sinistro per cambiare",
-  "prefab.gui.button_desc.2": "Fare clic con il pulsante destro del mouse per tornare indietro",
+  "prefab.gui.button_desc.1": "Cliquez pour basculer",
+  "prefab.gui.button_desc.2": "Clic secondaire pour revenir en arrière",
 
   "prefab.ceiling.block.type.stone": "Mattoni di Pietra",
   "prefab.ceiling.block.type.brick": "Mattone",

@@ -243,8 +243,8 @@
   "prefab.gui.compressed_chest_desc": "Utilisé dans les recettes pour les structures, pas pour le stockage direct",
   "prefab.gui.sickle_desc": "Coupez facilement l'herbe, les fleurs et les feuilles!",
   "prefab.gui.cleared_area": "La zone dégagée sera dans la direction que vous affrontez.",
-  "prefab.gui.button_desc.1": "Clic gauche pour basculer",
-  "prefab.gui.button_desc.2": "Clic droit pour revenir en arrière",
+  "prefab.gui.button_desc.1": "Cliquez pour basculer",
+  "prefab.gui.button_desc.2": "Clic secondaire pour revenir en arrière",
 
   "prefab.gui.villager.house.flat": "Toit plat",
   "prefab.gui.villager.house.angled": "Toit en angle",

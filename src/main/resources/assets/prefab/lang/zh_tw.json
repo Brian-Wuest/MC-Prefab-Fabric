@@ -250,8 +250,8 @@
   "prefab.gui.bulldozer_desc": "此物品會清出一個 16x16x16 的空間，並將方塊變為掉落物。",
   "prefab.gui.compressed_chest_desc": "用於結構配方，不用於直接存儲",
   "prefab.gui.sickle_desc": "輕鬆剪草、剪花和剪樹葉！",
-  "prefab.gui.button_desc.1": "左鍵點擊切換",
-  "prefab.gui.button_desc.2": "右鍵單擊以向後切換",
+  "prefab.gui.button_desc.1": "主要點擊切換",
+  "prefab.gui.button_desc.2": "二次點擊向後切換",
 
   "prefab.ceiling.block.type.stone": "石磚",
   "prefab.ceiling.block.type.brick": "紅磚頭",

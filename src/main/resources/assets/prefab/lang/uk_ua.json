@@ -250,8 +250,8 @@
     "prefab.gui.bulldozer_desc": "Цей предмет почистить область розміром 16x16x16 блоків та віддасть зламані блоки.",
     "prefab.gui.compressed_chest_desc": "Використовується в рецептах конструкцій, а не для безпосереднього зберігання",
     "prefab.gui.sickle_desc": "З легкістю косите траву, квіти та листя!",
-    "prefab.gui.button_desc.1": "ЛКМ для перемикання",
-    "prefab.gui.button_desc.2": "ПКМ для перемикання назад",
+    "prefab.gui.button_desc.1": "Первинний Клік для перемикання",
+    "prefab.gui.button_desc.2": "Вторинний Клік для перемикання назад",
 
     "prefab.ceiling.block.type.stone": "Кам'яна Цегла",
     "prefab.ceiling.block.type.brick": "Цегла",
