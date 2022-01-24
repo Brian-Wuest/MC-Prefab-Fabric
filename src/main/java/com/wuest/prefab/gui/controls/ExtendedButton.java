@@ -85,6 +85,7 @@ public class ExtendedButton extends PressableWidget {
 
 	/**
 	 * Processes secondary clicks
+	 * 
 	 * @param mouseX Horizontal mouse location
 	 * @param mouseY Vertical mouse location
 	 */
