@@ -72,7 +72,7 @@ public class ExtendedButton extends PressableWidget {
 	}
 
 	/**
-	 * Processes right clicks
+	 * Processes secondary clicks
 	 */
 	public void onRightPress() {
 		pressAction.onPress(this, true);
@@ -84,10 +84,9 @@ public class ExtendedButton extends PressableWidget {
 	}
 
 	/**
+	 * Processes secondary clicks
 	 * @param mouseX Horizontal mouse location
 	 * @param mouseY Vertical mouse location
-	 *
-	 *               Processes right clicks
 	 */
 	public void onRightClick(double mouseX, double mouseY) {
 		this.onRightPress();
