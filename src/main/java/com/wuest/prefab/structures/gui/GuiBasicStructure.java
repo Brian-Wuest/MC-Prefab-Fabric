@@ -204,6 +204,7 @@ public class GuiBasicStructure extends GuiStructure {
         } else if (button == this.btnBedColor) {
             if (rightClick) {
                 int id = this.configuration.bedColor.getId() - 1;
+
                 if (id < 0) {
                     id = DyeColor.values().length - 1;
                 }
@@ -217,6 +218,7 @@ public class GuiBasicStructure extends GuiStructure {
         } else if (button == this.btnGlassColor) {
             if (rightClick) {
                 int id = this.configuration.glassColor.getId() - 1;
+
                 if (id < 0) {
                     id = FullDyeColor.values().length - 1;
                 }

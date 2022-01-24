@@ -124,16 +124,16 @@ public abstract class GuiBase extends Screen {
     /**
      * Creates a button using the button clicked event as the handler. Then adds it to the buttons list and returns the created object.
      *
-     * @param x      The x-axis position.
-     * @param y      The y-axis position.
-     * @param width  The width of the button.
-     * @param height The height of the button.
-     * @param text   The text of the button.
-     * @param tooltip Should render the tooltip
+     * @param x           The x-axis position.
+     * @param y           The y-axis position.
+     * @param width       The width of the button.
+     * @param height      The height of the button.
+     * @param text        The text of the button.
+     * @param showToolTip Should render the toolTip.
      * @return A new button.
      */
-    public ExtendedButton createAndAddButton(int x, int y, int width, int height, boolean tooltip, String text) {
-        ExtendedButton returnValue = new ExtendedButton(x, y, width, height, GuiLangKeys.translateToComponent(text), this::buttonClicked, null, tooltip);
+    public ExtendedButton createAndAddButton(int x, int y, int width, int height, boolean showToolTip, String text) {
+        ExtendedButton returnValue = new ExtendedButton(x, y, width, height, GuiLangKeys.translateToComponent(text), this::buttonClicked, null, showToolTip);
 
         return this.addDrawableChild(returnValue);
     }

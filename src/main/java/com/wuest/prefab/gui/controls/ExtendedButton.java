@@ -23,37 +23,38 @@ import java.util.ArrayList;
 public class ExtendedButton extends PressableWidget {
 	public float fontScale = 1;
 	private final String label;
-	private static final ButtonWidget.TooltipSupplier tooltipSupplier = (button, matrices, mouseX, mouseY) -> {};
+	private static final ButtonWidget.TooltipSupplier toolTipSupplier = (button, matrices, mouseX, mouseY) -> {};
 	private final PressAction pressAction;
-	private final boolean shouldRenderTooltip;
+	private final boolean shouldRenderToolTip;
 
 	public ExtendedButton(int xPos, int yPos, int width, int height, Text displayString, PressAction handler, @Nullable String label) {
 		super(xPos, yPos, width, height, displayString);
 		pressAction = handler;
 		this.label = label;
-		this.shouldRenderTooltip = true;
+		this.shouldRenderToolTip = true;
 	}
 
 	public ExtendedButton(int xPos, int yPos, int width, int height, Text displayString, PressAction handler) {
 		super(xPos, yPos, width, height, displayString);
 		pressAction = handler;
 		this.label = null;
-		this.shouldRenderTooltip = true;
+		this.shouldRenderToolTip = true;
 	}
 
 	public ExtendedButton(int xPos, int yPos, int width, int height, Text displayString, PressAction handler, @Nullable String label, boolean shouldRenderTooltip) {
 		super(xPos, yPos, width, height, displayString);
 		pressAction = handler;
 		this.label = label;
-		this.shouldRenderTooltip = shouldRenderTooltip;
+		this.shouldRenderToolTip = shouldRenderTooltip;
 	}
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (this.active && this.visible) {
 			if (button == 1) {
-				boolean bl = this.clicked(mouseX, mouseY);
-				if (bl) {
+				boolean didClickOnButton = this.clicked(mouseX, mouseY);
+
+				if (didClickOnButton) {
 					this.playDownSound(MinecraftClient.getInstance().getSoundManager());
 					this.onRightClick(mouseX, mouseY);
 					return true;
@@ -70,6 +71,9 @@ public class ExtendedButton extends PressableWidget {
 		pressAction.onPress(this, false);
 	}
 
+	/**
+	 * Processes right clicks
+	 */
 	public void onRightPress() {
 		pressAction.onPress(this, true);
 	}
@@ -79,6 +83,12 @@ public class ExtendedButton extends PressableWidget {
 		this.onPress();
 	}
 
+	/**
+	 * @param mouseX Horizontal mouse location
+	 * @param mouseY Vertical mouse location
+	 *
+	 *               Processes right clicks
+	 */
 	public void onRightClick(double mouseX, double mouseY) {
 		this.onRightPress();
 	}
@@ -134,13 +144,23 @@ public class ExtendedButton extends PressableWidget {
 			DrawableHelper.drawCenteredText(originalStack, mc.textRenderer, buttonText, xPosition, yPosition, this.getFGColor());
 			originalStack.pop();
 
+			// Render the toolTip
+
 			ArrayList<Text> texts = new ArrayList<>();
 			texts.add(new TranslatableText("prefab.gui.button_desc.1"));
 			texts.add(new TranslatableText("prefab.gui.button_desc.2"));
 
-			if (mc.currentScreen == null) return;
-			if (!isMouseOver(mouseX, mouseY)) return;
-			if (!shouldRenderTooltip) return;
+			if (mc.currentScreen == null) {
+				return;
+			}
+
+			if (!isMouseOver(mouseX, mouseY)) {
+				return;
+			}
+
+			if (!shouldRenderToolTip) {
+				return;
+			}
 
 			// Make it not overlap the button
 			mouseY += this.height * 1.25;
@@ -156,7 +176,7 @@ public class ExtendedButton extends PressableWidget {
 	@Override
 	public void appendNarrations(NarrationMessageBuilder builder) {
 		this.appendDefaultNarrations(builder);
-		tooltipSupplier.supply((text) -> {
+		toolTipSupplier.supply((text) -> {
 			builder.put(NarrationPart.HINT, text);
 		});
 	}

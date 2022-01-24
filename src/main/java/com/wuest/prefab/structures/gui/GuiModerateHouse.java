@@ -133,8 +133,10 @@ public class GuiModerateHouse extends GuiStructure {
 
         if (button == this.btnHouseStyle) {
             int id;
+
             if (rightClick) {
                 id = this.configuration.houseStyle.getValue() - 1;
+
                 if (id < 0) {
                     id = ModerateHouseConfiguration.HouseStyle.values().length - 1;
                 }
@@ -150,6 +152,7 @@ public class GuiModerateHouse extends GuiStructure {
         } else if (button == this.btnBedColor) {
             if (rightClick) {
                 int id = this.configuration.bedColor.getId() - 1;
+
                 if (id < 0) {
                     id = DyeColor.values().length - 1;
                 }

@@ -147,6 +147,7 @@ public class GuiInstantBridge extends GuiStructure {
             int id;
             if (rightClick) {
                 id = this.configuration.bridgeMaterial.getNumber() - 1;
+
                 if (id < 0) {
                     id = EnumStructureMaterial.values().length - 1;
                 }
