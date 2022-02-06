@@ -1,6 +1,6 @@
 package com.wuest.prefab.base;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * This abstract class is used as the base for CompoundNBT configurations.
@@ -13,7 +13,7 @@ public abstract class BaseConfig {
 	 *
 	 * @param compound The existing tag to add custom values too.
 	 */
-	public abstract void WriteToNBTCompound(NbtCompound compound);
+	public abstract void WriteToNBTCompound(CompoundTag compound);
 
 	/**
 	 * Reads data from an CompoundNBT and creates an instance of the configuration class.
@@ -21,15 +21,15 @@ public abstract class BaseConfig {
 	 * @param compound The compound containing the data to create the configuration class.
 	 * @return An instance containing the data held within the CompoundNBT
 	 */
-	public abstract <T extends BaseConfig> T ReadFromCompoundNBT(NbtCompound compound);
+	public abstract <T extends BaseConfig> T ReadFromCompoundNBT(CompoundTag compound);
 
 	/**
 	 * Gets an CompoundNBT which has this classes information in it.
 	 *
-	 * @return A {@link NbtCompound} with this classes values.
+	 * @return A {@link CompoundTag} with this classes values.
 	 */
-	public NbtCompound GetCompoundNBT() {
-		NbtCompound compound = new NbtCompound();
+	public CompoundTag GetCompoundNBT() {
+		CompoundTag compound = new CompoundTag();
 		this.WriteToNBTCompound(compound);
 		return compound;
 	}

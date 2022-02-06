@@ -4,14 +4,14 @@ import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.structures.config.enums.*;
 import com.wuest.prefab.structures.items.ItemBasicStructure;
 import com.wuest.prefab.structures.predefined.StructureBasic;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * This class is used for the basic structures in the mod.
@@ -82,7 +82,7 @@ public class BasicStructureConfiguration extends StructureConfiguration {
     }
 
     @Override
-    protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
+    protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
         BasicStructureConfiguration basicConfig = (BasicStructureConfiguration) config;
 
         if (messageTag.contains(BasicStructureConfiguration.structureEnumNameTag)) {
@@ -107,15 +107,15 @@ public class BasicStructureConfiguration extends StructureConfiguration {
     }
 
     @Override
-    protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
+    protected CompoundTag CustomWriteToCompoundTag(CompoundTag tag) {
         tag.putString(BasicStructureConfiguration.structureEnumNameTag, this.basicStructureName.name());
 
         if (this.structureDisplayName != null) {
             tag.putString(BasicStructureConfiguration.structureDisplayNameTag, this.structureDisplayName);
         }
 
-        tag.putString(BasicStructureConfiguration.bedColorTag, this.bedColor.asString().toUpperCase());
-        tag.putString(BasicStructureConfiguration.glassColorTag, this.glassColor.asString().toUpperCase());
+        tag.putString(BasicStructureConfiguration.bedColorTag, this.bedColor.getSerializedName().toUpperCase());
+        tag.putString(BasicStructureConfiguration.glassColorTag, this.glassColor.getSerializedName().toUpperCase());
         tag.putString(BasicStructureConfiguration.chosenOptionTag, this.chosenOption.getTranslationString());
 
         return tag;
@@ -128,10 +128,10 @@ public class BasicStructureConfiguration extends StructureConfiguration {
      * @return An instance of {@link BasicStructureConfiguration} with vaules pulled from the NBTTagCompound.
      */
     @Override
-    public BasicStructureConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
+    public BasicStructureConfiguration ReadFromCompoundTag(CompoundTag messageTag) {
         BasicStructureConfiguration config = new BasicStructureConfiguration();
 
-        return (BasicStructureConfiguration) super.ReadFromCompoundNBT(messageTag, config);
+        return (BasicStructureConfiguration) super.ReadFromCompoundTag(messageTag, config);
     }
 
     /**
@@ -142,7 +142,7 @@ public class BasicStructureConfiguration extends StructureConfiguration {
      * @param hitBlockPos This hit block position.
      */
     @Override
-    protected void ConfigurationSpecificBuildStructure(PlayerEntity player, ServerWorld world, BlockPos hitBlockPos) {
+    protected void ConfigurationSpecificBuildStructure(Player player, ServerLevel world, BlockPos hitBlockPos) {
         String assetLocation = "";
 
         if (!this.IsCustomStructure()) {
@@ -151,17 +151,17 @@ public class BasicStructureConfiguration extends StructureConfiguration {
 
         StructureBasic structure = StructureBasic.CreateInstance(assetLocation, StructureBasic.class);
 
-        if (structure.BuildStructure(this, world, hitBlockPos, Direction.NORTH, player)) {
+        if (structure.BuildStructure(this, world, hitBlockPos, player)) {
             ItemStack stack = ItemBasicStructure.getBasicStructureItemInHand(player);
 
-            if (!stack.isDamageable()) {
+            if (!stack.isDamageableItem()) {
                 if (stack.getCount() == 1) {
-                    player.getInventory().removeOne(stack);
+                    player.getInventory().removeItem(stack);
                 } else {
                     stack.setCount(stack.getCount() - 1);
                 }
 
-                player.currentScreenHandler.sendContentUpdates();
+                player.containerMenu.broadcastChanges();
             } else {
                 // The item has durability; damage it since the building was constructed.
                 this.DamageHeldItem(player, stack.getItem());
@@ -176,7 +176,7 @@ public class BasicStructureConfiguration extends StructureConfiguration {
      */
     @SuppressWarnings("SpellCheckingInspection")
     public enum EnumBasicStructureName {
-        Custom("custom", null, null, null, null),
+        Custom("custom", null, null, null, false),
         MachineryTower("machinery_tower", "item.prefab.item_machinery_tower", "item_machinery_tower", MachineryTowerOptions.Default, true),
         DefenseBunker("defense_bunker", "item.prefab.item_defense_bunker", "item_defense_bunker", DefenseBunkerOptions.Default, false),
         MineshaftEntrance("mineshaft_entrance", "item.prefab.item_mineshaft_entrance", "item_mineshaft_entrance", MineshaftEntranceOptions.Default, true),
@@ -191,45 +191,45 @@ public class BasicStructureConfiguration extends StructureConfiguration {
         SkiLodge("ski_lodge", "item.prefab.item_ski_lodge", "item_ski_lodge", SkiLodgeOptions.Default, false),
         WindMill("wind_mill", "item.prefab.item_wind_mill", "item_wind_mill", WindMillOptions.Default, false),
         TownHall("town_hall", "item.prefab.item_town_hall", "item_town_hall", TownHallOptions.Default, false),
-        NetherGate("nether_gate", "item.prefab.item_nether_gate", "item_nether_gate", NetherGateOptions.AncientSkull, false),
+        NetherGate("nether_gate", "item.prefab.item_nether_gate", "item_nether_gate", NetherGateOptions.AncientSkull, true),
         AdvancedAquaBase("advanced_aqua_base", "item.prefab.item_advanced_aqua_base", "item_advanced_aqua_base", AdvancedAquaBaseOptions.Default, false),
         WorkShop("workshop", "item.prefab.item_workshop", "item_workshop", WorkshopOptions.Default, true),
         VillagerHouses("villager_houses", "item.prefab.item_villager_houses", "item_villager_houses", VillagerHouseOptions.FLAT_ROOF, true),
         AdvancedWarehouse("advanced_warehouse", "item.prefab.item_advanced_warehouse", "item_advanced_warehouse", AdvancedWarehouseOptions.Default, true),
         Warehouse("warehouse", "item.prefab.item_warehouse", "item_warehouse", WarehouseOptions.Default, true),
-        ModernBuildings("modern_buildings", "item.prefab.item_modern_buildings", "item_modern_buildings", BasicModernBuildingsOptions.HipsterFruitStand, false),
+        ModernBuildings("modern_buildings", "item.prefab.item_modern_buildings", "item_modern_buildings", BasicModernBuildingsOptions.HipsterFruitStand, true),
         StarterFarm("starter_farm", "item.prefab.item_starter_farm", "item_starter_farm", StarterFarmOptions.ElevatedFarm, true),
         ModerateFarm("moderate_farm", "item.prefab.item_moderate_farm", "item_moderate_farm", ModerateFarmOptions.AutomatedFarm, true),
         AdvancedFarm("advanced_farm", "item.prefab.item_advanced_farm", "item_advanced_farm", AdvancedFarmOptions.AutomatedBeeFarm, true),
-        ModerateModernBuildings("moderate_modern_buildings", "item.prefab.item_moderate_modern_buildings", "item_moderate_modern_buildings", ModerateModernBuildingsOptions.ConstructionSite, false),
-        AdvancedModernBuildings("advanced_modern_buildings", "item.prefab.item_advanced_modern_buildings", "item_advanced_modern_buildings", AdvancedModernBuildingsOptions.TreeHouse, true),;
+        ModerateModernBuildings("moderate_modern_buildings", "item.prefab.item_moderate_modern_buildings", "item_moderate_modern_buildings", ModerateModernBuildingsOptions.ConstructionSite, true),
+        AdvancedModernBuildings("advanced_modern_buildings", "item.prefab.item_advanced_modern_buildings", "item_advanced_modern_buildings", AdvancedModernBuildingsOptions.TreeHouse, true);
 
         private final String name;
         private final String itemTranslationString;
         private final BaseOption baseOption;
-        private Identifier itemTextureLocation;
-        private Boolean guiShowConfigurationOptions;
+        private ResourceLocation itemTextureLocation;
+        private final boolean guiShowConfigurationOptions;
 
         /**
          * This is a basic structure which doesn't have any (or limited) custom processing.
          *
-         * @param name             - This is the name for this structure. This is used for comparative purposes in
-         *                         item stacks.
-         * @param itemTranslationString  - This is the localization key to determine the displayed name to the user.
-         * @param itemTextureLocation - This is the resource location for the item's texture when it's in the players
-         *                         and or in inventories/the world.
+         * @param name                  - This is the name for this structure. This is used for comparative purposes in
+         *                              item stacks.
+         * @param itemTranslationString - This is the localization key to determine the displayed name to the user.
+         * @param itemTextureLocation   - This is the resource location for the item's texture when it's in the players
+         *                              and or in inventories/the world.
          */
         EnumBasicStructureName(
                 String name,
                 String itemTranslationString,
                 String itemTextureLocation,
                 BaseOption baseOption,
-                Boolean guiShowConfigurationOptions) {
+                boolean guiShowConfigurationOptions) {
             this.name = name;
             this.itemTranslationString = itemTranslationString;
 
             if (itemTextureLocation != null) {
-                this.itemTextureLocation = new Identifier("prefab", itemTextureLocation);
+                this.itemTextureLocation = new ResourceLocation("prefab", itemTextureLocation);
             }
 
             this.baseOption = baseOption;
@@ -269,7 +269,7 @@ public class BasicStructureConfiguration extends StructureConfiguration {
          *
          * @return The resource location for the item texture.
          */
-        public Identifier getItemTextureLocation() {
+        public ResourceLocation getItemTextureLocation() {
             return this.itemTextureLocation;
         }
 

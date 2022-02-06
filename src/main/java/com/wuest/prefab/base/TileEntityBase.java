@@ -1,12 +1,12 @@
 package com.wuest.prefab.base;
 
 import com.wuest.prefab.Prefab;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.Level;
 
 import java.lang.reflect.ParameterizedType;
@@ -39,7 +39,7 @@ public abstract class TileEntityBase<T extends BaseConfig> extends BlockEntity {
      */
     public void setConfig(T value) {
         this.config = value;
-        this.markDirty();
+        this.setChanged();
     }
 
     public Class<T> getTypeParameterClass() {
@@ -54,31 +54,31 @@ public abstract class TileEntityBase<T extends BaseConfig> extends BlockEntity {
      * this is used by signs to synchronize the text to be displayed.
      */
     @Override
-    public BlockEntityUpdateS2CPacket toUpdatePacket() {
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
         // Don't send the packet until the position has been set.
-        if (this.pos.getX() == 0 && this.pos.getY() == 0 && this.pos.getZ() == 0) {
+        if (this.worldPosition.getX() == 0 && this.worldPosition.getY() == 0 && this.worldPosition.getZ() == 0) {
             return null;
         }
 
-        return BlockEntityUpdateS2CPacket.create(this);
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public boolean onSyncedBlockEvent(int id, int type) {
+    public boolean triggerEvent(int id, int type) {
         return true;
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt() {
-    	NbtCompound tag = new NbtCompound();
-        this.writeNbt(tag);
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag);
 
         return tag;
     }
 
     @Override
-    public void writeNbt(NbtCompound compound) {
-        super.writeNbt(compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
 
         if (this.config != null) {
             this.config.WriteToNBTCompound(compound);
@@ -86,8 +86,8 @@ public abstract class TileEntityBase<T extends BaseConfig> extends BlockEntity {
     }
 
     @Override
-    public void readNbt(NbtCompound compound) {
-        super.readNbt(compound);
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
 
         this.config = this.createConfigInstance().ReadFromCompoundNBT(compound);
     }

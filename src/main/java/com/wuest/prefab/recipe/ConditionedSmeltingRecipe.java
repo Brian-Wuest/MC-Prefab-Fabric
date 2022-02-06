@@ -4,68 +4,70 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.wuest.prefab.Prefab;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.*;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 
 public class ConditionedSmeltingRecipe extends SmeltingRecipe {
     private final String configName;
 
-    public ConditionedSmeltingRecipe(Identifier id, String group, Ingredient input, ItemStack output, float experience, int cookTime, String configName) {
+    public ConditionedSmeltingRecipe(ResourceLocation id, String group, Ingredient input, ItemStack output, float experience, int cookTime, String configName) {
         super(id, group, input, output, experience, cookTime);
 
         this.configName = configName;
     }
 
-    public ItemStack createIcon() {
+    public ItemStack getToastSymbol() {
         return new ItemStack(Blocks.FURNACE);
     }
 
     public RecipeSerializer<?> getSerializer() {
-        return RecipeSerializer.SMELTING;
+        return RecipeSerializer.SMELTING_RECIPE;
     }
 
     public static class Serializer implements RecipeSerializer<ConditionedSmeltingRecipe> {
-        public ConditionedSmeltingRecipe read(Identifier identifier, JsonObject jsonObject) {
-            String string = JsonHelper.getString(jsonObject, "group", "");
-            String configName = JsonHelper.getString(jsonObject, "configName", "");
-            JsonElement jsonElement = JsonHelper.hasArray(jsonObject, "ingredient") ? JsonHelper.getArray(jsonObject, "ingredient") : JsonHelper.getObject(jsonObject, "ingredient");
+        public ConditionedSmeltingRecipe fromJson(ResourceLocation identifier, JsonObject jsonObject) {
+            String string = GsonHelper.getAsString(jsonObject, "group", "");
+            String configName = GsonHelper.getAsString(jsonObject, "configName", "");
+            JsonElement jsonElement = GsonHelper.isArrayNode(jsonObject, "ingredient") ?  GsonHelper.getAsJsonArray(jsonObject, "ingredient") : GsonHelper.getAsJsonObject(jsonObject, "ingredient");
             Ingredient ingredient = Ingredient.fromJson((JsonElement)jsonElement);
-            String string2 = JsonHelper.getString(jsonObject, "result");
-            Identifier identifier2 = new Identifier(string2);
-            ItemStack itemStack = new ItemStack((ItemConvertible) Registry.ITEM.getOrEmpty(identifier2).orElseThrow(() -> {
+            String string2 = GsonHelper.getAsString(jsonObject, "result");
+            ResourceLocation identifier2 = new ResourceLocation(string2);
+            ItemStack itemStack = new ItemStack((ItemLike) Registry.ITEM.getOptional(identifier2).orElseThrow(() -> {
                 return new IllegalStateException("Item: " + string2 + " does not exist");
             }));
 
             itemStack = this.validateRecipeOutput(itemStack, configName);
 
-            float experience = JsonHelper.getFloat(jsonObject, "experience", 0.0F);
-            int cookingtime = JsonHelper.getInt(jsonObject, "cookingtime", 200);
+            float experience = GsonHelper.getAsFloat(jsonObject, "experience", 0.0F);
+            int cookingtime = GsonHelper.getAsInt(jsonObject, "cookingtime", 200);
             return new ConditionedSmeltingRecipe(identifier, string, ingredient, itemStack, experience, cookingtime, configName);
         }
 
-        public ConditionedSmeltingRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
-            String group = packetByteBuf.readString();
-            String configName = packetByteBuf.readString() ;
-            Ingredient ingredient = Ingredient.fromPacket(packetByteBuf);
-            ItemStack itemStack = this.validateRecipeOutput(packetByteBuf.readItemStack(), configName);
+        public ConditionedSmeltingRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf packetByteBuf) {
+            String group = packetByteBuf.readUtf();
+            String configName = packetByteBuf.readUtf() ;
+            Ingredient ingredient = Ingredient.fromNetwork(packetByteBuf);
+            ItemStack itemStack = this.validateRecipeOutput(packetByteBuf.readItem(), configName);
             float experience = packetByteBuf.readFloat();
             int cookTime = packetByteBuf.readVarInt();
             return new ConditionedSmeltingRecipe(identifier, group, ingredient, itemStack, experience, cookTime, configName);
         }
 
-        public void write(PacketByteBuf packetByteBuf, ConditionedSmeltingRecipe abstractCookingRecipe) {
-            packetByteBuf.writeString(abstractCookingRecipe.group);
-            packetByteBuf.writeString(abstractCookingRecipe.configName);
-            abstractCookingRecipe.input.write(packetByteBuf);
-            packetByteBuf.writeItemStack(abstractCookingRecipe.output);
+        public void toNetwork(FriendlyByteBuf packetByteBuf, ConditionedSmeltingRecipe abstractCookingRecipe) {
+            packetByteBuf.writeUtf(abstractCookingRecipe.group);
+            packetByteBuf.writeUtf(abstractCookingRecipe.configName);
+            abstractCookingRecipe.ingredient.toNetwork(packetByteBuf);
+            packetByteBuf.writeItem(abstractCookingRecipe.result);
             packetByteBuf.writeFloat(abstractCookingRecipe.experience);
-            packetByteBuf.writeVarInt(abstractCookingRecipe.cookTime);
+            packetByteBuf.writeVarInt(abstractCookingRecipe.cookingTime);
         }
 
         public ItemStack validateRecipeOutput(ItemStack originalOutput, String configName) {

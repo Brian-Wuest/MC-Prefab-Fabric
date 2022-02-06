@@ -1,5 +1,6 @@
 package com.wuest.prefab.structures.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.blocks.FullDyeColor;
@@ -11,12 +12,11 @@ import com.wuest.prefab.structures.config.enums.BaseOption;
 import com.wuest.prefab.structures.items.ItemBasicStructure;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.predefined.StructureBasic;
-import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.DyeColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 
@@ -41,8 +41,8 @@ public class GuiBasicStructure extends GuiStructure {
     }
 
     @Override
-    public Text getNarratedTitle() {
-        return new TranslatableText(this.configuration.getDisplayName());
+    public Component getNarrationMessage() {
+        return new TranslatableComponent(this.configuration.getDisplayName());
     }
 
     @Override
@@ -112,7 +112,7 @@ public class GuiBasicStructure extends GuiStructure {
     }
 
     @Override
-    protected void preButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         if (!this.showConfigurationOptions) {
             super.preButtonRender(matrixStack, x, y, mouseX, mouseY, partialTicks);
         } else {
@@ -170,7 +170,7 @@ public class GuiBasicStructure extends GuiStructure {
     }
 
     @Override
-    protected void postButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         if (this.showConfigurationOptions) {
             this.drawSplitString(GuiLangKeys.translateString(this.configuration.basicStructureName.getItemTranslationString()), x + 8, y + 17, 128, this.textColor);
 

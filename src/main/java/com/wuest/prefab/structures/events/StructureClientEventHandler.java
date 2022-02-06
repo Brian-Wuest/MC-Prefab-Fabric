@@ -2,9 +2,8 @@ package com.wuest.prefab.structures.events;
 
 import com.wuest.prefab.structures.render.StructureRenderHandler;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionResult;
 
 /**
  * @author WuestMan
@@ -25,13 +24,13 @@ public final class StructureClientEventHandler {
      */
     public static void onPlayerUseBlock() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
-            if (StructureRenderHandler.currentStructure != null && player == MinecraftClient.getInstance().player) {
-                StructureRenderHandler.setStructure(null, Direction.NORTH, null);
+            if (StructureRenderHandler.currentStructure != null && player == Minecraft.getInstance().player) {
+                StructureRenderHandler.setStructure(null, null);
 
-                return ActionResult.FAIL;
+                return InteractionResult.FAIL;
             }
 
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
     }
 }

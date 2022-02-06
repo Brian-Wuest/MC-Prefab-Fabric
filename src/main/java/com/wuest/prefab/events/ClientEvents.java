@@ -4,9 +4,7 @@ import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration;
-import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.events.StructureClientEventHandler;
-import com.wuest.prefab.structures.gui.GuiBasicStructure;
 import com.wuest.prefab.structures.gui.GuiStructure;
 import com.wuest.prefab.structures.items.ItemBasicStructure;
 import com.wuest.prefab.structures.items.StructureItem;
@@ -14,9 +12,9 @@ import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.render.StructureRenderHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
 
 public class ClientEvents {
     /**
@@ -32,10 +30,10 @@ public class ClientEvents {
 
     public static void registerClientEndTick() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (ClientModRegistry.keyBinding.isPressed()) {
+            if (ClientModRegistry.keyBinding.isDown()) {
                 if (StructureRenderHandler.currentStructure != null) {
-                    ItemStack mainHandStack = MinecraftClient.getInstance().player.getMainHandStack();
-                    ItemStack offHandStack = MinecraftClient.getInstance().player.getOffHandStack();
+                    ItemStack mainHandStack = Minecraft.getInstance().player.getMainHandItem();
+                    ItemStack offHandStack = Minecraft.getInstance().player.getOffhandItem();
                     boolean foundCorrectStructureItem = false;
 
                     if (mainHandStack != ItemStack.EMPTY || offHandStack != ItemStack.EMPTY) {
@@ -53,8 +51,8 @@ public class ClientEvents {
                     }
 
                     if (foundCorrectStructureItem) {
-                        PacketByteBuf messagePacket = Utils.createStructureMessageBuffer(
-                                StructureRenderHandler.currentConfiguration.WriteToCompoundNBT(),
+                        FriendlyByteBuf messagePacket = Utils.createStructureMessageBuffer(
+                                StructureRenderHandler.currentConfiguration.WriteToCompoundTag(),
                                 StructureTagMessage.EnumStructureConfiguration.getByConfigurationInstance(StructureRenderHandler.currentConfiguration));
 
                         ClientPlayNetworking.send(ModRegistry.StructureBuild, messagePacket);

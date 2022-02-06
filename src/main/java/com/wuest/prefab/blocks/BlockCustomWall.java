@@ -2,26 +2,24 @@ package com.wuest.prefab.blocks;
 
 
 import com.wuest.prefab.ModRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
-import net.minecraft.block.WallBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 
 import java.util.Random;
 
 public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
-    public BlockCustomWall.EnumType BlockVariant;
+    public EnumType BlockVariant;
 
-    public BlockCustomWall(Block modelBlock, BlockCustomWall.EnumType variant) {
-        super(FabricBlockSettings.of(variant.getMaterial())
-                .strength(modelBlock.getHardness(),
-                        modelBlock.getBlastResistance() * 5.0F / 3.0F)
-                .sounds(modelBlock.getSoundGroup(modelBlock.getDefaultState())));
+    public BlockCustomWall(Block modelBlock, EnumType variant) {
+        super(Properties.of(variant.getMaterial())
+                .strength(modelBlock.defaultBlockState().getDestroySpeed(null, null),
+                        modelBlock.getExplosionResistance() * 5.0F / 3.0F)
+                .sound(modelBlock.getSoundType(null)));
 
         this.BlockVariant = variant;
     }
@@ -32,34 +30,34 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
      * cull a chunk from the random chunk update list for efficiency's sake.
      */
     @Override
-    public boolean hasRandomTicks(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return this.BlockVariant == EnumType.DIRT;
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
+    public void randomTick(BlockState state, ServerLevel worldIn, BlockPos pos, Random random) {
         this.DetermineGrassSpread(state, worldIn, pos, random);
     }
 
     @Override
     public BlockState getGrassBlockState(BlockState originalState) {
-        return ModRegistry.GrassWall.getDefaultState()
-                .with(WallBlock.EAST_SHAPE, originalState.get(WallBlock.EAST_SHAPE))
-                .with(WallBlock.WEST_SHAPE, originalState.get(WallBlock.WEST_SHAPE))
-                .with(WallBlock.NORTH_SHAPE, originalState.get(WallBlock.NORTH_SHAPE))
-                .with(WallBlock.SOUTH_SHAPE, originalState.get(WallBlock.SOUTH_SHAPE))
-                .with(WallBlock.WATERLOGGED, originalState.get(WallBlock.WATERLOGGED))
-                .with(WallBlock.UP, originalState.get(WallBlock.UP));
+        return ModRegistry.GrassWall.defaultBlockState()
+                .setValue(WallBlock.EAST_WALL, originalState.getValue(WallBlock.EAST_WALL))
+                .setValue(WallBlock.WEST_WALL, originalState.getValue(WallBlock.WEST_WALL))
+                .setValue(WallBlock.NORTH_WALL, originalState.getValue(WallBlock.NORTH_WALL))
+                .setValue(WallBlock.SOUTH_WALL, originalState.getValue(WallBlock.SOUTH_WALL))
+                .setValue(WallBlock.WATERLOGGED, originalState.getValue(WallBlock.WATERLOGGED))
+                .setValue(WallBlock.UP, originalState.getValue(WallBlock.UP));
     }
 
-    public enum EnumType implements StringIdentifiable {
-        DIRT(0, "block_dirt_wall", "block_dirt_wall", Material.AGGREGATE),
-        GRASS(1, "block_grass_wall", "block_grass_wall", Material.AGGREGATE);
+    public enum EnumType implements StringRepresentable {
+        DIRT(0, "block_dirt_wall", "block_dirt_wall", Material.DIRT),
+        GRASS(1, "block_grass_wall", "block_grass_wall", Material.DIRT);
 
-        private static final BlockCustomWall.EnumType[] META_LOOKUP = new BlockCustomWall.EnumType[values().length];
+        private static final EnumType[] META_LOOKUP = new EnumType[values().length];
 
         static {
-            for (BlockCustomWall.EnumType customwall$enumtype : values()) {
+            for (EnumType customwall$enumtype : values()) {
                 META_LOOKUP[customwall$enumtype.getMetadata()] = customwall$enumtype;
             }
         }
@@ -76,7 +74,7 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
             this.material = blockMaterial;
         }
 
-        public static BlockCustomWall.EnumType byMetadata(int meta) {
+        public static EnumType byMetadata(int meta) {
             if (meta < 0 || meta >= META_LOOKUP.length) {
                 meta = 0;
             }
@@ -93,7 +91,7 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return this.name;
         }
 

@@ -1,13 +1,9 @@
 package com.wuest.prefab.blocks;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricMaterialBuilder;
-import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.block.Block;
-import net.minecraft.block.MapColor;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.StringIdentifiable;
-
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
 
 /**
  * This is the compressed Obsidian block class.
@@ -21,10 +17,10 @@ public class BlockCompressedObsidian extends Block {
 	 * Initializes a new instance of the BlockCompressedObsidian class.
 	 */
 	public BlockCompressedObsidian(EnumType stoneType) {
-		super(FabricBlockSettings.of((new FabricMaterialBuilder(MapColor.GRAY)).build())
+		super(Block.Properties.of(Material.STONE)
 				.strength(50.0f, 2000.0f)
-				.sounds(BlockSoundGroup.STONE)
-				.requiresTool());
+				.sound(SoundType.STONE)
+				.requiresCorrectToolForDrops());
 
 		this.typeofStone = stoneType;
 	}
@@ -35,7 +31,7 @@ public class BlockCompressedObsidian extends Block {
 	 * @author WuestMan
 	 */
 	@SuppressWarnings("NullableProblems")
-	public enum EnumType implements StringIdentifiable {
+	public enum EnumType implements StringRepresentable {
 		COMPRESSED_OBSIDIAN(0, "block_compressed_obsidian", "block_compressed_obsidian"),
 		DOUBLE_COMPRESSED_OBSIDIAN(1, "block_double_compressed_obsidian", "block_double_compressed_obsidian"),
 		;
@@ -81,7 +77,7 @@ public class BlockCompressedObsidian extends Block {
 		}
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return this.name;
 		}
 	}

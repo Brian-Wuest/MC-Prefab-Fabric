@@ -1,13 +1,13 @@
 package com.wuest.prefab.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StairsBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * This class just extends the vanilla stairs block for easier implementation.
  */
-public class BlockCustomStairs extends StairsBlock {
-    public BlockCustomStairs(BlockState baseBlockState, Settings settings) {
+public class BlockCustomStairs extends StairBlock {
+    public BlockCustomStairs(BlockState baseBlockState, Properties settings) {
         super(baseBlockState, settings);
     }
 }

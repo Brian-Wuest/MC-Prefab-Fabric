@@ -1,7 +1,6 @@
 package com.wuest.prefab.structures.config;
 
 import com.wuest.prefab.ModRegistry;
-import com.wuest.prefab.Prefab;
 import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
 import com.wuest.prefab.gui.GuiLangKeys;
@@ -10,14 +9,13 @@ import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.predefined.StructureAlternateStart;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 
 
 /**
@@ -75,8 +73,8 @@ public class HouseConfiguration extends StructureConfiguration {
     }
 
     @Override
-    public NbtCompound WriteToCompoundNBT() {
-        NbtCompound tag = new NbtCompound();
+    public CompoundTag WriteToCompoundTag() {
+        CompoundTag tag = new CompoundTag();
 
         // This tag should only be written for options which will NOT be overwritten by server options.
         // Server configuration settings will be used for all other options.
@@ -91,10 +89,10 @@ public class HouseConfiguration extends StructureConfiguration {
         tag.putInt(HouseConfiguration.hitXTag, this.pos.getX());
         tag.putInt(HouseConfiguration.hitYTag, this.pos.getY());
         tag.putInt(HouseConfiguration.hitZTag, this.pos.getZ());
-        tag.putString(HouseConfiguration.houseFacingTag, this.houseFacing.asString());
+        tag.putString(HouseConfiguration.houseFacingTag, this.houseFacing.getSerializedName());
         tag.putInt(HouseConfiguration.houseStyleTag, this.houseStyle.value);
-        tag.putString(HouseConfiguration.glassColorTag, this.glassColor.asString().toUpperCase());
-        tag.putString(HouseConfiguration.bedColorTag, this.bedColor.asString().toUpperCase());
+        tag.putString(HouseConfiguration.glassColorTag, this.glassColor.getSerializedName().toUpperCase());
+        tag.putString(HouseConfiguration.bedColorTag, this.bedColor.getSerializedName().toUpperCase());
 
         return tag;
     }
@@ -106,7 +104,7 @@ public class HouseConfiguration extends StructureConfiguration {
      * @return An new configuration object with the values derived from the CompoundNBT.
      */
     @Override
-    public HouseConfiguration ReadFromCompoundNBT(NbtCompound tag) {
+    public HouseConfiguration ReadFromCompoundTag(CompoundTag tag) {
         HouseConfiguration config = null;
 
         if (tag != null) {
@@ -172,12 +170,12 @@ public class HouseConfiguration extends StructureConfiguration {
      * @param hitBlockPos This hit block position.
      */
     @Override
-    protected void ConfigurationSpecificBuildStructure(PlayerEntity player, ServerWorld world, BlockPos hitBlockPos) {
+    protected void ConfigurationSpecificBuildStructure(Player player, ServerLevel world, BlockPos hitBlockPos) {
         boolean houseBuilt = true;
 
         // Build the alternate starter house instead.
         StructureAlternateStart structure = StructureAlternateStart.CreateInstance(this.houseStyle.getStructureLocation(), StructureAlternateStart.class);
-        houseBuilt = structure.BuildStructure(this, world, hitBlockPos, Direction.NORTH, player);
+        houseBuilt = structure.BuildStructure(this, world, hitBlockPos, player);
 
         // The house was successfully built, remove the item from the inventory.
         if (houseBuilt) {
@@ -188,7 +186,7 @@ public class HouseConfiguration extends StructureConfiguration {
 
             PlayerEntityTagMessage message = new PlayerEntityTagMessage();
             message.setMessageTag(playerConfig.createPlayerTag());
-            PacketByteBuf byteBuf = new PacketByteBuf(Unpooled.buffer());
+            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
 
             PlayerEntityTagMessage.encode(message, byteBuf);
 
@@ -207,41 +205,41 @@ public class HouseConfiguration extends StructureConfiguration {
         BASIC(
                 0,
                 GuiLangKeys.STARTER_HOUSE_BASIC_DISPLAY,
-                new Identifier("prefab", "textures/gui/basic_house.png"),
-                "assets/prefab/structures/basic_house.zip"),
-        RANCH(1, GuiLangKeys.STARTER_HOUSE_RANCH_DISPLAY, new Identifier("prefab", "textures/gui/ranch_house.png"),
-                "assets/prefab/structures/ranch_house.zip"),
-        LOFT(2, GuiLangKeys.STARTER_HOUSE_LOFT_DISPLAY, new Identifier("prefab", "textures/gui/loft_house.png"),
-                "assets/prefab/structures/loft_house.zip"),
-        HOBBIT(3, GuiLangKeys.STARTER_HOUSE_HOBBIT_DISPLAY, new Identifier("prefab", "textures/gui/hobbit_house.png"),
-                "assets/prefab/structures/hobbit_house.zip"),
-        DESERT(4, GuiLangKeys.STARTER_HOUSE_DESERT_DISPLAY, new Identifier("prefab", "textures/gui/desert_house.png"),
-                "assets/prefab/structures/desert_house.zip"),
-        SNOWY(5, GuiLangKeys.STARTER_HOUSE_SNOWY_DISPLAY, new Identifier("prefab", "textures/gui/snowy_house.png"),
-                "assets/prefab/structures/snowy_house.zip"),
+                new ResourceLocation("prefab", "textures/gui/basic_house.png"),
+                "assets/prefab/structures/starter_house_basic.zip"),
+        RANCH(1, GuiLangKeys.STARTER_HOUSE_RANCH_DISPLAY, new ResourceLocation("prefab", "textures/gui/ranch_house.png"),
+                "assets/prefab/structures/starter_house_ranch.zip"),
+        LOFT(2, GuiLangKeys.STARTER_HOUSE_LOFT_DISPLAY, new ResourceLocation("prefab", "textures/gui/loft_house.png"),
+                "assets/prefab/structures/starter_house_loft.zip"),
+        HOBBIT(3, GuiLangKeys.STARTER_HOUSE_HOBBIT_DISPLAY, new ResourceLocation("prefab", "textures/gui/hobbit_house.png"),
+                "assets/prefab/structures/starter_house_hobbit.zip"),
+        DESERT(4, GuiLangKeys.STARTER_HOUSE_DESERT_DISPLAY, new ResourceLocation("prefab", "textures/gui/desert_house.png"),
+                "assets/prefab/structures/starter_house_desert.zip"),
+        SNOWY(5, GuiLangKeys.STARTER_HOUSE_SNOWY_DISPLAY, new ResourceLocation("prefab", "textures/gui/snowy_house.png"),
+                "assets/prefab/structures/starter_house_snow.zip"),
         DESERT2(6,
                 GuiLangKeys.STARTER_HOUSE_DESERT_DISPLAY2,
-                new Identifier("prefab", "textures/gui/desert_house2.png"),
-                "assets/prefab/structures/desert_house2.zip"),
+                new ResourceLocation("prefab", "textures/gui/desert_house2.png"),
+                "assets/prefab/structures/starter_house_desert_2.zip"),
         SUBAQUATIC(7,
                 GuiLangKeys.STARTER_HOUSE_SUBAQUATIC_DISPLAY,
-                new Identifier("prefab", "textures/gui/subaquatic_house.png"),
-                "assets/prefab/structures/subaquatic_house.zip"),
-		MODERN(8,
-				GuiLangKeys.STARTER_HOUSE_MODERN_DISPLAY,
-				new Identifier("prefab", "textures/gui/modern_starting_house.png"),
-				"assets/prefab/structures/modern_starting_house.zip"),
+                new ResourceLocation("prefab", "textures/gui/subaquatic_house.png"),
+                "assets/prefab/structures/starter_house_sub_aqua.zip"),
+        MODERN(8,
+                GuiLangKeys.STARTER_HOUSE_MODERN_DISPLAY,
+                new ResourceLocation("prefab", "textures/gui/modern_starting_house.png"),
+                "assets/prefab/structures/starter_house_modern.zip"),
         CAMPSITE(9,
                 GuiLangKeys.STARTER_HOUSE_CAMPING_DISPLAY,
-                new Identifier("prefab", "textures/gui/campsite_house.png"),
-                "assets/prefab/structures/campsite_house.zip");
+                new ResourceLocation("prefab", "textures/gui/campsite_house.png"),
+                "assets/prefab/structures/starter_house_campsite.zip");
 
         private final int value;
         private final String displayName;
-        private final Identifier housePicture;
+        private final ResourceLocation housePicture;
         private final String structureLocation;
 
-        HouseStyle(int newValue, String displayName, Identifier housePicture, String structureLocation) {
+        HouseStyle(int newValue, String displayName, ResourceLocation housePicture, String structureLocation) {
             this.value = newValue;
             this.displayName = displayName;
             this.housePicture = housePicture;
@@ -290,7 +288,7 @@ public class HouseConfiguration extends StructureConfiguration {
          *
          * @return A resource location representing the image to use for this style.
          */
-        public Identifier getHousePicture() {
+        public ResourceLocation getHousePicture() {
             return this.housePicture;
         }
 

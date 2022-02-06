@@ -2,7 +2,7 @@ package com.wuest.prefab.structures.base;
 
 import com.google.gson.annotations.Expose;
 import com.wuest.prefab.Utils;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 /**
  * This class holds the general shape of the structure.
@@ -59,14 +59,14 @@ public class BuildShape {
 	}
 
 	public void setDirection(Direction value) {
-		this.direction = value.asString();
+		this.direction = value.toString();
 	}
 
 	public void Initialize() {
 		this.width = 0;
 		this.height = 0;
 		this.length = 0;
-		this.direction = Direction.NORTH.asString();
+		this.direction = Direction.NORTH.toString();
 	}
 
 	/**

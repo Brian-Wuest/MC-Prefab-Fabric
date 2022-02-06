@@ -8,20 +8,18 @@ import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.gui.GuiBulldozer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -38,9 +36,9 @@ public class ItemBulldozer extends StructureItem {
      * Initializes a new instance of the {@link ItemBulldozer} class.
      */
     public ItemBulldozer() {
-        super(new Item.Settings()
-                .group(ModRegistry.PREFAB_GROUP)
-                .maxDamage(4));
+        super(new Item.Properties()
+                .tab(ModRegistry.PREFAB_GROUP)
+                .durability(4));
     }
 
     /**
@@ -49,8 +47,8 @@ public class ItemBulldozer extends StructureItem {
      * @param creativePowered - Set this to true to create an always powered bulldozer.
      */
     public ItemBulldozer(boolean creativePowered) {
-        super(new Item.Settings()
-                .group(ModRegistry.PREFAB_GROUP));
+        super(new Item.Properties()
+                .tab(ModRegistry.PREFAB_GROUP));
 
         this.creativePowered = creativePowered;
     }
@@ -59,16 +57,16 @@ public class ItemBulldozer extends StructureItem {
      * Does something when the item is right-clicked.
      */
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        if (context.getWorld().isClient) {
-            if (context.getSide() == Direction.UP && this.getPoweredValue(context.getPlayer(), context.getHand())) {
+    public InteractionResult useOn(UseOnContext context) {
+        if (context.getLevel().isClientSide()) {
+            if (context.getClickedFace() == Direction.UP && this.getPoweredValue(context.getPlayer(), context.getHand())) {
                 // Open the client side gui to determine the house options.
                 ClientModRegistry.openGuiForItem(context);
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             }
         }
 
-        return ActionResult.FAIL;
+        return InteractionResult.FAIL;
     }
 
     /**
@@ -76,8 +74,8 @@ public class ItemBulldozer extends StructureItem {
      */
     @Environment(EnvType.CLIENT)
     @Override
-    public void appendTooltip(ItemStack stack, @Nullable World worldIn, List<Text> tooltip, TooltipContext flagIn) {
-        super.appendTooltip(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         boolean advancedKeyDown = Screen.hasShiftDown();
 
@@ -102,8 +100,8 @@ public class ItemBulldozer extends StructureItem {
      */
     @Environment(EnvType.CLIENT)
     @Override
-    public boolean hasGlint(ItemStack stack) {
-        return this.getPoweredValue(stack) || super.hasGlint(stack);
+    public boolean isFoil(ItemStack stack) {
+        return this.getPoweredValue(stack) || super.isFoil(stack);
     }
 
     /**
@@ -114,8 +112,8 @@ public class ItemBulldozer extends StructureItem {
         ModRegistry.guiRegistrations.add(x -> this.RegisterGui(GuiBulldozer.class));
     }
 
-    private boolean getPoweredValue(PlayerEntity player, Hand hand) {
-        ItemStack stack = player.getStackInHand(hand);
+    private boolean getPoweredValue(Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
 
         return this.getPoweredValue(stack);
     }
@@ -126,14 +124,14 @@ public class ItemBulldozer extends StructureItem {
         }
 
         if (stack.getItem() == ModRegistry.Bulldozer) {
-            if (stack.getNbt() == null
-                    || stack.getNbt().isEmpty()) {
-                stack.setNbt(stack.writeNbt(new NbtCompound()));
+            if (stack.getTag() == null
+                    || stack.getTag().isEmpty()) {
+                stack.setTag(stack.save(new CompoundTag()));
             } else {
-                NbtCompound tag = stack.getNbt();
+                CompoundTag tag = stack.getTag();
 
                 if (tag.contains(Prefab.MODID)) {
-                    NbtCompound prefabTag = tag.getCompound(Prefab.MODID);
+                    CompoundTag prefabTag = tag.getCompound(Prefab.MODID);
 
                     if (prefabTag.contains("powered")) {
                         return prefabTag.getBoolean("powered");
@@ -146,13 +144,13 @@ public class ItemBulldozer extends StructureItem {
     }
 
     public void setPoweredValue(ItemStack stack, boolean value) {
-        if (stack.getNbt() == null
-                || stack.getNbt().isEmpty()) {
-            stack.setNbt(stack.writeNbt(new NbtCompound()));
+        if (stack.getTag() == null
+                || stack.getTag().isEmpty()) {
+            stack.setTag(stack.save(new CompoundTag()));
         }
 
-        NbtCompound prefabTag = new NbtCompound();
+        CompoundTag prefabTag = new CompoundTag();
         prefabTag.putBoolean("powered", value);
-        stack.getNbt().put(Prefab.MODID, prefabTag);
+        stack.getTag().put(Prefab.MODID, prefabTag);
     }
 }

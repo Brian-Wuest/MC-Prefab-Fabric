@@ -9,34 +9,38 @@ import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.events.StructureEventHandler;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.FurnaceBlockEntity;
-import net.minecraft.block.enums.BedPart;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.AbstractDecorationEntity;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.text.Style;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -54,9 +58,8 @@ public class Structure {
     public ArrayList<BuildBlock> priorityOneBlocks = new ArrayList<>();
     public ArrayList<BuildBlock> airBlocks = new ArrayList<>();
     public StructureConfiguration configuration;
-    public ServerWorld world;
+    public ServerLevel world;
     public BlockPos originalPos;
-    public Direction assumedNorth;
     public boolean hasAirBlocks = false;
     public boolean entitiesRemoved = false;
 
@@ -104,13 +107,13 @@ public class Structure {
         }
     }
 
-    public static void ScanStructure(World world, BlockPos originalPos, BlockPos cornerPos1, BlockPos cornerPos2, String fileLocation, BuildClear clearedSpace,
+    public static void ScanStructure(Level world, BlockPos originalPos, BlockPos cornerPos1, BlockPos cornerPos2, String fileLocation, BuildClear clearedSpace,
                                      Direction playerFacing, boolean includeAir, boolean excludeWater) {
         Structure scannedStructure = new Structure();
         scannedStructure.setClearSpace(clearedSpace);
 
-        for (BlockPos currentPos : BlockPos.iterate(cornerPos1, cornerPos2)) {
-            if (world.isAir(currentPos) && !includeAir) {
+        for (BlockPos currentPos : BlockPos.betweenClosed(cornerPos1, cornerPos2)) {
+            if (world.isEmptyBlock(currentPos) && !includeAir) {
                 continue;
             }
 
@@ -124,14 +127,14 @@ public class Structure {
             BuildBlock buildBlock = Structure.createBuildBlockFromBlockState(currentState, currentBlock, currentPos, originalPos);
 
             if (currentBlock instanceof DoorBlock) {
-                DoubleBlockHalf blockHalf = currentState.get(DoorBlock.HALF);
+                DoubleBlockHalf blockHalf = currentState.getValue(DoorBlock.HALF);
 
                 if (blockHalf == DoubleBlockHalf.LOWER) {
-                    BlockState upperHalfState = world.getBlockState(currentPos.up());
+                    BlockState upperHalfState = world.getBlockState(currentPos.above());
 
                     if (upperHalfState.getBlock() instanceof DoorBlock) {
                         Block upperBlock = upperHalfState.getBlock();
-                        BuildBlock upperHalf = Structure.createBuildBlockFromBlockState(upperHalfState, upperBlock, currentPos.up(), originalPos);
+                        BuildBlock upperHalf = Structure.createBuildBlockFromBlockState(upperHalfState, upperBlock, currentPos.above(), originalPos);
 
                         buildBlock.setSubBlock(upperHalf);
                     }
@@ -140,7 +143,7 @@ public class Structure {
                     continue;
                 }
             } else if (currentBlock instanceof BedBlock) {
-                BedPart bedPart = currentState.get(BedBlock.PART);
+                BedPart bedPart = currentState.getValue(BedBlock.PART);
 
                 if (bedPart == BedPart.HEAD) {
                     BlockState bedFoot = null;
@@ -148,14 +151,14 @@ public class Structure {
                     Direction facing = Direction.NORTH;
 
                     while (!foundFoot) {
-                        bedFoot = world.getBlockState(currentPos.offset(facing));
+                        bedFoot = world.getBlockState(currentPos.relative(facing));
 
-                        if (bedFoot.getBlock() instanceof BedBlock && bedFoot.get(BedBlock.PART) == BedPart.FOOT) {
+                        if (bedFoot.getBlock() instanceof BedBlock && bedFoot.getValue(BedBlock.PART) == BedPart.FOOT) {
                             foundFoot = true;
                             break;
                         }
 
-                        facing = facing.rotateYClockwise();
+                        facing = facing.getClockWise();
 
                         if (facing == Direction.NORTH) {
                             // Got back to north, break out to avoid infinite loop.
@@ -165,7 +168,7 @@ public class Structure {
 
                     if (foundFoot) {
                         Block footBedBlock = bedFoot.getBlock();
-                        BuildBlock bed = Structure.createBuildBlockFromBlockState(bedFoot, footBedBlock, currentPos.offset(facing), originalPos);
+                        BuildBlock bed = Structure.createBuildBlockFromBlockState(bedFoot, footBedBlock, currentPos.relative(facing), originalPos);
                         buildBlock.setSubBlock(bed);
                     }
                 } else {
@@ -185,8 +188,8 @@ public class Structure {
                     continue;
                 }
 
-                Identifier resourceLocation = Registry.BLOCK_ENTITY_TYPE.getId(tileEntity.getType());
-                NbtCompound tagCompound = tileEntity.createNbtWithId();
+                ResourceLocation resourceLocation = Registry.BLOCK_ENTITY_TYPE.getKey(tileEntity.getType());
+                CompoundTag tagCompound = tileEntity.saveWithFullMetadata();
 
                 BuildTileEntity buildTileEntity = new BuildTileEntity();
                 assert resourceLocation != null;
@@ -205,40 +208,40 @@ public class Structure {
         int z_radiusRangeBegin = Math.min(cornerPos1.getZ(), cornerPos2.getZ());
         int z_radiusRangeEnd = Math.max(cornerPos1.getZ(), cornerPos2.getZ());
 
-        Box axis = new Box(cornerPos1, cornerPos2);
+        AABB axis = new AABB(cornerPos1, cornerPos2);
 
-        for (Entity entity : world.getOtherEntities(null, axis)) {
-            BlockPos entityPos = entity.getBlockPos();
+        for (Entity entity : world.getEntities(null, axis)) {
+            BlockPos entityPos = entity.blockPosition();
 
-            if (entity instanceof AbstractDecorationEntity) {
+            if (entity instanceof HangingEntity) {
                 // Use the AbstractDecorationEntity getDecorationBlockPos function instead since it is more accurate for itemframes and paintings.
-                entityPos = ((AbstractDecorationEntity) entity).getDecorationBlockPos();
+                entityPos = ((HangingEntity) entity).getPos();
             }
 
             if (entityPos.getX() >= x_radiusRangeBegin && entityPos.getX() <= x_radiusRangeEnd
                     && entityPos.getZ() >= z_radiusRangeBegin && entityPos.getZ() <= z_radiusRangeEnd
                     && entityPos.getY() >= y_radiusRangeBegin && entityPos.getY() <= y_radiusRangeEnd) {
                 BuildEntity buildEntity = new BuildEntity();
-                buildEntity.setEntityResourceString(Registry.ENTITY_TYPE.getId(entity.getType()));
+                buildEntity.setEntityResourceString(Registry.ENTITY_TYPE.getKey(entity.getType()));
                 buildEntity.setStartingPosition(Structure.getStartingPositionFromOriginalAndCurrentPosition(entityPos, originalPos));
 
                 // The function calls below get the following fields from the "entity" class. posX, posY, posZ.
                 // This will probably have to change when the mappings get updated.
-                buildEntity.entityXAxisOffset = entityPos.getX() - entity.getPos().getX();
-                buildEntity.entityYAxisOffset = entityPos.getY() - entity.getPos().getY();
-                buildEntity.entityZAxisOffset = entityPos.getZ() - entity.getPos().getZ();
+                buildEntity.entityXAxisOffset = entityPos.getX() - entity.getX();
+                buildEntity.entityYAxisOffset = entityPos.getY() - entity.getY();
+                buildEntity.entityZAxisOffset = entityPos.getZ() - entity.getZ();
 
-                if (entity instanceof ItemFrameEntity) {
+                if (entity instanceof ItemFrame) {
                     buildEntity.entityYAxisOffset = buildEntity.entityYAxisOffset * -1;
                 }
 
 
-                if (entity instanceof AbstractDecorationEntity) {
-                    buildEntity.entityFacing = entity.getHorizontalFacing().asString();
+                if (entity instanceof HangingEntity) {
+                    buildEntity.entityFacing = entity.getDirection();
                 }
 
-                NbtCompound entityTagCompound = new NbtCompound();
-                entityTagCompound = entity.writeNbt(entityTagCompound);
+                CompoundTag entityTagCompound = new CompoundTag();
+                entity.saveAsPassenger(entityTagCompound);
                 buildEntity.setEntityNBTData(entityTagCompound);
                 scannedStructure.entities.add(buildEntity);
             }
@@ -257,7 +260,7 @@ public class Structure {
      */
     public static BuildBlock createBuildBlockFromBlockState(BlockState currentState, Block currentBlock, BlockPos currentPos, BlockPos originalPos) {
         BuildBlock buildBlock = new BuildBlock();
-        Identifier blockIdentifier = Registry.BLOCK.getId(currentBlock);
+        ResourceLocation blockIdentifier = Registry.BLOCK.getKey(currentBlock);
         buildBlock.setBlockDomain(blockIdentifier.getNamespace());
         buildBlock.setBlockName(blockIdentifier.getPath());
         buildBlock.setStartingPosition(Structure.getStartingPositionFromOriginalAndCurrentPosition(currentPos, originalPos));
@@ -270,17 +273,17 @@ public class Structure {
 
             property.setName(entry.getName());
 
-            Comparable<?> value = currentState.get(entry);
+            Comparable<?> value = currentState.getValue(entry);
 
             try {
-                if (currentBlock instanceof PillarBlock && property.getName().equals("axis")) {
-                    property.setValue(((Direction.Axis) value).asString());
+                if (currentBlock instanceof RotatedPillarBlock && property.getName().equals("axis")) {
+                    property.setValue(((Direction.Axis) value).getSerializedName());
                 } else if (currentBlock instanceof CarpetBlock && property.getName().equals("color")) {
                     DyeColor dyeColor = (DyeColor) value;
-                    property.setValue(dyeColor.asString());
-                } else if (value instanceof StringIdentifiable) {
-                    StringIdentifiable stringSerializable = (StringIdentifiable) value;
-                    property.setValue(stringSerializable.asString());
+                    property.setValue(dyeColor.getSerializedName());
+                } else if (value instanceof StringRepresentable) {
+                    StringRepresentable stringSerializable = (StringRepresentable) value;
+                    property.setValue(stringSerializable.getSerializedName());
                 } else {
                     property.setValue(value.toString());
                 }
@@ -355,16 +358,15 @@ public class Structure {
      * @param configuration The configuration the user updated.
      * @param world         The current world.
      * @param originalPos   The block the user clicked on.
-     * @param assumedNorth  This should always be "NORTH" when the file is based on a scan.
      * @param player        The player requesting the structure.
      * @return True if the build can occur, otherwise false.
      */
-    public boolean BuildStructure(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
+    public boolean BuildStructure(StructureConfiguration configuration, ServerLevel world, BlockPos originalPos, Player player) {
         BlockPos startBlockPos = this.clearSpace.getStartingPosition().getRelativePosition(originalPos, this.clearSpace.getShape().getDirection(), configuration.houseFacing);
         BlockPos endBlockPos = startBlockPos
-                .offset(configuration.houseFacing.rotateYCounterclockwise(), this.clearSpace.getShape().getWidth() - 1)
-                .offset(configuration.houseFacing.getOpposite(), this.clearSpace.getShape().getLength() - 1)
-                .offset(Direction.UP, this.clearSpace.getShape().getHeight());
+                .relative(configuration.houseFacing.getCounterClockWise(), this.clearSpace.getShape().getWidth() - 1)
+                .relative(configuration.houseFacing.getOpposite(), this.clearSpace.getShape().getLength() - 1)
+                .relative(Direction.UP, this.clearSpace.getShape().getHeight());
 
         // Make sure this structure can be placed here.
         Triple<Boolean, BlockState, BlockPos> checkResult = BuildingMethods.CheckBuildSpaceForAllowedBlockReplacement(world, startBlockPos, endBlockPos, player);
@@ -372,24 +374,24 @@ public class Structure {
         if (!checkResult.getFirst()) {
             // Send a message to the player saying that the structure could not
             // be built.
-            TranslatableText message = new TranslatableText(
+            TranslatableComponent message = new TranslatableComponent(
                     GuiLangKeys.GUI_STRUCTURE_NOBUILD,
-                    Registry.BLOCK.getId(checkResult.getSecond().getBlock()).toString(),
+                    Registry.BLOCK.getKey(checkResult.getSecond().getBlock()).toString(),
                     checkResult.getThird().getX(),
                     checkResult.getThird().getY(),
                     checkResult.getThird().getZ());
 
-            message.setStyle(Style.EMPTY.withColor(Formatting.GREEN));
-            player.sendMessage(message, false);
+            message.setStyle(Style.EMPTY.withColor(ChatFormatting.GREEN));
+            player.sendMessage(message, player.getUUID());
             return false;
         }
 
         if (Prefab.serverConfiguration.playBuildingSound) {
             // Play the building sound.
-            world.playSound(null, originalPos, ModRegistry.BuildingBlueprint, SoundCategory.NEUTRAL, 0.8f, 0.8f);
+            world.playSound(null, originalPos, ModRegistry.BuildingBlueprint, SoundSource.NEUTRAL, 0.8f, 0.8f);
         }
 
-        if (!this.BeforeBuilding(configuration, world, originalPos, assumedNorth, player)) {
+        if (!this.BeforeBuilding(configuration, world, originalPos, player)) {
             try {
                 // First, clear the area where the structure will be built.
                 this.ClearSpace(configuration, world, startBlockPos, endBlockPos);
@@ -402,22 +404,22 @@ public class Structure {
                     Block foundBlock = Registry.BLOCK.get(block.getResourceLocation());
 
                     if (foundBlock != null) {
-                        BlockState blockState = foundBlock.getDefaultState();
+                        BlockState blockState = foundBlock.defaultBlockState();
                         BuildBlock subBlock = null;
 
                         // Check if water should be replaced with cobble.
-                        if (!this.WaterReplacedWithCobbleStone(configuration, block, world, originalPos, assumedNorth, foundBlock, blockState, player)
-                                && !this.CustomBlockProcessingHandled(configuration, block, world, originalPos, assumedNorth, foundBlock, blockState, player)) {
+                        if (!this.WaterReplacedWithCobbleStone(configuration, block, world, originalPos, foundBlock, blockState, player)
+                                && !this.CustomBlockProcessingHandled(configuration, block, world, originalPos, foundBlock, blockState, player)) {
                             // Set the glass color if this structure can have the glass configured.
                             if (!this.processedGlassBlock(configuration, block, world, originalPos, foundBlock)) {
-                                block = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block, foundBlock, blockState, this);
+                                block = BuildBlock.SetBlockState(configuration, world, originalPos, block, foundBlock, blockState, this);
                             }
 
                             if (block.getSubBlock() != null) {
                                 foundBlock = Registry.BLOCK.get(block.getSubBlock().getResourceLocation());
-                                blockState = foundBlock.getDefaultState();
+                                blockState = foundBlock.defaultBlockState();
 
-                                subBlock = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block.getSubBlock(), foundBlock, blockState, this);
+                                subBlock = BuildBlock.SetBlockState(configuration, world, originalPos, block.getSubBlock(), foundBlock, blockState, this);
                             }
 
                             BlockPos setBlockPos = block.getStartingPosition().getRelativePosition(originalPos,
@@ -427,18 +429,18 @@ public class Structure {
 
                             // Some blocks need to happen later because they attach to solid blocks and have no collision logic.
                             // Fluid blocks may not have collision; but they should always be placed.
-                            if ((!blockToPlace.collidable && !(blockToPlace instanceof FluidBlock))
+                            if ((!blockToPlace.hasCollision && !(blockToPlace instanceof LiquidBlock))
                                     || (blockToPlace instanceof CarpetBlock)) {
                                 laterBlocks.add(new Tuple<>(block.getBlockState(), setBlockPos));
                             } else {
-                                world.setBlockState(setBlockPos, block.getBlockState(), BlockFlags.DEFAULT);
+                                world.setBlock(setBlockPos, block.getBlockState(), BlockFlags.DEFAULT);
                             }
 
                             if (subBlock != null) {
                                 BlockPos subBlockPos = subBlock.getStartingPosition().getRelativePosition(originalPos,
                                         this.getClearSpace().getShape().getDirection(), configuration.houseFacing);
 
-                                world.setBlockState(subBlockPos, subBlock.getBlockState(), BlockFlags.DEFAULT);
+                                world.setBlock(subBlockPos, subBlock.getBlockState(), BlockFlags.DEFAULT);
                             }
                         }
                     } else {
@@ -446,7 +448,7 @@ public class Structure {
                         // no longer exists.
                         // In this case, print an informational message and replace it with cobblestone.
                         String blockTypeNotFound = block.getResourceLocation().toString();
-                        block = BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block, Blocks.COBBLESTONE, Blocks.COBBLESTONE.getDefaultState(), this);
+                        block = BuildBlock.SetBlockState(configuration, world, originalPos, block, Blocks.COBBLESTONE, Blocks.COBBLESTONE.defaultBlockState(), this);
                         this.priorityOneBlocks.add(block);
 
                         if (!blockPlacedWithCobbleStoneInstead) {
@@ -459,25 +461,24 @@ public class Structure {
                 }
 
                 for (Tuple<BlockState, BlockPos> block : laterBlocks) {
-                    world.setBlockState(block.getSecond(), block.getFirst(), BlockFlags.DEFAULT);
+                    world.setBlock(block.getSecond(), block.getFirst(), BlockFlags.DEFAULT);
                 }
 
                 this.configuration = configuration;
                 this.world = world;
-                this.assumedNorth = assumedNorth;
                 this.originalPos = originalPos;
 
                 // Set all the tile entities here.
                 this.setBlockEntities();
 
-                this.AfterBuilding(this.configuration, this.world, this.originalPos, this.assumedNorth, player);
+                this.AfterBuilding(this.configuration, this.world, this.originalPos, player);
             } catch (Exception ex) {
                 Prefab.logger.error(ex);
             }
 
-            for (BlockPos pos : BlockPos.iterate(startBlockPos, endBlockPos)) {
+            for (BlockPos pos : BlockPos.betweenClosed(startBlockPos, endBlockPos)) {
                 Block block = world.getBlockState(pos).getBlock();
-                world.updateNeighbors(pos, block);
+                world.blockUpdated(pos, block);
             }
 
             if (StructureEventHandler.structuresToBuild.containsKey(player)) {
@@ -501,7 +502,7 @@ public class Structure {
     public void BeforeClearSpaceBlockReplaced(BlockPos pos) {
     }
 
-    public void BeforeHangingEntityRemoved(AbstractDecorationEntity hangingEntity) {
+    public void BeforeHangingEntityRemoved(HangingEntity hangingEntity) {
     }
 
     /**
@@ -511,11 +512,10 @@ public class Structure {
      * @param configuration The structure configuration.
      * @param world         The current world.
      * @param originalPos   The original position clicked on.
-     * @param assumedNorth  The assumed northern direction.
      * @param player        The player which initiated the construction.
      * @return False if processing should continue, otherwise true to cancel processing.
      */
-    protected boolean BeforeBuilding(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
+    protected boolean BeforeBuilding(StructureConfiguration configuration, Level world, BlockPos originalPos, Player player) {
         return false;
     }
 
@@ -525,21 +525,20 @@ public class Structure {
      * @param configuration The structure configuration.
      * @param world         The current world.
      * @param originalPos   The original position clicked on.
-     * @param assumedNorth  The assumed northern direction.
      * @param player        The player which initiated the construction.
      */
-    public void AfterBuilding(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
+    public void AfterBuilding(StructureConfiguration configuration, ServerLevel world, BlockPos originalPos, Player player) {
     }
 
-    protected void ClearSpace(StructureConfiguration configuration, World world, BlockPos startBlockPos, BlockPos endBlockPos) {
+    protected void ClearSpace(StructureConfiguration configuration, Level world, BlockPos startBlockPos, BlockPos endBlockPos) {
         if (this.clearSpace.getShape().getWidth() > 0
                 && this.clearSpace.getShape().getLength() > 0) {
 
             this.clearedBlockPos = new ArrayList<>();
 
-            for (BlockPos pos : BlockPos.iterate(startBlockPos, endBlockPos)) {
-                if (this.BlockShouldBeClearedDuringConstruction(configuration, world, originalPos, assumedNorth, pos)) {
-                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
+            for (BlockPos pos : BlockPos.betweenClosed(startBlockPos, endBlockPos)) {
+                if (this.BlockShouldBeClearedDuringConstruction(configuration, world, originalPos, pos)) {
+                    world.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                 }
             }
         } else {
@@ -547,12 +546,12 @@ public class Structure {
         }
     }
 
-    protected Boolean CustomBlockProcessingHandled(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos,
-                                                   Direction assumedNorth, Block foundBlock, BlockState blockState, PlayerEntity player) {
+    protected Boolean CustomBlockProcessingHandled(StructureConfiguration configuration, BuildBlock block, Level world, BlockPos originalPos,
+                                                   Block foundBlock, BlockState blockState, Player player) {
         return false;
     }
 
-    protected Boolean BlockShouldBeClearedDuringConstruction(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, BlockPos blockPos) {
+    protected Boolean BlockShouldBeClearedDuringConstruction(StructureConfiguration configuration, Level world, BlockPos originalPos, BlockPos blockPos) {
         return true;
     }
 
@@ -562,30 +561,29 @@ public class Structure {
      *
      * @param configuration The structure configuration.
      * @param block         The build block object.
-     * @param world         The workd object.
+     * @param world         The world object.
      * @param originalPos   The original block position this structure was built on.
-     * @param assumedNorth  The assumed north direction (typically north).
      * @param foundBlock    The actual block found at the current location.
      * @param blockState    The block state to set for the current block.
      * @param player        The player requesting this build.
      * @return Returns true if the water block was replaced by cobblestone, otherwise false.
      */
-    protected Boolean WaterReplacedWithCobbleStone(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos,
-                                                   Direction assumedNorth, Block foundBlock, BlockState blockState, PlayerEntity player) {
+    protected Boolean WaterReplacedWithCobbleStone(StructureConfiguration configuration, BuildBlock block, Level world, BlockPos originalPos,
+                                                   Block foundBlock, BlockState blockState, Player player) {
         // Replace water blocks and waterlogged blocks with cobblestone when this is not an ultra warm world type.
         // Also check a configuration value to determine if water blocks are allowed in other non-overworld dimensions such as The End.
-        boolean isOverworld = World.OVERWORLD.getValue().toString().equals(world.getRegistryKey().getValue().toString());
+        boolean isOverworld = Level.OVERWORLD.location().toString().equals(world.dimension().location().toString());
 
-        if (world.getDimension().isUltrawarm()
+        if (world.dimensionType().ultraWarm()
                 || (!isOverworld && Prefab.serverConfiguration.allowWaterInNonOverworldDimensions)) {
-            boolean foundWaterLikeBlock = (foundBlock instanceof FluidBlock && blockState.getMaterial() == Material.WATER)
+            boolean foundWaterLikeBlock = (foundBlock instanceof LiquidBlock && blockState.getMaterial() == Material.WATER)
                     || foundBlock instanceof SeagrassBlock;
 
             if (!foundWaterLikeBlock) {
                 // This is not a direct water block; check if it is waterlogged.
                 for (BuildProperty property : block.getProperties()) {
-                    if (property.getName().equalsIgnoreCase(Properties.WATERLOGGED.getName())
-                            && property.getValue().equalsIgnoreCase(Properties.WATERLOGGED.name(true))) {
+                    if (property.getName().equalsIgnoreCase(BlockStateProperties.WATERLOGGED.getName())
+                            && property.getValue().equalsIgnoreCase(BlockStateProperties.WATERLOGGED.getName(true))) {
                         // Found a waterlogged block. Replace with cobblestone.
                         foundWaterLikeBlock = true;
                         break;
@@ -594,15 +592,15 @@ public class Structure {
             }
 
             if (foundWaterLikeBlock) {
-                Identifier cobbleIdentifier = Registry.BLOCK.getId(Blocks.COBBLESTONE);
+                ResourceLocation cobbleIdentifier = Registry.BLOCK.getKey(Blocks.COBBLESTONE);
                 block.setBlockDomain(cobbleIdentifier.getNamespace());
                 block.setBlockName(cobbleIdentifier.getPath());
-                block.setBlockState(Blocks.COBBLESTONE.getDefaultState());
+                block.setBlockState(Blocks.COBBLESTONE.defaultBlockState());
 
                 BlockPos setBlockPos = block.getStartingPosition().getRelativePosition(originalPos,
                         this.getClearSpace().getShape().getDirection(), configuration.houseFacing);
 
-                world.setBlockState(setBlockPos, block.getBlockState(), BlockFlags.DEFAULT);
+                world.setBlock(setBlockPos, block.getBlockState(), BlockFlags.DEFAULT);
                 return true;
             }
         }
@@ -610,14 +608,14 @@ public class Structure {
         return false;
     }
 
-    protected boolean processedGlassBlock(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos, Block foundBlock) {
+    protected boolean processedGlassBlock(StructureConfiguration configuration, BuildBlock block, Level world, BlockPos originalPos, Block foundBlock) {
         if (!this.hasGlassColor(configuration)) {
             return false;
         }
 
-        Identifier blockIdentifier = Registry.BLOCK.getId(foundBlock);
-        Identifier glassIdentifier = Registry.BLOCK.getId(Blocks.WHITE_STAINED_GLASS);
-        Identifier glassPaneIdentifier = Registry.BLOCK.getId(Blocks.WHITE_STAINED_GLASS_PANE);
+        ResourceLocation blockIdentifier = Registry.BLOCK.getKey(foundBlock);
+        ResourceLocation glassIdentifier = Registry.BLOCK.getKey(Blocks.WHITE_STAINED_GLASS);
+        ResourceLocation glassPaneIdentifier = Registry.BLOCK.getKey(Blocks.WHITE_STAINED_GLASS_PANE);
 
         if (blockIdentifier.getNamespace().equals(glassIdentifier.getNamespace())
                 && blockIdentifier.getPath().endsWith("glass")) {
@@ -634,7 +632,6 @@ public class Structure {
                     configuration,
                     world,
                     originalPos,
-                    assumedNorth,
                     block,
                     foundBlock,
                     blockState,
@@ -671,19 +668,19 @@ public class Structure {
                     this.world.removeBlockEntity(tileEntityPos);
                 }
 
-                tileEntity = BlockEntity.createFromNbt(tileEntityPos, tileBlock, buildTileEntity.getEntityDataTag());
+                tileEntity = BlockEntity.loadStatic(tileEntityPos, tileBlock, buildTileEntity.getEntityDataTag());
 
                 if (tileEntity == null) {
                     continue;
                 }
 
-                this.world.addBlockEntity(tileEntity);
-                this.world.getChunk(tileEntityPos).setShouldSave(true);
-                tileEntity.markDirty();
-                Packet<ClientPlayPacketListener> packet = tileEntity.toUpdatePacket();
+                this.world.setBlockEntity(tileEntity);
+                this.world.getChunk(tileEntityPos).setUnsaved(true);
+                tileEntity.setChanged();
+                Packet<ClientGamePacketListener> packet = tileEntity.getUpdatePacket();
 
                 if (packet != null) {
-                    this.world.getServer().getPlayerManager().sendToAll(packet);
+                    this.world.getServer().getPlayerList().broadcastAll(packet);
                 }
             } catch (Exception ex) {
                 Prefab.logger.error(ex);

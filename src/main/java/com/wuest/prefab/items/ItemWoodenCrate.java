@@ -1,8 +1,7 @@
 package com.wuest.prefab.items;
 
 import com.wuest.prefab.ModRegistry;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.Item;
 
 /**
  * @author WuestMan
@@ -14,9 +13,9 @@ public class ItemWoodenCrate extends Item {
      * Creates a new instance of the ItemWoodenCrateClass.
      */
     public ItemWoodenCrate(CrateType crateType) {
-        super(new Item.Settings()
-                .group(ModRegistry.PREFAB_GROUP)
-                .recipeRemainder(ItemWoodenCrate.getRecipeRemainderForCrateType(crateType)));
+        super(new Item.Properties()
+                .tab(ModRegistry.PREFAB_GROUP)
+                .craftRemainder(ItemWoodenCrate.getRecipeRemainderForCrateType(crateType)));
 
         this.crateType = crateType;
     }

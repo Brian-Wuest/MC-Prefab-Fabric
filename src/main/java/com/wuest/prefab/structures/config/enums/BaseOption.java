@@ -1,7 +1,7 @@
 package com.wuest.prefab.structures.config.enums;
 
 import com.wuest.prefab.Prefab;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ public class BaseOption {
     private static final HashMap<String, ArrayList<BaseOption>> classOptions = new HashMap<>();
     private final String translationString;
     private final String assetLocation;
-    private final Identifier pictureLocation;
+    private final ResourceLocation pictureLocation;
     private final boolean hasBedColor;
     private final boolean hasGlassColor;
 
@@ -24,7 +24,7 @@ public class BaseOption {
             boolean hasGlassColor) {
         this.translationString = translationString;
         this.assetLocation = assetLocation;
-        this.pictureLocation = new Identifier(Prefab.MODID, pictureLocation);
+        this.pictureLocation = new ResourceLocation(Prefab.MODID, pictureLocation);
         this.hasBedColor = hasBedColor;
         this.hasGlassColor = hasGlassColor;
 
@@ -79,7 +79,7 @@ public class BaseOption {
     /**
      * @return Get's the picture location to show when this option is chosen.
      */
-    public Identifier getPictureLocation() {
+    public ResourceLocation getPictureLocation() {
         return this.pictureLocation;
     }
 

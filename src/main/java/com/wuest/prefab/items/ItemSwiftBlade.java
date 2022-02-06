@@ -1,10 +1,9 @@
 package com.wuest.prefab.items;
 
 import com.wuest.prefab.ModRegistry;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.SwordItem;
-import net.minecraft.item.ToolMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tier;
 
 /**
  * This class is used to create a sword which has the same speed as pre-1.9
@@ -16,9 +15,9 @@ public class ItemSwiftBlade extends SwordItem {
     /*
      * Initializes a new instance of the ItemSwiftBlade class.
      */
-    public ItemSwiftBlade(ToolMaterial tier, int attackDamageIn, float attackSpeedIn) {
+    public ItemSwiftBlade(Tier tier, int attackDamageIn, float attackSpeedIn) {
         super(tier, attackDamageIn, attackSpeedIn,
-                new Item.Settings().maxCount(1).maxDamage(tier.getDurability()).group(ModRegistry.PREFAB_GROUP));
+                new Item.Properties().stacksTo(1).defaultDurability(tier.getUses()).tab(ModRegistry.PREFAB_GROUP));
     }
 
     /**
@@ -26,15 +25,15 @@ public class ItemSwiftBlade extends SwordItem {
      * equal to 2 damage points.
      */
     @Override
-    public float getAttackDamage() {
-        return this.getMaterial().getAttackDamage();
+    public float getDamage() {
+        return this.getTier().getAttackDamageBonus();
     }
 
     /**
      * Return the name for this tool's material.
      */
     public String getToolMaterialName() {
-        return this.getMaterial().toString();
+        return this.getTier().toString();
     }
 
     /**
@@ -42,8 +41,8 @@ public class ItemSwiftBlade extends SwordItem {
      * material.
      */
     @Override
-    public int getEnchantability() {
-        return this.getMaterial().getEnchantability();
+    public int getEnchantmentValue() {
+        return this.getTier().getEnchantmentValue();
     }
 
 }

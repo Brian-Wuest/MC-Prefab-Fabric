@@ -1,10 +1,9 @@
 package com.wuest.prefab.blocks;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Material;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.util.StringRepresentable;
 
 /**
  * Provides a way to store large amounts of stone.
@@ -18,10 +17,10 @@ public class BlockCompressedStone extends Block {
 	 * Initializes a new instance of the CompressedStone class.
 	 */
 	public BlockCompressedStone(EnumType typeOfStone) {
-		super(AbstractBlock.Settings.of(Material.AGGREGATE)
+		super(Properties.of(Material.DECORATION)
 				.strength(1.5F, 10.0F)
-				.sounds(typeOfStone.getSoundType())
-				.luminance(value -> typeOfStone == EnumType.COMPRESSED_GLOWSTONE || typeOfStone == EnumType.DOUBLE_COMPRESSED_GLOWSTONE ? 15 : 0));
+				.sound(typeOfStone.getSoundType())
+				.lightLevel(value -> typeOfStone == EnumType.COMPRESSED_GLOWSTONE || typeOfStone == EnumType.DOUBLE_COMPRESSED_GLOWSTONE ? 15 : 0));
 
 		this.typeofStone = typeOfStone;
 	}
@@ -32,16 +31,16 @@ public class BlockCompressedStone extends Block {
 	 * @author WuestMan
 	 */
 	@SuppressWarnings({"NullableProblems", "SpellCheckingInspection"})
-	public enum EnumType implements StringIdentifiable {
-		COMPRESSED_STONE(0, "block_compressed_stone", "block_compressed_stone", BlockSoundGroup.STONE),
-		DOUBLE_COMPRESSED_STONE(1, "block_double_compressed_stone", "block_double_compressed_stone", BlockSoundGroup.STONE),
-		TRIPLE_COMPRESSED_STONE(2, "block_triple_compressed_stone", "block_triple_compressed_stone", BlockSoundGroup.STONE),
-		COMPRESSED_GLOWSTONE(3, "block_compressed_glowstone", "block_compressed_glowstone", BlockSoundGroup.GLASS),
-		DOUBLE_COMPRESSED_GLOWSTONE(4, "block_double_compressed_glowstone", "block_double_compressed_glowstone", BlockSoundGroup.GLASS),
-		COMPRESSED_DIRT(5, "block_compressed_dirt", "block_compressed_dirt", BlockSoundGroup.GRAVEL),
-		DOUBLE_COMPRESSED_DIRT(6, "block_double_compressed_dirt", "block_double_compressed_dirt", BlockSoundGroup.GRAVEL),
-		COMPRESSED_QUARTZCRETE(7, "block_compressed_quartz_crete", "block_compressed_quartz_crete", BlockSoundGroup.STONE),
-		DOUBLE_COMPRESSED_QUARTZCRETE(8, "block_double_compressed_quartz_crete", "block_double_compressed_quartz_crete", BlockSoundGroup.STONE);
+	public enum EnumType implements StringRepresentable {
+		COMPRESSED_STONE(0, "block_compressed_stone", "block_compressed_stone", SoundType.STONE),
+		DOUBLE_COMPRESSED_STONE(1, "block_double_compressed_stone", "block_double_compressed_stone", SoundType.STONE),
+		TRIPLE_COMPRESSED_STONE(2, "block_triple_compressed_stone", "block_triple_compressed_stone", SoundType.STONE),
+		COMPRESSED_GLOWSTONE(3, "block_compressed_glowstone", "block_compressed_glowstone", SoundType.GLASS),
+		DOUBLE_COMPRESSED_GLOWSTONE(4, "block_double_compressed_glowstone", "block_double_compressed_glowstone", SoundType.GLASS),
+		COMPRESSED_DIRT(5, "block_compressed_dirt", "block_compressed_dirt", SoundType.GRAVEL),
+		DOUBLE_COMPRESSED_DIRT(6, "block_double_compressed_dirt", "block_double_compressed_dirt", SoundType.GRAVEL),
+		COMPRESSED_QUARTZCRETE(7, "block_compressed_quartz_crete", "block_compressed_quartz_crete", SoundType.STONE),
+		DOUBLE_COMPRESSED_QUARTZCRETE(8, "block_double_compressed_quartz_crete", "block_double_compressed_quartz_crete", SoundType.STONE);
 
 		private final int meta;
 		/**
@@ -49,10 +48,9 @@ public class BlockCompressedStone extends Block {
 		 */
 		private final String name;
 		private final String unlocalizedName;
+		private final SoundType soundType;
 
-		private final BlockSoundGroup soundType;
-
-		EnumType(int meta, String name, String unlocalizedName, BlockSoundGroup soundType) {
+		EnumType(int meta, String name, String unlocalizedName, SoundType soundType) {
 			this.meta = meta;
 			this.name = name;
 			this.unlocalizedName = unlocalizedName;
@@ -68,7 +66,7 @@ public class BlockCompressedStone extends Block {
 			return this.meta;
 		}
 
-		public BlockSoundGroup getSoundType() {
+		public SoundType getSoundType() {
 			return this.soundType;
 		}
 
@@ -80,7 +78,7 @@ public class BlockCompressedStone extends Block {
 		}
 
 		@Override
-		public String asString() {
+		public String getSerializedName() {
 			return this.name;
 		}
 

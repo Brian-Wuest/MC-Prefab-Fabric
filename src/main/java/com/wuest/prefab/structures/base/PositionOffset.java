@@ -1,8 +1,8 @@
 package com.wuest.prefab.structures.base;
 
 import com.google.gson.annotations.Expose;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 /**
  * This class represents the offsets for a particular position.
@@ -153,13 +153,13 @@ public class PositionOffset {
 		for (int i = 0; i < 4; i++) {
 			int offSetValue = this.getOffSetValueForFacing(originalDirection);
 
-			pos = pos.offset(configurationFacing, offSetValue);
+			pos = pos.relative(configurationFacing, offSetValue);
 
-			originalDirection = originalDirection.rotateYClockwise();
-			configurationFacing = configurationFacing.rotateYClockwise();
+			originalDirection = originalDirection.getClockWise();
+			configurationFacing = configurationFacing.getClockWise();
 		}
 
-		pos = pos.offset(Direction.UP, this.heightOffset);
+		pos = pos.relative(Direction.UP, this.heightOffset);
 
 		return pos;
 	}

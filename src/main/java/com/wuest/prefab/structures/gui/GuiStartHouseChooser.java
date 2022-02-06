@@ -1,5 +1,6 @@
 package com.wuest.prefab.structures.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Tuple;
@@ -12,12 +13,10 @@ import com.wuest.prefab.gui.controls.GuiCheckBox;
 import com.wuest.prefab.structures.config.HouseConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.predefined.StructureAlternateStart;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.DyeColor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.DyeColor;
 
 /**
  * @author WuestMan
@@ -44,8 +43,8 @@ public class GuiStartHouseChooser extends GuiStructure {
     }
 
     @Override
-    public Text getNarratedTitle() {
-        return new TranslatableText(GuiLangKeys.translateString(GuiLangKeys.TITLE_STARTER_HOUSE));
+    public Component getNarrationMessage() {
+        return new TranslatableComponent(GuiLangKeys.translateString(GuiLangKeys.TITLE_STARTER_HOUSE));
     }
 
     @Override
@@ -55,7 +54,7 @@ public class GuiStartHouseChooser extends GuiStructure {
         this.shownImageHeight = 150;
         this.shownImageWidth = 268;
 
-        if (!MinecraftClient.getInstance().player.isCreative()) {
+        if (!this.getMinecraft().player.isCreative()) {
             this.allowItemsInChestAndFurnace = !ClientModRegistry.playerConfig.builtStarterHouse;
         } else {
             this.allowItemsInChestAndFurnace = true;
@@ -85,7 +84,7 @@ public class GuiStartHouseChooser extends GuiStructure {
     }
 
     @Override
-    protected void preButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         int imagePanelUpperLeft = x + 142;
         int imagePanelWidth = 285;
         int imagePanelMiddle = imagePanelWidth / 2;
@@ -116,7 +115,7 @@ public class GuiStartHouseChooser extends GuiStructure {
     }
 
     @Override
-    protected void postButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         // Draw the text here.
         this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.STARTER_HOUSE_STYLE), x + 8, y + 15, this.textColor);
 
@@ -141,7 +140,7 @@ public class GuiStartHouseChooser extends GuiStructure {
         this.configuration.addFurnace = this.serverConfiguration.starterHouseOptions.addFurnace;
         this.configuration.addMineShaft = this.serverConfiguration.starterHouseOptions.addMineshaft && this.btnAddMineShaft.isChecked();
         this.configuration.addTorches = this.serverConfiguration.chestOptions.addTorches;
-        this.configuration.houseFacing = this.getMinecraft().player.getHorizontalFacing().getOpposite();
+        this.configuration.houseFacing = this.getMinecraft().player.getDirection().getOpposite();
 
         this.performCancelOrBuildOrHouseFacing(this.configuration, button);
 

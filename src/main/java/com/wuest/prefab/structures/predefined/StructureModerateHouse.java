@@ -11,13 +11,13 @@ import com.wuest.prefab.structures.config.ModerateHouseConfiguration;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.block.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 
@@ -30,8 +30,8 @@ public class StructureModerateHouse extends Structure {
     private BlockPos trapDoorPosition = null;
 
     @Override
-    protected Boolean CustomBlockProcessingHandled(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos,
-                                                   Direction assumedNorth, Block foundBlock, BlockState blockState, PlayerEntity player) {
+    protected Boolean CustomBlockProcessingHandled(StructureConfiguration configuration, BuildBlock block, Level world, BlockPos originalPos,
+                                                   Block foundBlock, BlockState blockState, Player player) {
 
         ModerateHouseConfiguration houseConfiguration = (ModerateHouseConfiguration) configuration;
 
@@ -51,7 +51,7 @@ public class StructureModerateHouse extends Structure {
                     originalPos,
                     this.getClearSpace().getShape().getDirection(),
                     configuration.houseFacing);
-        } else if (foundBlock instanceof TrapdoorBlock && this.trapDoorPosition == null) {
+        } else if (foundBlock instanceof TrapDoorBlock && this.trapDoorPosition == null) {
             // The trap door will still be added, but the mine shaft may not be
             // built.
             this.trapDoorPosition = block.getStartingPosition().getRelativePosition(
@@ -63,7 +63,7 @@ public class StructureModerateHouse extends Structure {
             this.trapDoorPosition = block.getStartingPosition().getRelativePosition(
                     originalPos,
                     this.getClearSpace().getShape().getDirection(),
-                    configuration.houseFacing).up();
+                    configuration.houseFacing).above();
         } else if (foundBlock instanceof BedBlock) {
             BlockPos bedHeadPosition = block.getStartingPosition().getRelativePosition(originalPos, this.getClearSpace().getShape().getDirection(), configuration.houseFacing);
             BlockPos bedFootPosition = block.getSubBlock().getStartingPosition().getRelativePosition(
@@ -88,11 +88,10 @@ public class StructureModerateHouse extends Structure {
      * @param configuration The structure configuration.
      * @param world         The current world.
      * @param originalPos   The original position clicked on.
-     * @param assumedNorth  The assumed northern direction.
      * @param player        The player which initiated the construction.
      */
     @Override
-    public void AfterBuilding(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
+    public void AfterBuilding(StructureConfiguration configuration, ServerLevel world, BlockPos originalPos, Player player) {
         ModerateHouseConfiguration houseConfig = (ModerateHouseConfiguration) configuration;
         EntityPlayerConfiguration playerConfig = EntityPlayerConfiguration.loadFromEntity(player);
 
@@ -103,11 +102,11 @@ public class StructureModerateHouse extends Structure {
             BuildingMethods.FillChest(world, this.chestPosition);
         }
 
-        int minimumHeightForMineshaft = world.getBottomY() + 21;
+        int minimumHeightForMineshaft = world.getMinBuildHeight() + 21;
 
         if (this.trapDoorPosition != null && this.trapDoorPosition.getY() > minimumHeightForMineshaft && houseConfig.addMineshaft) {
             // Build the mineshaft.
-            BuildingMethods.PlaceMineShaft(world, this.trapDoorPosition.down(), houseConfig.houseFacing, false);
+            BuildingMethods.PlaceMineShaft(world, this.trapDoorPosition.below(), houseConfig.houseFacing, false);
         }
 
         // Make sure to set this value so the player cannot fill the chest a second time.
@@ -115,7 +114,7 @@ public class StructureModerateHouse extends Structure {
 
         PlayerEntityTagMessage message = new PlayerEntityTagMessage();
         message.setMessageTag(playerConfig.createPlayerTag());
-        PacketByteBuf byteBuf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
 
         PlayerEntityTagMessage.encode(message, byteBuf);
 

@@ -1,5 +1,6 @@
 package com.wuest.prefab.gui.screens;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Tuple;
@@ -10,18 +11,17 @@ import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.controls.ExtendedButton;
 import com.wuest.prefab.gui.controls.GuiTextBox;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 
 import java.awt.*;
 
 public class GuiStructureScanner extends GuiBase {
     private final BlockPos blockPos;
-    private final World world;
+    private final Level world;
     private StructureScannerConfig config;
 
     private ExtendedButton btnStartingPositionMoveLeft;
@@ -38,7 +38,7 @@ public class GuiStructureScanner extends GuiBase {
     private ExtendedButton btnScan;
     private ExtendedButton btnSet;
 
-    public GuiStructureScanner(BlockPos blockPos, World world, StructureScannerConfig config) {
+    public GuiStructureScanner(BlockPos blockPos, Level world, StructureScannerConfig config) {
         super("Structure Scanner");
 
         this.blockPos = blockPos;
@@ -51,7 +51,7 @@ public class GuiStructureScanner extends GuiBase {
     protected void Initialize() {
         super.Initialize();
 
-        this.config.direction = this.world.getBlockState(this.blockPos).get(BlockStructureScanner.FACING);
+        this.config.direction = this.world.getBlockState(this.blockPos).getValue(BlockStructureScanner.FACING);
 
         Tuple<Integer, Integer> adjustedXYValues = this.getAdjustedXYValue();
         int adjustedX = adjustedXYValues.first;
@@ -80,32 +80,32 @@ public class GuiStructureScanner extends GuiBase {
         this.btnHeightGrow = this.createAndAddButton(adjustedX + 297, adjustedY + 30, 25, 20, "▲", null);
 
         // Zip Text Field
-        this.txtZipName = new GuiTextBox(this.getMinecraft().textRenderer, adjustedX + 120, adjustedY + 75, 150, 20, new LiteralText(""));
+        this.txtZipName = new GuiTextBox(this.getMinecraft().font, adjustedX + 120, adjustedY + 75, 150, 20, new TextComponent(""));
 
         if (this.config.structureZipName == null || this.config.structureZipName.trim().equals("")) {
-            this.txtZipName.setText("Structure Name Here");
+            this.txtZipName.setValue("Structure Name Here");
         } else {
-            this.txtZipName.setText(this.config.structureZipName);
+            this.txtZipName.setValue(this.config.structureZipName);
         }
 
         this.txtZipName.setMaxLength(128);
-        this.txtZipName.setDrawsBackground(true);
+        this.txtZipName.setBordered(true);
         this.txtZipName.backgroundColor = Color.WHITE.getRGB();
-        this.txtZipName.setEditableColor(Color.DARK_GRAY.getRGB());
+        this.txtZipName.setTextColor(Color.DARK_GRAY.getRGB());
         this.txtZipName.drawsTextShadow = false;
-        this.addSelectableChild(this.txtZipName);
+        this.addRenderableWidget(this.txtZipName);
 
         this.btnSet = this.createAndAddButton(adjustedX + 25, adjustedY + 140, 90, 20, "Set And Close", null);
         this.btnScan = this.createAndAddCustomButton(adjustedX + 200, adjustedY + 140, 90, 20, "Scan");
     }
 
     @Override
-    protected void preButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         this.drawControlBackground(matrixStack, x, y + 15, 350, 250);
     }
 
     @Override
-    protected void postButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         this.drawString(matrixStack, "Starting Position", x + 15, y + 20, this.textColor);
         this.drawString(matrixStack, "Left: " + this.config.blocksToTheLeft + " Down: " + -this.config.blocksDown, x + 15, y + 35, this.textColor);
         this.drawString(matrixStack, "Length: " + this.config.blocksLong, x + 120, y + 20, this.textColor);
@@ -117,7 +117,7 @@ public class GuiStructureScanner extends GuiBase {
 
     @Override
     public void buttonClicked(PressableWidget button, boolean rightClick) {
-        this.config.structureZipName = this.txtZipName.getText();
+        this.config.structureZipName = this.txtZipName.getValue();
 
         if (this.config.structureZipName.trim().equals("")) {
             this.config.structureZipName = "Structure Name Here";
@@ -193,12 +193,12 @@ public class GuiStructureScanner extends GuiBase {
     }
 
     private void sendUpdatePacket() {
-        PacketByteBuf messagePacket = Utils.createMessageBuffer(this.config.GetCompoundNBT());
+        FriendlyByteBuf messagePacket = Utils.createMessageBuffer(this.config.GetCompoundNBT());
         ClientPlayNetworking.send(ModRegistry.StructureScannerSync, messagePacket);
     }
 
     private void sendScanPacket() {
-        PacketByteBuf messagePacket = Utils.createMessageBuffer(this.config.GetCompoundNBT());
+        FriendlyByteBuf messagePacket = Utils.createMessageBuffer(this.config.GetCompoundNBT());
         ClientPlayNetworking.send(ModRegistry.StructureScannerAction, messagePacket);
     }
 }

@@ -1,8 +1,8 @@
 package com.wuest.prefab.config;
 
 import com.wuest.prefab.structures.config.StructureConfiguration;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -20,20 +20,20 @@ public class EntityPlayerConfiguration {
     public EntityPlayerConfiguration() {
     }
 
-    public static EntityPlayerConfiguration loadFromEntity(PlayerEntity playerEntity) {
+    public static EntityPlayerConfiguration loadFromEntity(Player playerEntity) {
         // This is safe because the mix-in will have already loaded the player's data.
-        if (EntityPlayerConfiguration.playerTagData.containsKey(playerEntity.getUuid())) {
-            return EntityPlayerConfiguration.playerTagData.get(playerEntity.getUuid());
+        if (EntityPlayerConfiguration.playerTagData.containsKey(playerEntity.getUUID())) {
+            return EntityPlayerConfiguration.playerTagData.get(playerEntity.getUUID());
         } else {
             // This should only happen when it's a brand new player.
             EntityPlayerConfiguration returnValue = new EntityPlayerConfiguration();
-            EntityPlayerConfiguration.playerTagData.put(playerEntity.getUuid(), returnValue);
+            EntityPlayerConfiguration.playerTagData.put(playerEntity.getUUID(), returnValue);
 
             return returnValue;
         }
     }
 
-    public static EntityPlayerConfiguration loadFromTag(UUID playerUUID, NbtCompound tag) {
+    public static EntityPlayerConfiguration loadFromTag(UUID playerUUID, CompoundTag tag) {
         EntityPlayerConfiguration returnValue = new EntityPlayerConfiguration();
 
         returnValue.loadFromNBTTagCompound(tag);
@@ -52,7 +52,7 @@ public class EntityPlayerConfiguration {
      *
      * @param tag The tag to load the data from.
      */
-    public void loadFromNBTTagCompound(NbtCompound tag) {
+    public void loadFromNBTTagCompound(CompoundTag tag) {
         this.givenHouseBuilder = tag.getBoolean(EntityPlayerConfiguration.GIVEN_HOUSEBUILDER_TAG);
         this.builtStarterHouse = tag.getBoolean(EntityPlayerConfiguration.Built_Starter_house_Tag);
     }
@@ -60,8 +60,8 @@ public class EntityPlayerConfiguration {
     /**
      * Saves this instance's data to the player tag.
      */
-    public NbtCompound createPlayerTag() {
-        NbtCompound compoundTag = new NbtCompound();
+    public CompoundTag createPlayerTag() {
+        CompoundTag compoundTag = new CompoundTag();
 
         compoundTag.putBoolean(EntityPlayerConfiguration.Built_Starter_house_Tag, this.builtStarterHouse);
         compoundTag.putBoolean(EntityPlayerConfiguration.GIVEN_HOUSEBUILDER_TAG, this.givenHouseBuilder);

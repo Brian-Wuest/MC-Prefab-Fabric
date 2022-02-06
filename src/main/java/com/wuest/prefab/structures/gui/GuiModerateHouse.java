@@ -1,5 +1,6 @@
 package com.wuest.prefab.structures.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Tuple;
@@ -11,12 +12,10 @@ import com.wuest.prefab.gui.controls.GuiCheckBox;
 import com.wuest.prefab.structures.config.ModerateHouseConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.predefined.StructureModerateHouse;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.DyeColor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.DyeColor;
 
 /**
  * @author WuestMan
@@ -38,8 +37,8 @@ public class GuiModerateHouse extends GuiStructure {
     }
 
     @Override
-    public Text getNarratedTitle() {
-        return new TranslatableText(GuiLangKeys.translateString(GuiLangKeys.TITLE_MODERATE_HOUSE));
+    public Component getNarrationMessage() {
+        return new TranslatableComponent(GuiLangKeys.translateString(GuiLangKeys.TITLE_MODERATE_HOUSE));
     }
 
     @Override
@@ -49,7 +48,7 @@ public class GuiModerateHouse extends GuiStructure {
         this.shownImageHeight = 150;
         this.shownImageWidth = 268;
 
-        if (!MinecraftClient.getInstance().player.isCreative()) {
+        if (!this.getMinecraft().player.isCreative()) {
             this.allowItemsInChestAndFurnace = !ClientModRegistry.playerConfig.builtStarterHouse;
         } else {
             this.allowItemsInChestAndFurnace = true;
@@ -78,7 +77,7 @@ public class GuiModerateHouse extends GuiStructure {
     }
 
     @Override
-    protected void preButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         int imagePanelUpperLeft = x + 136;
         int imagePanelWidth = 285;
         int imagePanelMiddle = imagePanelWidth / 2;
@@ -109,7 +108,7 @@ public class GuiModerateHouse extends GuiStructure {
     }
 
     @Override
-    protected void postButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         // Draw the text here.
         this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.STARTER_HOUSE_STYLE), x + 8, y + 15, this.textColor);
 

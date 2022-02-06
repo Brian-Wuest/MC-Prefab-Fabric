@@ -7,40 +7,41 @@ import com.wuest.prefab.Utils;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
 import com.wuest.prefab.config.ModConfiguration;
 import com.wuest.prefab.network.message.PlayerEntityTagMessage;
-import com.wuest.prefab.structures.base.*;
+import com.wuest.prefab.structures.base.BuildBlock;
+import com.wuest.prefab.structures.base.BuildEntity;
+import com.wuest.prefab.structures.base.BuildingMethods;
+import com.wuest.prefab.structures.base.Structure;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.decoration.AbstractDecorationEntity;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.decoration.painting.PaintingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtDouble;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * This is the structure event handler.
@@ -51,7 +52,7 @@ public final class StructureEventHandler {
     /**
      * Contains a hashmap for the structures to build and for whom.
      */
-    public static HashMap<PlayerEntity, ArrayList<Structure>> structuresToBuild = new HashMap<>();
+    public static HashMap<Player, ArrayList<Structure>> structuresToBuild = new HashMap<>();
 
     public static ArrayList<Tuple<Structure, BuildEntity>> entitiesToGenerate = new ArrayList<>();
 
@@ -69,8 +70,8 @@ public final class StructureEventHandler {
 
     private static void playerJoinedServer() {
         ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
-            if (entity instanceof ServerPlayerEntity) {
-                StructureEventHandler.playerLoggedIn((ServerPlayerEntity) entity, serverWorld);
+            if (entity instanceof ServerPlayer) {
+                StructureEventHandler.playerLoggedIn((ServerPlayer) entity, serverWorld);
             }
         });
     }
@@ -96,7 +97,7 @@ public final class StructureEventHandler {
     /**
      * This event is used to determine if the player should be given the starting house item when they log in.
      */
-    public static void playerLoggedIn(ServerPlayerEntity player, ServerWorld serverWorld) {
+    public static void playerLoggedIn(ServerPlayer player, ServerLevel serverWorld) {
         EntityPlayerConfiguration playerConfig = EntityPlayerConfiguration.loadFromEntity(player);
 
         ModConfiguration.StartingItemOptions startingItem = Prefab.serverConfiguration.startingItem;
@@ -119,8 +120,8 @@ public final class StructureEventHandler {
             if (!stack.isEmpty()) {
                 System.out.println(player.getDisplayName().getString() + " joined the game for the first time. Giving them starting item.");
 
-                player.getInventory().insertStack(stack);
-                player.currentScreenHandler.sendContentUpdates();
+                player.getInventory().add(stack);
+                player.containerMenu.broadcastChanges();
 
                 // Make sure to set the tag for this player; so they don't get the item again.
                 playerConfig.givenHouseBuilder = true;
@@ -131,7 +132,7 @@ public final class StructureEventHandler {
 
         // Send the tag to the client.
         PlayerEntityTagMessage message = new PlayerEntityTagMessage();
-        PacketByteBuf messagePacket = Utils.createMessageBuffer(playerConfig.createPlayerTag());
+        FriendlyByteBuf messagePacket = Utils.createMessageBuffer(playerConfig.createPlayerTag());
         ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, ModRegistry.PlayerConfigSync, messagePacket);
     }
 
@@ -139,7 +140,7 @@ public final class StructureEventHandler {
      * This event is primarily used to build 100 blocks for any queued structures for all players.
      */
     public static void onServerTick() {
-        ArrayList<PlayerEntity> playersToRemove = new ArrayList<PlayerEntity>();
+        ArrayList<Player> playersToRemove = new ArrayList<Player>();
 
         StructureEventHandler.ticksSinceLastEntitiesGenerated++;
 
@@ -155,7 +156,7 @@ public final class StructureEventHandler {
         }
 
         if (StructureEventHandler.structuresToBuild.size() > 0) {
-            for (Entry<PlayerEntity, ArrayList<Structure>> entry : StructureEventHandler.structuresToBuild.entrySet()) {
+            for (Map.Entry<Player, ArrayList<Structure>> entry : StructureEventHandler.structuresToBuild.entrySet()) {
                 ArrayList<Structure> structuresToRemove = new ArrayList<>();
 
                 // Build the first 100 blocks of each structure for this player.
@@ -164,16 +165,16 @@ public final class StructureEventHandler {
                         // Go through each block and find any entities there. If there are any; kill them if they aren't players.
                         // If there is a player there...they will probably die anyways.....
                         for (BlockPos clearedPos : structure.clearedBlockPos) {
-                            Box axisPos = VoxelShapes.fullCube().getBoundingBox().offset(clearedPos);
+                            AABB axisPos = Shapes.block().bounds().move(clearedPos);
 
-                            List<Entity> list = structure.world.getOtherEntities(null, axisPos);
+                            List<Entity> list = structure.world.getEntities(null, axisPos);
 
                             if (!list.isEmpty()) {
                                 for (Entity entity : list) {
                                     // Don't kill living entities.
                                     if (!(entity instanceof LivingEntity)) {
-                                        if (entity instanceof AbstractDecorationEntity) {
-                                            structure.BeforeHangingEntityRemoved((AbstractDecorationEntity) entity);
+                                        if (entity instanceof HangingEntity) {
+                                            structure.BeforeHangingEntityRemoved((HangingEntity) entity);
                                         }
 
                                         entity.remove(Entity.RemovalReason.DISCARDED);
@@ -207,7 +208,7 @@ public final class StructureEventHandler {
         }
 
         // Remove each player that has their structure's built.
-        for (PlayerEntity player : playersToRemove) {
+        for (Player player : playersToRemove) {
             StructureEventHandler.structuresToBuild.remove(player);
         }
 
@@ -230,52 +231,52 @@ public final class StructureEventHandler {
                 structure.BeforeClearSpaceBlockReplaced(currentPos);
 
                 for (Direction adjacentBlock : Direction.values()) {
-                    BlockPos tempPos = currentPos.offset(adjacentBlock);
+                    BlockPos tempPos = currentPos.relative(adjacentBlock);
                     BlockState foundState = structure.world.getBlockState(tempPos);
                     Block foundBlock = foundState.getBlock();
 
                     // Check if this block is one that is attached to a facing, if it is, remove it first.
                     if (foundBlock instanceof TorchBlock
-                            || foundBlock instanceof AbstractSignBlock
+                            || foundBlock instanceof SignBlock
                             || foundBlock instanceof LeverBlock
-                            || foundBlock instanceof AbstractButtonBlock
+                            || foundBlock instanceof ButtonBlock
                             || foundBlock instanceof BedBlock
                             || foundBlock instanceof CarpetBlock
                             || foundBlock instanceof FlowerPotBlock
                             || foundBlock instanceof SugarCaneBlock
-                            || foundBlock instanceof AbstractPressurePlateBlock
+                            || foundBlock instanceof BasePressurePlateBlock
                             || foundBlock instanceof DoorBlock
                             || foundBlock instanceof LadderBlock
                             || foundBlock instanceof VineBlock
-                            || foundBlock instanceof RedstoneWireBlock
-                            || foundBlock instanceof AbstractRedstoneGateBlock
+                            || foundBlock instanceof RedStoneWireBlock
+                            || foundBlock instanceof DiodeBlock
                             || foundBlock instanceof AbstractBannerBlock
                             || foundBlock instanceof LanternBlock
-                            || foundBlock instanceof AbstractRailBlock) {
+                            || foundBlock instanceof BaseRailBlock) {
                         structure.BeforeClearSpaceBlockReplaced(currentPos);
 
                         if (!(foundBlock instanceof BedBlock)) {
                             structure.world.removeBlock(tempPos, false);
                         } else if (foundBlock instanceof DoorBlock) {
                             // Make sure to remove both parts before going on.
-                            DoubleBlockHalf currentHalf = foundState.get(Properties.DOUBLE_BLOCK_HALF);
+                            DoubleBlockHalf currentHalf = foundState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF);
 
                             BlockPos otherHalfPos = currentHalf == DoubleBlockHalf.LOWER
-                                    ? tempPos.up() : tempPos.down();
+                                    ? tempPos.above() : tempPos.below();
 
-                            structure.world.setBlockState(tempPos, Blocks.AIR.getDefaultState(), 35);
-                            structure.world.setBlockState(otherHalfPos, Blocks.AIR.getDefaultState(), 35);
+                            structure.world.setBlock(tempPos, Blocks.AIR.defaultBlockState(), 35);
+                            structure.world.setBlock(otherHalfPos, Blocks.AIR.defaultBlockState(), 35);
 
                         } else {
                             // Found a bed, try to find the other part of the bed and remove it.
                             for (Direction currentDirection : Direction.values()) {
-                                BlockPos bedPos = tempPos.offset(currentDirection);
+                                BlockPos bedPos = tempPos.relative(currentDirection);
                                 BlockState bedState = structure.world.getBlockState(bedPos);
 
                                 if (bedState.getBlock() instanceof BedBlock) {
                                     // found the other part of the bed. Remove the current block and this one.
-                                    structure.world.setBlockState(tempPos, Blocks.AIR.getDefaultState(), 35);
-                                    structure.world.setBlockState(bedPos, Blocks.AIR.getDefaultState(), 35);
+                                    structure.world.setBlock(tempPos, Blocks.AIR.defaultBlockState(), 35);
+                                    structure.world.setBlock(bedPos, Blocks.AIR.defaultBlockState(), 35);
                                     break;
                                 }
                             }
@@ -322,12 +323,12 @@ public final class StructureEventHandler {
         return i;
     }
 
-    private static void removeStructuresFromList(ArrayList<Structure> structuresToRemove, Entry<PlayerEntity, ArrayList<Structure>> entry) {
+    private static void removeStructuresFromList(ArrayList<Structure> structuresToRemove, Map.Entry<Player, ArrayList<Structure>> entry) {
         for (Structure structure : structuresToRemove) {
             StructureEventHandler.removeWaterLogging(structure);
 
             for (BuildEntity buildEntity : structure.entities) {
-                Optional<EntityType<?>> entityType = EntityType.get(buildEntity.getEntityResourceString());
+                Optional<EntityType<?>> entityType = EntityType.byString(buildEntity.getEntityResourceString());
 
                 if (entityType.isPresent()) {
                     StructureEventHandler.entitiesToGenerate.add(new Tuple<>(structure, buildEntity));
@@ -344,36 +345,36 @@ public final class StructureEventHandler {
             BuildEntity buildEntity = entityRecords.second;
             Structure structure = entityRecords.first;
 
-            Optional<EntityType<?>> entityType = EntityType.get(buildEntity.getEntityResourceString());
+            Optional<EntityType<?>> entityType = EntityType.byString(buildEntity.getEntityResourceString());
 
             if (entityType.isPresent()) {
                 Entity entity = entityType.get().create(structure.world);
 
                 if (entity != null) {
-                    NbtCompound tagCompound = buildEntity.getEntityDataTag();
+                    CompoundTag tagCompound = buildEntity.getEntityDataTag();
                     BlockPos entityPos = buildEntity.getStartingPosition().getRelativePosition(structure.originalPos,
                             structure.getClearSpace().getShape().getDirection(), structure.configuration.houseFacing);
 
                     if (tagCompound != null) {
-                        if (tagCompound.containsUuid("UUID")) {
-                            tagCompound.putUuid("UUID", UUID.randomUUID());
+                        if (tagCompound.hasUUID("UUID")) {
+                            tagCompound.putUUID("UUID", UUID.randomUUID());
                         }
 
-                        NbtList nbttaglist = new NbtList();
-                        nbttaglist.add(NbtDouble.of(entityPos.getX()));
-                        nbttaglist.add(NbtDouble.of(entityPos.getY()));
-                        nbttaglist.add(NbtDouble.of(entityPos.getZ()));
+                        ListTag nbttaglist = new ListTag();
+                        nbttaglist.add(DoubleTag.valueOf(entityPos.getX()));
+                        nbttaglist.add(DoubleTag.valueOf(entityPos.getY()));
+                        nbttaglist.add(DoubleTag.valueOf(entityPos.getZ()));
                         tagCompound.put("Pos", nbttaglist);
 
-                        entity.readNbt(tagCompound);
+                        entity.load(tagCompound);
                     }
 
                     // Set item frame facing and rotation here.
-                    if (entity instanceof ItemFrameEntity) {
-                        entity = StructureEventHandler.setItemFrameFacingAndRotation((ItemFrameEntity) entity, buildEntity, entityPos, structure);
-                    } else if (entity instanceof PaintingEntity) {
-                        entity = StructureEventHandler.setPaintingFacingAndRotation((PaintingEntity) entity, buildEntity, entityPos, structure);
-                    } else if (entity instanceof AbstractMinecartEntity) {
+                    if (entity instanceof ItemFrame) {
+                        entity = StructureEventHandler.setItemFrameFacingAndRotation((ItemFrame) entity, buildEntity, entityPos, structure);
+                    } else if (entity instanceof Painting) {
+                        entity = StructureEventHandler.setPaintingFacingAndRotation((Painting) entity, buildEntity, entityPos, structure);
+                    } else if (entity instanceof AbstractMinecart) {
                         // Minecarts need to be slightly higher to account for the rails; otherwise they will fall through the rail and the block below the rail.
                         buildEntity.entityYAxisOffset = buildEntity.entityYAxisOffset + .2;
                         entity = StructureEventHandler.setEntityFacingAndRotation(entity, buildEntity, entityPos, structure);
@@ -382,7 +383,7 @@ public final class StructureEventHandler {
                         entity = StructureEventHandler.setEntityFacingAndRotation(entity, buildEntity, entityPos, structure);
                     }
 
-                    structure.world.spawnEntity(entity);
+                    structure.world.addFreshEntity(entity);
                 }
             }
         }
@@ -396,185 +397,169 @@ public final class StructureEventHandler {
             for (BlockPos currentPos : structure.allBlockPositions) {
                 BlockState currentState = structure.world.getBlockState(currentPos);
 
-                if (currentState.contains(Properties.WATERLOGGED)) {
+                if (currentState.hasProperty(BlockStateProperties.WATERLOGGED)) {
                     // This is a water loggable block and there were air blocks, make sure that it's no longer water logged.
-                    currentState = currentState.with((Properties.WATERLOGGED), false);
-                    structure.world.setBlockState(currentPos, currentState, 3);
+                    currentState = currentState.setValue((BlockStateProperties.WATERLOGGED), false);
+                    structure.world.setBlock(currentPos, currentState, 3);
                 } else if (currentState.getMaterial() == Material.WATER) {
-                    structure.world.setBlockState(currentPos, Blocks.AIR.getDefaultState(), 3);
-
+                    structure.world.setBlock(currentPos, Blocks.AIR.defaultBlockState(), 3);
                 }
             }
         }
     }
 
-    private static Entity setPaintingFacingAndRotation(PaintingEntity entity, BuildEntity buildEntity, BlockPos entityPos, Structure structure) {
-        float yaw = entity.getYaw();
-        BlockRotation rotation = BlockRotation.NONE;
+    private static Entity setPaintingFacingAndRotation(Painting entity, BuildEntity buildEntity, BlockPos entityPos, Structure structure) {
+        float yaw = entity.getYRot();
+        Rotation rotation = Rotation.NONE;
         double x_axis_offset = 0;
         double z_axis_offset = 0;
-        Direction facing = entity.getHorizontalFacing();
+        Direction facing = entity.getDirection();
         double y_axis_offset = buildEntity.entityYAxisOffset * -1;
 
-        if (structure.configuration.houseFacing == structure.assumedNorth.getOpposite()) {
-            rotation = BlockRotation.CLOCKWISE_180;
+        Direction structureDirection = structure.getClearSpace().getShape().getDirection();
+        Direction configurationDirection = structure.configuration.houseFacing.getOpposite();
+
+        if (configurationDirection == structureDirection.getOpposite()) {
+            rotation = Rotation.CLOCKWISE_180;
             facing = facing.getOpposite();
-        } else if (structure.configuration.houseFacing == structure.assumedNorth.rotateYClockwise()) {
-            rotation = BlockRotation.CLOCKWISE_90;
-
-            if (structure.getClearSpace().getShape().getDirection() == Direction.NORTH) {
-                facing = facing.rotateYCounterclockwise();
-            } else if (structure.getClearSpace().getShape().getDirection() == Direction.SOUTH) {
-                facing = facing.rotateYClockwise();
-            }
-        } else if (structure.configuration.houseFacing == structure.assumedNorth.rotateYCounterclockwise()) {
-            rotation = BlockRotation.COUNTERCLOCKWISE_90;
-
-            if (structure.getClearSpace().getShape().getDirection() == Direction.NORTH) {
-                facing = facing.rotateYClockwise();
-            } else if (structure.getClearSpace().getShape().getDirection() == Direction.SOUTH) {
-                facing = facing.rotateYCounterclockwise();
-            }
+        } else if (configurationDirection == structureDirection.getClockWise()) {
+            rotation = Rotation.CLOCKWISE_90;
+            facing = facing.getClockWise();
+        } else if (configurationDirection == structureDirection.getCounterClockWise()) {
+            rotation = Rotation.COUNTERCLOCKWISE_90;
+            facing = facing.getCounterClockWise();
         }
 
-        if (entity.motive.getHeight() > entity.motive.getWidth()
-                || entity.motive.getHeight() > 16) {
+        int paintingBlockWidth = entity.motive.getWidth() / 16;
+        int paintingBlockHeight = entity.motive.getHeight() / 16;
+
+        if ((paintingBlockHeight > paintingBlockWidth || paintingBlockHeight > 1)
+                && !(paintingBlockWidth == 4 && paintingBlockHeight == 3)) {
             y_axis_offset--;
         }
 
-        yaw = entity.applyRotation(rotation);
+        yaw = entity.rotate(rotation);
 
-        AbstractDecorationEntity hangingEntity = entity;
-        NbtCompound compound = new NbtCompound();
-        hangingEntity.writeCustomDataToNbt(compound);
-        compound.putByte("Facing", (byte) facing.getHorizontal());
-        hangingEntity.writeCustomDataToNbt(compound);
-        StructureEventHandler.updateEntityHangingBoundingBox(hangingEntity);
+        CompoundTag compound = new CompoundTag();
+        ((HangingEntity) entity).addAdditionalSaveData(compound);
+        compound.putByte("Facing", (byte) facing.get2DDataValue());
+        ((HangingEntity) entity).readAdditionalSaveData(compound);
+        StructureEventHandler.updateEntityHangingBoundingBox(entity);
 
-        entity.refreshPositionAndAngles(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,
-                entity.getPitch());
+        entity.moveTo(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,
+                entity.getXRot());
 
         StructureEventHandler.updateEntityHangingBoundingBox(entity);
-        Chunk chunk = structure.world.getChunk(entityPos);
+        ChunkAccess chunk = structure.world.getChunkAt(entityPos);
 
-        chunk.setShouldSave(true);
+        chunk.setUnsaved(true);
 
         return entity;
     }
 
-    private static Entity setItemFrameFacingAndRotation(ItemFrameEntity frame, BuildEntity buildEntity, BlockPos entityPos, Structure structure) {
-        float yaw = frame.getYaw();
-        BlockRotation rotation = BlockRotation.NONE;
+    private static Entity setItemFrameFacingAndRotation(ItemFrame frame, BuildEntity buildEntity, BlockPos entityPos, Structure structure) {
+        float yaw = frame.getYRot();
+        Rotation rotation = Rotation.NONE;
         double x_axis_offset = buildEntity.entityXAxisOffset;
         double z_axis_offset = buildEntity.entityZAxisOffset;
-        Direction facing = frame.getHorizontalFacing();
+        Direction facing = frame.getDirection();
         double y_axis_offset = buildEntity.entityYAxisOffset;
         x_axis_offset = x_axis_offset * -1;
         z_axis_offset = z_axis_offset * -1;
 
+        Direction structureDirection = structure.getClearSpace().getShape().getDirection();
+        Direction configurationDirection = structure.configuration.houseFacing.getOpposite();
+
         if (facing != Direction.UP && facing != Direction.DOWN) {
-            if (structure.configuration.houseFacing == structure.assumedNorth.getOpposite()) {
-                rotation = BlockRotation.CLOCKWISE_180;
+            if (configurationDirection == structureDirection.getOpposite()) {
+                rotation = Rotation.CLOCKWISE_180;
                 facing = facing.getOpposite();
-            } else if (structure.configuration.houseFacing == structure.assumedNorth.rotateYClockwise()) {
-                if (structure.getClearSpace().getShape().getDirection() == Direction.NORTH) {
-                    rotation = BlockRotation.CLOCKWISE_90;
-                    facing = facing.rotateYCounterclockwise();
-                } else if (structure.getClearSpace().getShape().getDirection() == Direction.SOUTH) {
-                    facing = facing.rotateYCounterclockwise();
-                    rotation = BlockRotation.CLOCKWISE_90;
-                }
-            } else if (structure.configuration.houseFacing == structure.assumedNorth.rotateYCounterclockwise()) {
-                if (structure.getClearSpace().getShape().getDirection() == Direction.NORTH) {
-                    rotation = BlockRotation.COUNTERCLOCKWISE_90;
-                    facing = facing.rotateYClockwise();
-                } else if (structure.getClearSpace().getShape().getDirection() == Direction.SOUTH) {
-                    facing = facing.rotateYClockwise();
-                    rotation = BlockRotation.COUNTERCLOCKWISE_90;
-                }
+            } else if (configurationDirection == structureDirection.getClockWise()) {
+                rotation = Rotation.CLOCKWISE_90;
+                facing = facing.getClockWise();
+            } else if (configurationDirection == structureDirection.getCounterClockWise()) {
+                rotation = Rotation.COUNTERCLOCKWISE_90;
+                facing = facing.getCounterClockWise();
             } else {
                 x_axis_offset = 0;
                 z_axis_offset = 0;
             }
         }
 
-        yaw = frame.applyRotation(rotation);
+        yaw = frame.rotate(rotation);
 
-        AbstractDecorationEntity hangingEntity = frame;
-        NbtCompound compound = new NbtCompound();
-        hangingEntity.writeCustomDataToNbt(compound);
-        compound.putByte("Facing", (byte) facing.getId());
-        hangingEntity.writeCustomDataToNbt(compound);
-        StructureEventHandler.updateEntityHangingBoundingBox(hangingEntity);
+        CompoundTag compound = new CompoundTag();
+        ((HangingEntity) frame).addAdditionalSaveData(compound);
+        compound.putByte("Facing", (byte) facing.get3DDataValue());
+        ((HangingEntity) frame).readAdditionalSaveData(compound);
+        StructureEventHandler.updateEntityHangingBoundingBox(frame);
 
-        frame.refreshPositionAndAngles(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,
-                frame.getPitch());
+        frame.moveTo(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,
+                frame.getXRot());
 
         StructureEventHandler.updateEntityHangingBoundingBox(frame);
-        Chunk chunk = structure.world.getChunk(entityPos);
+        ChunkAccess chunk = structure.world.getChunkAt(entityPos);
 
-        chunk.setShouldSave(true);
+        chunk.setUnsaved(true);
 
         return frame;
     }
 
     private static Entity setEntityFacingAndRotation(Entity entity, BuildEntity buildEntity, BlockPos entityPos, Structure structure) {
-        float yaw = entity.getYaw();
-        BlockRotation rotation = BlockRotation.NONE;
+        float yaw = entity.getYRot();
+        Rotation rotation = Rotation.NONE;
         double x_axis_offset = buildEntity.entityXAxisOffset;
         double z_axis_offset = buildEntity.entityZAxisOffset;
-        Direction facing = structure.assumedNorth;
+        Direction facing = structure.getClearSpace().getShape().getDirection();
         double y_axis_offset = buildEntity.entityYAxisOffset;
+        Direction configurationDirection = structure.configuration.houseFacing.getOpposite();
 
-        if (structure.configuration.houseFacing == structure.assumedNorth.getOpposite()) {
-            rotation = BlockRotation.CLOCKWISE_180;
+        if (configurationDirection == facing.getOpposite()) {
+            rotation = Rotation.CLOCKWISE_180;
             x_axis_offset = x_axis_offset * -1;
             z_axis_offset = z_axis_offset * -1;
-            facing = facing.getOpposite();
-        } else if (structure.configuration.houseFacing == structure.assumedNorth.rotateYClockwise()) {
-            rotation = BlockRotation.CLOCKWISE_90;
+        } else if (configurationDirection == facing.getClockWise()) {
+            rotation = Rotation.CLOCKWISE_90;
             x_axis_offset = x_axis_offset * -1;
             z_axis_offset = z_axis_offset * -1;
-            facing = facing.rotateYClockwise();
-        } else if (structure.configuration.houseFacing == structure.assumedNorth.rotateYCounterclockwise()) {
-            rotation = BlockRotation.COUNTERCLOCKWISE_90;
+        } else if (configurationDirection == facing.getCounterClockWise()) {
+            rotation = Rotation.COUNTERCLOCKWISE_90;
             x_axis_offset = x_axis_offset * -1;
             z_axis_offset = z_axis_offset * -1;
-            facing = facing.rotateYCounterclockwise();
         } else {
             x_axis_offset = 0;
             z_axis_offset = 0;
         }
 
-        yaw = entity.applyRotation(rotation);
+        yaw = entity.rotate(rotation);
 
-        entity.refreshPositionAndAngles(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,
-                entity.getPitch());
+        entity.moveTo(entityPos.getX() + x_axis_offset, entityPos.getY() + y_axis_offset, entityPos.getZ() + z_axis_offset, yaw,
+                entity.getXRot());
 
         return entity;
     }
 
-    private static void updateEntityHangingBoundingBox(AbstractDecorationEntity entity) {
-        double d0 = (double) entity.getDecorationBlockPos().getX() + 0.5D;
-        double d1 = (double) entity.getDecorationBlockPos().getY() + 0.5D;
-        double d2 = (double) entity.getDecorationBlockPos().getZ() + 0.5D;
+    private static void updateEntityHangingBoundingBox(HangingEntity entity) {
+        double d0 = (double) entity.getPos().getX() + 0.5D;
+        double d1 = (double) entity.getPos().getY() + 0.5D;
+        double d2 = (double) entity.getPos().getZ() + 0.5D;
         double d3 = 0.46875D;
-        double d4 = entity.getWidthPixels() % 32 == 0 ? 0.5D : 0.0D;
-        double d5 = entity.getHeightPixels() % 32 == 0 ? 0.5D : 0.0D;
-        Direction horizontal = entity.getHorizontalFacing();
-        d0 = d0 - (double) horizontal.getOffsetX() * 0.46875D;
-        d2 = d2 - (double) horizontal.getOffsetZ() * 0.46875D;
+        double d4 = entity.getWidth() % 32 == 0 ? 0.5D : 0.0D;
+        double d5 = entity.getHeight() % 32 == 0 ? 0.5D : 0.0D;
+        Direction horizontal = entity.getDirection();
+        d0 = d0 - (double) horizontal.getStepX() * 0.46875D;
+        d2 = d2 - (double) horizontal.getStepZ() * 0.46875D;
         d1 = d1 + d5;
-        Direction direction = horizontal == Direction.DOWN || horizontal == Direction.UP ? horizontal.getOpposite() : horizontal.rotateYCounterclockwise();
-        d0 = d0 + d4 * (double) direction.getOffsetX();
-        d2 = d2 + d4 * (double) direction.getOffsetZ();
+        Direction direction = horizontal == Direction.DOWN || horizontal == Direction.UP ? horizontal.getOpposite() : horizontal.getCounterClockWise();
+        d0 = d0 + d4 * (double) direction.getStepX();
+        d2 = d2 + d4 * (double) direction.getStepZ();
 
         // The function call below set the following fields from the "entity" class. posX, posY, posZ.
         // This will probably have to change when the mappings get updated.
-        entity.setPos(d0, d1, d2);
-        double d6 = entity.getWidthPixels();
-        double d7 = entity.getHeightPixels();
-        double d8 = entity.getWidthPixels();
+        entity.setPosRaw(d0, d1, d2);
+        double d6 = entity.getWidth();
+        double d7 = entity.getHeight();
+        double d8 = entity.getWidth();
 
         if (horizontal.getAxis() == Direction.Axis.Z) {
             d8 = 1.0D;
@@ -585,6 +570,6 @@ public final class StructureEventHandler {
         d6 = d6 / 32.0D;
         d7 = d7 / 32.0D;
         d8 = d8 / 32.0D;
-        entity.setBoundingBox(new Box(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8));
+        entity.setBoundingBox(new AABB(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8));
     }
 }

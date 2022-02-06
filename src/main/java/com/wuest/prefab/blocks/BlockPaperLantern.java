@@ -3,12 +3,12 @@ package com.wuest.prefab.blocks;
 import com.wuest.prefab.Prefab;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.core.BlockPos;
 
 import java.util.Random;
 
@@ -25,11 +25,11 @@ public class BlockPaperLantern extends Block {
 	 */
 	public BlockPaperLantern() {
 		// The "func_226896_b_" function causes the "isSolid" field on the block to be set to false.
-		super(Settings.of(Prefab.SeeThroughImmovable)
-				.sounds(BlockSoundGroup.SNOW)
+		super(Properties.of(Prefab.SeeThroughImmovable)
+				.sound(SoundType.SNOW)
 				.strength(0.6f)
-				.luminance(value -> 14)
-				.nonOpaque());
+				.lightLevel(value -> 14)
+				.noOcclusion());
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class BlockPaperLantern extends Block {
 	 */
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void randomDisplayTick(BlockState stateIn, World worldIn, BlockPos pos, Random rand) {
+	public void animateTick(BlockState stateIn, Level worldIn, BlockPos pos, Random rand) {
 		double d0 = (double) pos.getX() + 0.5D;
 		double d1 = (double) pos.getY() + 0.7D;
 		double d2 = (double) pos.getZ() + 0.5D;

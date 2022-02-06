@@ -3,13 +3,12 @@ package com.wuest.prefab.structures.config;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.predefined.StructureModerateHouse;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 
 /**
  * This class is used for the moderate houses in the mod.
@@ -67,18 +66,18 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
     }
 
     @Override
-    protected NbtCompound CustomWriteToCompoundNBT(NbtCompound tag) {
+    protected CompoundTag CustomWriteToCompoundTag(CompoundTag tag) {
         tag.putInt(ModerateHouseConfiguration.houseStyleTag, this.houseStyle.value);
         tag.putBoolean(ModerateHouseConfiguration.addChestTag, this.addChests);
         tag.putBoolean(ModerateHouseConfiguration.addChestContentsTag, this.addChestContents);
         tag.putBoolean(ModerateHouseConfiguration.addMineshaftTag, this.addMineshaft);
-        tag.putString(ModerateHouseConfiguration.bedColorTag, this.bedColor.asString().toUpperCase());
+        tag.putString(ModerateHouseConfiguration.bedColorTag, this.bedColor.getSerializedName().toUpperCase());
 
         return tag;
     }
 
     @Override
-    protected void CustomReadFromNBTTag(NbtCompound messageTag, StructureConfiguration config) {
+    protected void CustomReadFromNBTTag(CompoundTag messageTag, StructureConfiguration config) {
         ModerateHouseConfiguration houseConfiguration = ((ModerateHouseConfiguration) config);
 
         if (messageTag.contains(ModerateHouseConfiguration.houseStyleTag)) {
@@ -109,10 +108,10 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
      * @return An new configuration object with the values derived from the CompoundNBT.
      */
     @Override
-    public ModerateHouseConfiguration ReadFromCompoundNBT(NbtCompound messageTag) {
+    public ModerateHouseConfiguration ReadFromCompoundTag(CompoundTag messageTag) {
         ModerateHouseConfiguration config = new ModerateHouseConfiguration();
 
-        return (ModerateHouseConfiguration) super.ReadFromCompoundNBT(messageTag, config);
+        return (ModerateHouseConfiguration) super.ReadFromCompoundTag(messageTag, config);
     }
 
     /**
@@ -123,10 +122,10 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
      * @param hitBlockPos This hit block position.
      */
     @Override
-    protected void ConfigurationSpecificBuildStructure(PlayerEntity player, ServerWorld world, BlockPos hitBlockPos) {
+    protected void ConfigurationSpecificBuildStructure(Player player, ServerLevel world, BlockPos hitBlockPos) {
         StructureModerateHouse structure = StructureModerateHouse.CreateInstance(this.houseStyle.getStructureLocation(), StructureModerateHouse.class);
 
-        if (structure.BuildStructure(this, world, hitBlockPos, Direction.NORTH, player)) {
+        if (structure.BuildStructure(this, world, hitBlockPos, player)) {
             this.RemoveStructureItemFromPlayer(player, ModRegistry.ModerateHouse);
         }
     }
@@ -137,29 +136,29 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
      * @author WuestMan
      */
     public enum HouseStyle {
-        SPRUCE_HOME(0, GuiLangKeys.MODERATE_HOUSE_SPRUCE, new Identifier("prefab", "textures/gui/moderate_house_spruce_topdown.png"),
+        SPRUCE_HOME(0, GuiLangKeys.MODERATE_HOUSE_SPRUCE, new ResourceLocation("prefab", "textures/gui/moderate_house_spruce_topdown.png"),
                 "assets/prefab/structures/moderate_house_spruce.zip"),
-        ACACIA_HOME(1, GuiLangKeys.MODERATE_HOUSE_ACACIA, new Identifier("prefab", "textures/gui/moderate_house_acacia_topdown.png"),
+        ACACIA_HOME(1, GuiLangKeys.MODERATE_HOUSE_ACACIA, new ResourceLocation("prefab", "textures/gui/moderate_house_acacia_topdown.png"),
                 "assets/prefab/structures/moderate_house_acacia.zip"),
-        EARTHEN_HOME(2, GuiLangKeys.MODERATE_EARTHEN_HOME, new Identifier("prefab", "textures/gui/moderate_house_earthen_topdown.png"),
+        EARTHEN_HOME(2, GuiLangKeys.MODERATE_EARTHEN_HOME, new ResourceLocation("prefab", "textures/gui/moderate_house_earthen_topdown.png"),
                 "assets/prefab/structures/moderate_house_earthen.zip"),
-        JUNGLE_TREE_HOME(3, GuiLangKeys.MODERATE_JUNGLE_HOME, new Identifier("prefab", "textures/gui/moderate_house_jungle_topdown.png"),
+        JUNGLE_TREE_HOME(3, GuiLangKeys.MODERATE_JUNGLE_HOME, new ResourceLocation("prefab", "textures/gui/moderate_house_jungle_topdown.png"),
                 "assets/prefab/structures/moderate_house_jungle.zip"),
-        NETHER_HOME(4, GuiLangKeys.MODERATE_NETHER_HOME, new Identifier("prefab", "textures/gui/moderate_house_nether_topdown.png"),
+        NETHER_HOME(4, GuiLangKeys.MODERATE_NETHER_HOME, new ResourceLocation("prefab", "textures/gui/moderate_house_nether_topdown.png"),
                 "assets/prefab/structures/moderate_house_nether.zip"),
-        MOUNTAIN_HOME(5, GuiLangKeys.MODERATE_MOUNTAIN_HOME, new Identifier("prefab", "textures/gui/moderate_house_mountain_topdown.png"),
+        MOUNTAIN_HOME(5, GuiLangKeys.MODERATE_MOUNTAIN_HOME, new ResourceLocation("prefab", "textures/gui/moderate_house_mountain_topdown.png"),
                 "assets/prefab/structures/moderate_house_mountain.zip"),
-        ACACIA_HOME2(6, GuiLangKeys.MODERATE_HOUSE_ACACIA_2, new Identifier("prefab", "textures/gui/moderate_house_acacia_2_topdown.png"),
+        ACACIA_HOME2(6, GuiLangKeys.MODERATE_HOUSE_ACACIA_2, new ResourceLocation("prefab", "textures/gui/moderate_house_acacia_2_topdown.png"),
                 "assets/prefab/structures/moderate_house_acacia_2.zip"),
-        MODERN_HOME(7, GuiLangKeys.MODERATE_HOUSE_MODERN, new Identifier("prefab", "textures/gui/moderate_house_modern_topdown.png"),
+        MODERN_HOME(7, GuiLangKeys.MODERATE_HOUSE_MODERN, new ResourceLocation("prefab", "textures/gui/moderate_house_modern_topdown.png"),
                 "assets/prefab/structures/moderate_house_modern.zip");
 
         private final int value;
         private final String displayName;
-        private final Identifier housePicture;
+        private final ResourceLocation housePicture;
         private final String structureLocation;
 
-        HouseStyle(int newValue, String displayName, Identifier housePicture, String structureLocation) {
+        HouseStyle(int newValue, String displayName, ResourceLocation housePicture, String structureLocation) {
             this.value = newValue;
             this.displayName = displayName;
             this.housePicture = housePicture;
@@ -184,7 +183,7 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
             return GuiLangKeys.translateString(this.displayName);
         }
 
-        public Identifier getHousePicture() {
+        public ResourceLocation getHousePicture() {
             return this.housePicture;
         }
 

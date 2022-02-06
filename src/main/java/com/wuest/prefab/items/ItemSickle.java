@@ -4,39 +4,42 @@ import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.gui.GuiLangKeys;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.*;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
 
-public class ItemSickle extends ToolItem {
+public class ItemSickle extends TieredItem {
     public static HashSet<Block> effectiveBlocks = new HashSet<>();
     protected int breakRadius = 0;
-    protected ToolMaterial toolMaterial;
+    protected Tier toolMaterial;
 
-    public ItemSickle(ToolMaterial toolMaterial) {
-        super(toolMaterial, new Item.Settings().group(ModRegistry.PREFAB_GROUP));
-        this.breakRadius = 1 + toolMaterial.getMiningLevel();
+    public ItemSickle(Tier toolMaterial) {
+        super(toolMaterial, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+        this.breakRadius = 1 + toolMaterial.getLevel();
         this.toolMaterial = toolMaterial;
     }
 
     public static void setEffectiveBlocks() {
         effectiveBlocks.clear();
 
-        effectiveBlocks.addAll(BlockTags.LEAVES.values());
-        effectiveBlocks.addAll(BlockTags.SMALL_FLOWERS.values());
+        effectiveBlocks.addAll(BlockTags.LEAVES.getValues());
+        effectiveBlocks.addAll(BlockTags.SMALL_FLOWERS.getValues());
         effectiveBlocks.add(Blocks.TALL_GRASS);
         effectiveBlocks.add(Blocks.DEAD_BUSH);
         effectiveBlocks.add(Blocks.ROSE_BUSH);
@@ -47,11 +50,11 @@ public class ItemSickle extends ToolItem {
     }
 
     @Override
-    public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
+    public float getDestroySpeed(ItemStack stack, BlockState state) {
         Block block = state.getBlock();
 
         if (!ItemSickle.effectiveBlocks.contains(block) && block != Blocks.COBWEB && state.getMaterial() != Material.LEAVES) {
-            return super.getMiningSpeedMultiplier(stack, state);
+            return super.getDestroySpeed(stack, state);
         } else {
             return 15.0F;
         }
@@ -62,23 +65,23 @@ public class ItemSickle extends ToolItem {
      * "Use Item" statistic.
      */
     @Override
-    public boolean postMine(ItemStack stack, World worldIn, BlockState state, BlockPos pos,
-                            LivingEntity entityLiving) {
-        if (!worldIn.isClient) {
-            stack.damage(1, entityLiving, (livingEntity) -> livingEntity.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
+    public boolean mineBlock(ItemStack stack, Level worldIn, BlockState state, BlockPos pos,
+                             LivingEntity entityLiving) {
+        if (!worldIn.isClientSide) {
+            stack.hurtAndBreak(1, entityLiving, (livingEntity) -> livingEntity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
 
-            if ((double) state.getHardness(worldIn, pos) != 0.0D && !(state.getBlock() instanceof LeavesBlock)) {
-                stack.damage(1, entityLiving, (livingEntity) -> livingEntity.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
-            } else if ((state.getBlock() instanceof PlantBlock || state.getBlock() instanceof LeavesBlock)
-                    && entityLiving instanceof PlayerEntity) {
-                BlockPos corner1 = pos.north(this.breakRadius).east(this.breakRadius).up(this.breakRadius);
-                BlockPos corner2 = pos.south(this.breakRadius).west(this.breakRadius).down(this.breakRadius);
+            if ((double) state.getDestroySpeed(worldIn, pos) != 0.0D && !(state.getBlock() instanceof LeavesBlock)) {
+                stack.hurtAndBreak(1, entityLiving, (livingEntity) -> livingEntity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+            } else if ((state.getBlock() instanceof BushBlock || state.getBlock() instanceof LeavesBlock)
+                    && entityLiving instanceof Player) {
+                BlockPos corner1 = pos.north(this.breakRadius).east(this.breakRadius).above(this.breakRadius);
+                BlockPos corner2 = pos.south(this.breakRadius).west(this.breakRadius).below(this.breakRadius);
 
-                for (BlockPos currentPos : BlockPos.iterate(corner1, corner2)) {
+                for (BlockPos currentPos : BlockPos.betweenClosed(corner1, corner2)) {
                     BlockState currentState = worldIn.getBlockState(currentPos);
 
                     if (currentState != null && ItemSickle.effectiveBlocks.contains(currentState.getBlock())) {
-                        worldIn.breakBlock(currentPos, true);
+                        worldIn.destroyBlock(currentPos, true);
                     }
                 }
             }
@@ -92,9 +95,9 @@ public class ItemSickle extends ToolItem {
      */
     @Environment(EnvType.CLIENT)
     @Override
-    public void appendTooltip(ItemStack stack, @Nullable World worldIn, List<Text> tooltip,
-                              TooltipContext advanced) {
-        super.appendTooltip(stack, worldIn, tooltip, advanced);
+    public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip,
+                                TooltipFlag advanced) {
+        super.appendHoverText(stack, worldIn, tooltip, advanced);
 
         boolean advancedKeyDown = Screen.hasShiftDown();
 

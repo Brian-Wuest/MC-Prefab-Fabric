@@ -1,12 +1,12 @@
 package com.wuest.prefab.blocks;
 
 import com.wuest.prefab.ModRegistry;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Random;
 
@@ -15,12 +15,12 @@ import java.util.Random;
  *
  * @author WuestMan
  */
-public class BlockDirtStairs extends StairsBlock implements IGrassSpreadable {
+public class BlockDirtStairs extends StairBlock implements IGrassSpreadable {
     /**
      * Initializes a new instance of the BlockDirtStairs class.
      */
     public BlockDirtStairs() {
-        super(Blocks.DIRT.getDefaultState(), AbstractBlock.Settings.copy(Blocks.DIRT));
+        super(Blocks.DIRT.defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.DIRT));
     }
 
     /**
@@ -29,20 +29,20 @@ public class BlockDirtStairs extends StairsBlock implements IGrassSpreadable {
      * cull a chunk from the random chunk update list for efficiency's sake.
      */
     @Override
-    public boolean hasRandomTicks(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return true;
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
+    public void randomTick(BlockState state, ServerLevel worldIn, BlockPos pos, Random random) {
         this.DetermineGrassSpread(state, worldIn, pos, random);
     }
 
     @Override
     public BlockState getGrassBlockState(BlockState originalState) {
-        return ModRegistry.GrassStairs.getDefaultState()
-                .with(StairsBlock.FACING, originalState.get(StairsBlock.FACING))
-                .with(StairsBlock.HALF, originalState.get(StairsBlock.HALF))
-                .with(StairsBlock.SHAPE, originalState.get(StairsBlock.SHAPE));
+        return ModRegistry.GrassStairs.defaultBlockState()
+                .setValue(StairBlock.FACING, originalState.getValue(StairBlock.FACING))
+                .setValue(StairBlock.HALF, originalState.getValue(StairBlock.HALF))
+                .setValue(StairBlock.SHAPE, originalState.getValue(StairBlock.SHAPE));
     }
 }

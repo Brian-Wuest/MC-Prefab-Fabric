@@ -2,8 +2,7 @@ package com.wuest.prefab.structures.items;
 
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.gui.GuiInstantBridge;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.Item;
 
 /**
  * This is the instant bridge item.
@@ -12,9 +11,9 @@ import net.minecraft.item.ItemGroup;
  */
 public class ItemInstantBridge extends StructureItem {
     public ItemInstantBridge() {
-        super(new Item.Settings()
-                .group(ModRegistry.PREFAB_GROUP)
-                .maxDamage(10));
+        super(new Item.Properties()
+                .tab(ModRegistry.PREFAB_GROUP)
+                .durability(10));
     }
 
     /**

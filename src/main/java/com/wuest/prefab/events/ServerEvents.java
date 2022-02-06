@@ -10,9 +10,9 @@ import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
 
@@ -47,11 +47,11 @@ public class ServerEvents {
 
     private static void playerJoinedServer() {
         ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
-            if (entity instanceof ServerPlayerEntity) {
+            if (entity instanceof ServerPlayer) {
                 // Send the message to the client.
-                PacketByteBuf messagePacket = Utils.createMessageBuffer(Prefab.serverConfiguration.writeCompoundTag());
+                FriendlyByteBuf messagePacket = Utils.createMessageBuffer(Prefab.serverConfiguration.writeCompoundTag());
 
-                ServerSidePacketRegistry.INSTANCE.sendToPlayer((ServerPlayerEntity) entity, ModRegistry.ConfigSync, messagePacket);
+                ServerSidePacketRegistry.INSTANCE.sendToPlayer((ServerPlayer) entity, ModRegistry.ConfigSync, messagePacket);
             }
         });
     }

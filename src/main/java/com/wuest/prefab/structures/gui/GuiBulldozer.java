@@ -1,14 +1,14 @@
 package com.wuest.prefab.structures.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.config.BulldozerConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
-import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 /**
  * @author WuestMan
@@ -27,8 +27,8 @@ public class GuiBulldozer extends GuiStructure {
     }
 
     @Override
-    public Text getNarratedTitle() {
-        return new TranslatableText(GuiLangKeys.translateString(GuiLangKeys.TITLE_BULLDOZER));
+    public Component getNarrationMessage() {
+        return new TranslatableComponent(GuiLangKeys.translateString(GuiLangKeys.TITLE_BULLDOZER));
     }
 
     @Override
@@ -41,7 +41,7 @@ public class GuiBulldozer extends GuiStructure {
         this.configuration = ClientModRegistry.playerConfig.getClientConfig("Bulldozer", BulldozerConfiguration.class);
         this.configuration.pos = this.pos;
 
-        // Get the upper left hand corner of the GUI box.
+        // Get the upper left-hand corner of the GUI box.
         Tuple<Integer, Integer> adjustedCorner = this.getAdjustedXYValue();
         int grayBoxX = adjustedCorner.getFirst();
         int grayBoxY = adjustedCorner.getSecond();
@@ -52,7 +52,7 @@ public class GuiBulldozer extends GuiStructure {
     }
 
     @Override
-    protected void postButtonRender(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         String strToDraw = GuiLangKeys.translateString(GuiLangKeys.GUI_BULLDOZER_DESCRIPTION) + "\n \n" + GuiLangKeys.translateString(GuiLangKeys.GUI_CLEARED_AREA);
         this.drawSplitString(strToDraw, x + 10, y + 10, 230, this.textColor);
     }
@@ -62,7 +62,7 @@ public class GuiBulldozer extends GuiStructure {
      */
     @Override
     public void buttonClicked(PressableWidget button, boolean rightClick) {
-        this.configuration.houseFacing = this.getMinecraft().player.getHorizontalFacing().getOpposite();
+        this.configuration.houseFacing = this.getMinecraft().player.getDirection().getOpposite();
         this.performCancelOrBuildOrHouseFacing(this.configuration, button);
     }
 }

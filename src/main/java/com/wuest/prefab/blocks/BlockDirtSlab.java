@@ -1,21 +1,22 @@
 package com.wuest.prefab.blocks;
 
 import com.wuest.prefab.ModRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.MapColor;
-import net.minecraft.block.Material;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.math.BlockPos;
+
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.material.MaterialColor;
 
 import java.util.Random;
 
 public class BlockDirtSlab extends SlabBlock implements IGrassSpreadable {
     public BlockDirtSlab() {
-        super(FabricBlockSettings.of(Material.AGGREGATE, MapColor.DIRT_BROWN).sounds(BlockSoundGroup.GRAVEL)
+        super(BlockBehaviour.Properties.of(Material.DIRT, MaterialColor.DIRT).sound(SoundType.GRAVEL)
                 .strength(0.5f, 0.5f));
     }
 
@@ -25,18 +26,18 @@ public class BlockDirtSlab extends SlabBlock implements IGrassSpreadable {
      * cull a chunk from the random chunk update list for efficiency's sake.
      */
     @Override
-    public boolean hasRandomTicks(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return true;
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
+    public void randomTick(BlockState state, ServerLevel worldIn, BlockPos pos, Random random) {
         this.DetermineGrassSpread(state, worldIn, pos, random);
     }
 
     @Override
     public BlockState getGrassBlockState(BlockState originalState) {
-        return ModRegistry.GrassSlab.getDefaultState().with(SlabBlock.TYPE,
-                originalState.get(SlabBlock.TYPE));
+        return ModRegistry.GrassSlab.defaultBlockState().setValue(SlabBlock.TYPE,
+                originalState.getValue(SlabBlock.TYPE));
     }
 }

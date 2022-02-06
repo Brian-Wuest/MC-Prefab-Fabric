@@ -4,10 +4,10 @@ import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import io.netty.buffer.Unpooled;
 import io.netty.util.internal.StringUtil;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.ArrayList;
@@ -30,41 +30,42 @@ public class Utils {
         return returnValue;
     }
 
-    public static ArrayList<LiteralText> WrapStringToLiterals(String value) {
+    public static ArrayList<TextComponent> WrapStringToLiterals(String value) {
         return Utils.WrapStringToLiterals(value, 50);
     }
 
     /**
      * This is a wrapper method to make sure that when minecraft changes the name of the StringTextComponent again it's a single place update.
+     *
      * @param value The text to create the object from.
      * @return A StringTextComponent object.
      */
-    public static LiteralText createTextComponent(String value) {
-        return new LiteralText(value);
+    public static TextComponent createTextComponent(String value) {
+        return new TextComponent(value);
     }
 
-    public static ArrayList<LiteralText> WrapStringToLiterals(String value, int width) {
+    public static ArrayList<TextComponent> WrapStringToLiterals(String value, int width) {
         String[] values = Utils.WrapString(value, width);
-        ArrayList<LiteralText> returnValue = new ArrayList<>();
+        ArrayList<TextComponent> returnValue = new ArrayList<>();
 
         for (String stringValue : values) {
-            returnValue.add(Utils.createTextComponent (stringValue));
+            returnValue.add(Utils.createTextComponent(stringValue));
         }
 
         return returnValue;
     }
 
-    public static PacketByteBuf createMessageBuffer(NbtCompound tag) {
+    public static FriendlyByteBuf createMessageBuffer(CompoundTag tag) {
         TagMessage message = new TagMessage(tag);
-        PacketByteBuf byteBuf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
         TagMessage.encode(message, byteBuf);
 
         return byteBuf;
     }
 
-    public static PacketByteBuf createStructureMessageBuffer(NbtCompound tag, StructureTagMessage.EnumStructureConfiguration structureConfiguration) {
+    public static FriendlyByteBuf createStructureMessageBuffer(CompoundTag tag, StructureTagMessage.EnumStructureConfiguration structureConfiguration) {
         StructureTagMessage message = new StructureTagMessage(tag, structureConfiguration);
-        PacketByteBuf byteBuf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
         StructureTagMessage.encode(message, byteBuf);
 
         return byteBuf;
@@ -73,7 +74,7 @@ public class Utils {
     public static Direction getDirectionByName(String name) {
         if (!StringUtil.isNullOrEmpty(name)) {
             for (Direction direction : Direction.values()) {
-                if (direction.asString().toLowerCase().equals(name.toLowerCase())) {
+                if (direction.toString().equalsIgnoreCase(name)) {
                     return direction;
                 }
             }

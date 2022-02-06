@@ -4,20 +4,20 @@ import com.google.gson.annotations.Expose;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.structures.config.StructureConfiguration;
-import net.minecraft.block.*;
-import net.minecraft.block.enums.WallMountLocation;
-import net.minecraft.block.enums.WallShape;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.WallSide;
+import net.minecraft.world.level.material.FluidState;
 
 import java.util.*;
 
@@ -50,11 +50,11 @@ public class BuildBlock {
         this.Initialize();
     }
 
-    public static BuildBlock SetBlockState(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, BuildBlock block, Block foundBlock,
+    public static BuildBlock SetBlockState(StructureConfiguration configuration, Level world, BlockPos originalPos, BuildBlock block, Block foundBlock,
                                            BlockState blockState, Structure structure) {
         try {
             if (!block.blockStateData.equals("")) {
-                return BuildBlock.SetBlockStateFromTagData(configuration, world, originalPos, assumedNorth, block, foundBlock, blockState, structure);
+                return BuildBlock.SetBlockStateFromTagData(configuration, world, originalPos, block, foundBlock, blockState, structure);
             }
 
             Direction vineFacing = BuildBlock.getVineFacing(configuration, foundBlock, block, structure.getClearSpace().getShape().getDirection());
@@ -62,7 +62,7 @@ public class BuildBlock {
             Direction.Axis boneFacing = BuildBlock.getBoneFacing(configuration, foundBlock, block, structure.getClearSpace().getShape().getDirection());
             Direction leverOrientation = BuildBlock.getLeverOrientation(configuration, foundBlock, block, structure.getClearSpace().getShape().getDirection());
             Map<Direction, Boolean> fourWayFacings = BuildBlock.getFourWayBlockFacings(configuration, foundBlock, block, structure.getClearSpace().getShape().getDirection());
-            Map<Direction, WallShape> wallShapes = BuildBlock.getWallFacings(configuration, foundBlock, block, structure.getClearSpace().getShape().getDirection());
+            Map<Direction, WallSide> wallShapes = BuildBlock.getWallFacings(configuration, foundBlock, block, structure.getClearSpace().getShape().getDirection());
 
             // If this block has custom processing for block state just continue onto the next block. The sub-class is
             // expected to place the block.
@@ -79,7 +79,7 @@ public class BuildBlock {
                     // mod adds properties to vanilla blocks.
                     if (buildProperty != null) {
                         try {
-                            Optional<?> propertyValue = property.parse(buildProperty.getValue());
+                            Optional<?> propertyValue = property.getValue(buildProperty.getValue());
 
                             if (!propertyValue.isPresent()
                                     || propertyValue.getClass().getName().equals("com.google.common.base.Absent")) {
@@ -88,7 +88,7 @@ public class BuildBlock {
                                 continue;
                             }
 
-                            Comparable<?> comparable = property.getType().cast(propertyValue.get());
+                            Comparable<?> comparable = property.getValueClass().cast(propertyValue.get());
 
                             comparable = BuildBlock.setComparable(comparable, foundBlock, property, configuration, block, propertyValue, vineFacing, logFacing,
                                     boneFacing, leverOrientation, structure, fourWayFacings, wallShapes);
@@ -98,7 +98,7 @@ public class BuildBlock {
                             }
 
                             try {
-                                if (blockState.get(property) != comparable) {
+                                if (blockState.getValue(property) != comparable) {
                                     blockState = BuildBlock.setProperty(blockState, property, comparable);
                                 }
                             } catch (Exception ex) {
@@ -122,7 +122,7 @@ public class BuildBlock {
         }
     }
 
-    private static boolean neighborHaveWater(BlockPos originalPos, World world) {
+    private static boolean neighborHaveWater(BlockPos originalPos, Level world) {
         boolean returnValue = false;
 
         for (Direction direction : Direction.values()) {
@@ -130,9 +130,9 @@ public class BuildBlock {
                 continue;
             }
 
-            FluidState fluidState = world.getFluidState(originalPos.offset(direction));
+            FluidState fluidState = world.getFluidState(originalPos.relative(direction));
 
-            if (fluidState.isIn(FluidTags.WATER) && fluidState.getLevel() == 8) {
+            if (fluidState.is(FluidTags.WATER) && fluidState.getAmount() == 8) {
                 returnValue = true;
                 break;
             }
@@ -143,12 +143,12 @@ public class BuildBlock {
 
     public static Direction getHorizontalFacing(Direction currentFacing, Direction configurationFacing, Direction structureDirection) {
         if (currentFacing != null && currentFacing != Direction.UP && currentFacing != Direction.DOWN) {
-            if (configurationFacing.getOpposite() == structureDirection.rotateYClockwise()) {
-                currentFacing = currentFacing.rotateYClockwise();
+            if (configurationFacing.getOpposite() == structureDirection.getClockWise()) {
+                currentFacing = currentFacing.getClockWise();
             } else if (configurationFacing.getOpposite() == structureDirection.getOpposite()) {
                 currentFacing = currentFacing.getOpposite();
-            } else if (configurationFacing.getOpposite() == structureDirection.rotateYCounterclockwise()) {
-                currentFacing = currentFacing.rotateYCounterclockwise();
+            } else if (configurationFacing.getOpposite() == structureDirection.getCounterClockWise()) {
+                currentFacing = currentFacing.getCounterClockWise();
             }
         }
 
@@ -160,8 +160,8 @@ public class BuildBlock {
                                             Optional<?> propertyValue, Direction vineFacing, Direction.Axis logFacing, Direction.Axis boneFacing, Direction leverOrientation,
                                             Structure structure,
                                             Map<Direction, Boolean> fourWayFacings,
-                                            Map<Direction, WallShape> wallShapes) {
-        if (property.getName().equals("facing") && foundBlock instanceof WallMountedBlock) {
+                                            Map<Direction, WallSide> wallShapes) {
+        if (property.getName().equals("facing") && foundBlock instanceof FaceAttachedHorizontalDirectionalBlock) {
             comparable = leverOrientation;
             block.setHasFacing(true);
         } else if (property.getName().equals("facing")) {
@@ -182,12 +182,12 @@ public class BuildBlock {
             int rotation = (Integer) propertyValue.get();
             Direction facing = rotation == 0 ? Direction.SOUTH : rotation == 4 ? Direction.WEST : rotation == 8 ? Direction.NORTH : Direction.EAST;
 
-            if (configuration.houseFacing.getOpposite() == structure.getClearSpace().getShape().getDirection().rotateYClockwise()) {
-                facing = facing.rotateYClockwise();
+            if (configuration.houseFacing.getOpposite() == structure.getClearSpace().getShape().getDirection().getClockWise()) {
+                facing = facing.getClockWise();
             } else if (configuration.houseFacing.getOpposite() == structure.getClearSpace().getShape().getDirection().getOpposite()) {
                 facing = facing.getOpposite();
-            } else if (configuration.houseFacing.getOpposite() == structure.getClearSpace().getShape().getDirection().rotateYCounterclockwise()) {
-                facing = facing.rotateYCounterclockwise();
+            } else if (configuration.houseFacing.getOpposite() == structure.getClearSpace().getShape().getDirection().getCounterClockWise()) {
+                facing = facing.getCounterClockWise();
             }
 
             rotation = facing == Direction.SOUTH ? 0 : facing == Direction.WEST ? 4 : facing == Direction.NORTH ? 8 : 12;
@@ -201,19 +201,19 @@ public class BuildBlock {
             } else {
                 comparable = false;
             }
-        } else if (foundBlock instanceof HorizontalConnectingBlock && !property.getName().equals("waterlogged")) {
+        } else if (foundBlock instanceof CrossCollisionBlock && !property.getName().equals("waterlogged")) {
             for (Map.Entry<Direction, Boolean> entry : fourWayFacings.entrySet()) {
                 if (property.getName().equals(entry.getKey().getName())) {
                     comparable = entry.getValue();
                 }
             }
         } else if (foundBlock instanceof WallBlock && !property.getName().equals("waterlogged")) {
-            for (Map.Entry<Direction, WallShape> entry : wallShapes.entrySet()) {
+            for (Map.Entry<Direction, WallSide> entry : wallShapes.entrySet()) {
                 if (property.getName().equals(entry.getKey().getName())) {
                     comparable = entry.getValue();
                 }
             }
-        } else if (foundBlock instanceof PillarBlock) {
+        } else if (foundBlock instanceof RotatedPillarBlock) {
             // bones have a special state. There is a property called axis and it only has 3 directions.
             if (property.getName().equals("axis")) {
                 comparable = boneFacing;
@@ -240,11 +240,11 @@ public class BuildBlock {
             }
 
             if (vineFacing != Direction.UP) {
-                if (configuration.houseFacing.rotateYClockwise() == assumedNorth) {
-                    vineFacing = vineFacing.rotateYClockwise();
+                if (configuration.houseFacing.getClockWise() == assumedNorth) {
+                    vineFacing = vineFacing.getClockWise();
                 } else if (configuration.houseFacing.getOpposite() == assumedNorth) {
-                } else if (configuration.houseFacing.rotateYCounterclockwise() == assumedNorth) {
-                    vineFacing = vineFacing.rotateYCounterclockwise();
+                } else if (configuration.houseFacing.getCounterClockWise() == assumedNorth) {
+                    vineFacing = vineFacing.getCounterClockWise();
                 } else {
                     vineFacing = vineFacing.getOpposite();
                 }
@@ -254,21 +254,21 @@ public class BuildBlock {
         return vineFacing;
     }
 
-    private static Map<Direction, WallShape> getWallFacings(StructureConfiguration configuration, Block foundBlock, BuildBlock block, Direction assumedNorth) {
-        Map<Direction, WallShape> facings = new HashMap<>();
+    private static Map<Direction, WallSide> getWallFacings(StructureConfiguration configuration, Block foundBlock, BuildBlock block, Direction assumedNorth) {
+        Map<Direction, WallSide> facings = new HashMap<>();
 
         if (foundBlock instanceof WallBlock) {
             // Valid states can be any two directions at a time, not just opposites but adjacents as well (for corners).
-            WallShape northValue = BuildBlock.getShapeByName(block.getProperty("north").getValue());
-            WallShape eastValue = BuildBlock.getShapeByName(block.getProperty("east").getValue());
-            WallShape westValue = BuildBlock.getShapeByName(block.getProperty("west").getValue());
-            WallShape southValue = BuildBlock.getShapeByName(block.getProperty("south").getValue());
-            WallShape originalNorth = northValue;
-            WallShape originalEast = eastValue;
-            WallShape originalWest = westValue;
-            WallShape originalSouth = southValue;
+            WallSide northValue = BuildBlock.getShapeByName(block.getProperty("north").getValue());
+            WallSide eastValue = BuildBlock.getShapeByName(block.getProperty("east").getValue());
+            WallSide westValue = BuildBlock.getShapeByName(block.getProperty("west").getValue());
+            WallSide southValue = BuildBlock.getShapeByName(block.getProperty("south").getValue());
+            WallSide originalNorth = northValue;
+            WallSide originalEast = eastValue;
+            WallSide originalWest = westValue;
+            WallSide originalSouth = southValue;
 
-            if (configuration.houseFacing.rotateYClockwise() == assumedNorth) {
+            if (configuration.houseFacing.getClockWise() == assumedNorth) {
                 northValue = originalWest;
                 eastValue = originalNorth;
                 southValue = originalEast;
@@ -278,7 +278,7 @@ public class BuildBlock {
                 eastValue = originalWest;
                 southValue = originalNorth;
                 westValue = originalEast;
-            } else if (configuration.houseFacing.rotateYCounterclockwise() == assumedNorth) {
+            } else if (configuration.houseFacing.getCounterClockWise() == assumedNorth) {
                 northValue = originalEast;
                 eastValue = originalSouth;
                 southValue = originalWest;
@@ -297,7 +297,7 @@ public class BuildBlock {
     private static Map<Direction, Boolean> getFourWayBlockFacings(StructureConfiguration configuration, Block foundBlock, BuildBlock block, Direction assumedNorth) {
         Map<Direction, Boolean> facings = new HashMap<>();
 
-        if (foundBlock instanceof HorizontalConnectingBlock) {
+        if (foundBlock instanceof CrossCollisionBlock) {
             // Valid states can be any two directions at a time, not just opposites but adjacents as well (for corners).
             boolean northValue = Boolean.parseBoolean(block.getProperty("north").getValue());
             boolean eastValue = Boolean.parseBoolean(block.getProperty("east").getValue());
@@ -308,7 +308,7 @@ public class BuildBlock {
             boolean originalWest = westValue;
             boolean originalSouth = southValue;
 
-            if (configuration.houseFacing.rotateYClockwise() == assumedNorth) {
+            if (configuration.houseFacing.getClockWise() == assumedNorth) {
                 northValue = originalWest;
                 eastValue = originalNorth;
                 southValue = originalEast;
@@ -318,7 +318,7 @@ public class BuildBlock {
                 eastValue = originalWest;
                 southValue = originalNorth;
                 westValue = originalEast;
-            } else if (configuration.houseFacing.rotateYCounterclockwise() == assumedNorth) {
+            } else if (configuration.houseFacing.getCounterClockWise() == assumedNorth) {
                 northValue = originalEast;
                 eastValue = originalSouth;
                 southValue = originalWest;
@@ -337,7 +337,7 @@ public class BuildBlock {
     private static Direction.Axis getBoneFacing(StructureConfiguration configuration, Block foundBlock, BuildBlock block, Direction assumedNorth) {
         Direction.Axis boneFacing = Direction.Axis.X;
 
-        if (foundBlock instanceof PillarBlock) {
+        if (foundBlock instanceof RotatedPillarBlock) {
             BuildProperty property = block.getProperty("axis");
 
             if (property != null) {
@@ -363,16 +363,16 @@ public class BuildBlock {
 
     private static Direction getLeverOrientation(StructureConfiguration configuration, Block foundBlock, BuildBlock block, Direction assumedNorth) {
         Direction leverOrientation = Direction.NORTH;
-        WallMountLocation attachedTo = WallMountLocation.FLOOR;
+        AttachFace attachedTo = AttachFace.FLOOR;
 
-        if (foundBlock instanceof WallMountedBlock) {
+        if (foundBlock instanceof FaceAttachedHorizontalDirectionalBlock) {
             // Levers have a special facing.
-            leverOrientation = Properties.HORIZONTAL_FACING.parse(block.getProperty("facing").getValue()).get();
-            attachedTo = LeverBlock.FACE.parse(block.getProperty("face").getValue()).get();
+            leverOrientation = LeverBlock.FACING.getValue(block.getProperty("facing").getValue()).get();
+            attachedTo = LeverBlock.FACE.getValue(block.getProperty("face").getValue()).get();
 
-            if (attachedTo == WallMountLocation.FLOOR
-                    || attachedTo == WallMountLocation.CEILING) {
-                if (attachedTo == WallMountLocation.FLOOR) {
+            if (attachedTo == AttachFace.FLOOR
+                    || attachedTo == AttachFace.CEILING) {
+                if (attachedTo == AttachFace.FLOOR) {
                     leverOrientation = configuration.houseFacing == assumedNorth || configuration.houseFacing == assumedNorth.getOpposite()
                             ? leverOrientation
                             : leverOrientation == Direction.NORTH
@@ -388,11 +388,11 @@ public class BuildBlock {
             } else {
                 Direction facing = leverOrientation;
 
-                if (configuration.houseFacing.rotateYClockwise() == assumedNorth) {
-                    facing = facing.rotateYClockwise();
+                if (configuration.houseFacing.getClockWise() == assumedNorth) {
+                    facing = facing.getClockWise();
                 } else if (configuration.houseFacing.getOpposite() == assumedNorth) {
-                } else if (configuration.houseFacing.rotateYCounterclockwise() == assumedNorth) {
-                    facing = facing.rotateYCounterclockwise();
+                } else if (configuration.houseFacing.getCounterClockWise() == assumedNorth) {
+                    facing = facing.getCounterClockWise();
                 } else {
                     facing = facing.getOpposite();
                 }
@@ -412,10 +412,10 @@ public class BuildBlock {
     private static BlockState setProperty(BlockState state, Property property, Comparable comparable) {
         // This method is required since the properties and comparables have a <?> in them and it doesn't work properly
         // when that is there. There is a compilation error since it's not hard typed.
-        return state.with(property, comparable);
+        return state.setValue(property, comparable);
     }
 
-    private static BuildBlock SetBlockStateFromTagData(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, BuildBlock block,
+    private static BuildBlock SetBlockStateFromTagData(StructureConfiguration configuration, Level world, BlockPos originalPos, BuildBlock block,
                                                        Block foundBlock, BlockState blockState, Structure structure) {
         BlockState tagState = block.getBlockStateFromDataTag();
 
@@ -423,7 +423,7 @@ public class BuildBlock {
             block.setBlockState(block.getBlockStateFromDataTag());
         } else {
             block.setBlockStateData("");
-            return BuildBlock.SetBlockState(configuration, world, originalPos, assumedNorth, block, foundBlock, blockState, structure);
+            return BuildBlock.SetBlockState(configuration, world, originalPos, block, foundBlock, blockState, structure);
         }
 
         return block;
@@ -431,7 +431,7 @@ public class BuildBlock {
 
     public static Direction getDirectionByName(String name) {
         for (Direction direction : Direction.values()) {
-            if (direction.getName().toLowerCase().equals(name.toLowerCase())) {
+            if (direction.getName().equalsIgnoreCase(name)) {
                 return direction;
             }
         }
@@ -439,14 +439,14 @@ public class BuildBlock {
         return Direction.NORTH;
     }
 
-    public static WallShape getShapeByName(String name) {
-        for (WallShape shape : WallShape.values()) {
-            if (shape.asString().toLowerCase().equals(name.toLowerCase())) {
+    public static WallSide getShapeByName(String name) {
+        for (WallSide shape : WallSide.values()) {
+            if (shape.toString().equalsIgnoreCase(name)) {
                 return shape;
             }
         }
 
-        return WallShape.NONE;
+        return WallSide.NONE;
     }
 
     public String getBlockDomain() {
@@ -465,8 +465,8 @@ public class BuildBlock {
         this.blockName = value;
     }
 
-    public Identifier getResourceLocation() {
-        return new Identifier(this.blockDomain, this.blockName);
+    public ResourceLocation getResourceLocation() {
+        return new ResourceLocation(this.blockDomain, this.blockName);
     }
 
     public PositionOffset getStartingPosition() {
@@ -527,16 +527,16 @@ public class BuildBlock {
         this.blockStateData = value;
     }
 
-    public void setBlockStateData(NbtCompound tagCompound) {
+    public void setBlockStateData(CompoundTag tagCompound) {
         this.blockStateData = tagCompound.toString();
     }
 
-    public NbtCompound getBlockStateDataTag() {
-        NbtCompound tag = null;
+    public CompoundTag getBlockStateDataTag() {
+        CompoundTag tag = null;
 
         if (!this.blockStateData.equals("")) {
             try {
-                tag = StringNbtReader.parse(this.blockStateData);
+                tag = TagParser.parseTag(this.blockStateData);
             } catch (CommandSyntaxException e) {
                 e.printStackTrace();
             }
@@ -549,10 +549,10 @@ public class BuildBlock {
         BlockState state = null;
 
         if (!this.blockStateData.equals("")) {
-            NbtCompound tag = this.getBlockStateDataTag();
+            CompoundTag tag = this.getBlockStateDataTag();
 
             if (tag != null) {
-                state = NbtHelper.toBlockState(tag.getCompound("tag"));
+                state = NbtUtils.readBlockState(tag.getCompound("tag"));
             }
         }
 

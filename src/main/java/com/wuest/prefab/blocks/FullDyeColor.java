@@ -1,10 +1,10 @@
 package com.wuest.prefab.blocks;
 
 import com.google.common.base.Strings;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.DyeColor;
 
-public enum FullDyeColor implements StringIdentifiable {
+public enum FullDyeColor implements StringRepresentable {
     WHITE(0, "white", DyeColor.WHITE),
     ORANGE(1, "orange", DyeColor.ORANGE),
     MAGENTA(2, "magenta", DyeColor.MAGENTA),
@@ -49,7 +49,7 @@ public enum FullDyeColor implements StringIdentifiable {
         return this.name;
     }
 
-    public String asString() {
+    public String getSerializedName() {
         return this.name;
     }
 

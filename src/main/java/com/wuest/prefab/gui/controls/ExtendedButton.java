@@ -1,6 +1,7 @@
 package com.wuest.prefab.gui.controls;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.Utils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -185,4 +186,3 @@ public class ExtendedButton extends PressableWidget {
 	public interface PressAction {
 		void onPress(PressableWidget button, boolean isRightClick);
 	}
-}

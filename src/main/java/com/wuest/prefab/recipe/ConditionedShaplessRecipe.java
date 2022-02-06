@@ -9,25 +9,28 @@ import com.wuest.prefab.Prefab;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.*;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.level.Level;
 
 import java.util.Iterator;
 
 public class ConditionedShaplessRecipe extends ShapelessRecipe {
-	private final Identifier id;
+	private final ResourceLocation id;
 	private final String group;
 	private final ItemStack output;
-	private final DefaultedList<Ingredient> input;
+	private final NonNullList<Ingredient> input;
 	private final String configName;
 
-	public ConditionedShaplessRecipe(Identifier id, String group, ItemStack output, DefaultedList<Ingredient> input, String configName) {
+	public ConditionedShaplessRecipe(ResourceLocation id, String group, ItemStack output, NonNullList<Ingredient> input, String configName) {
 	    super(id, group, output, input);
 
 		this.id = id;
@@ -37,7 +40,7 @@ public class ConditionedShaplessRecipe extends ShapelessRecipe {
 		this.configName = configName;
 	}
 
-	public Identifier getId() {
+	public ResourceLocation getId() {
 		return this.id;
 	}
 
@@ -50,56 +53,56 @@ public class ConditionedShaplessRecipe extends ShapelessRecipe {
 		return this.group;
 	}
 
-	public ItemStack getOutput() {
+	public ItemStack getResultItem() {
 		return this.output;
 	}
 
-	public DefaultedList<Ingredient> getPreviewInputs() {
+	public NonNullList<Ingredient> getIngredients() {
 		return this.input;
 	}
 
-	public boolean matches(CraftingInventory craftingInventory, World world) {
-		RecipeMatcher recipeFinder = new RecipeMatcher();
+	public boolean matches(CraftingContainer craftingInventory, Level world) {
+		StackedContents recipeFinder = new StackedContents();
 		int i = 0;
 
-		for (int j = 0; j < craftingInventory.size(); ++j) {
-			ItemStack itemStack = craftingInventory.getStack(j);
+		for (int j = 0; j < craftingInventory.getContainerSize(); ++j) {
+			ItemStack itemStack = craftingInventory.getItem(j);
 			if (!itemStack.isEmpty()) {
 				++i;
-				recipeFinder.addInput(itemStack, 1);
+				recipeFinder.accountStack(itemStack, 1);
 			}
 		}
 
-		return i == this.input.size() && recipeFinder.match(this, (IntList) null);
+		return i == this.input.size() && recipeFinder.canCraft(this, (IntList) null);
 	}
 
-	public ItemStack craft(CraftingInventory craftingInventory) {
+	public ItemStack craft(CraftingContainer craftingInventory) {
 		return this.output.copy();
 	}
 
 	@Environment(EnvType.CLIENT)
-	public boolean fits(int width, int height) {
+	public boolean canCraftInDimensions(int width, int height) {
 		return width * height >= this.input.size();
 	}
 
 	public static class Serializer implements RecipeSerializer<ConditionedShaplessRecipe> {
-		public ConditionedShaplessRecipe read(Identifier identifier, JsonObject jsonObject) {
-			String groupName = JsonHelper.getString(jsonObject, "group", "");
-			String configName = JsonHelper.getString(jsonObject, "configName", "");
-			DefaultedList<Ingredient> defaultedList = getIngredients(JsonHelper.getArray(jsonObject, "ingredients"));
+		public ConditionedShaplessRecipe fromJson(ResourceLocation identifier, JsonObject jsonObject) {
+			String groupName = GsonHelper.getAsString(jsonObject, "group", "");
+			String configName = GsonHelper.getAsString(jsonObject, "configName", "");
+			NonNullList<Ingredient> defaultedList = itemsFromJson(GsonHelper.getAsJsonArray(jsonObject, "ingredients"));
 
 			if (defaultedList.isEmpty()) {
 				throw new JsonParseException("No ingredients for shapeless recipe");
 			} else if (defaultedList.size() > 9) {
 				throw new JsonParseException("Too many ingredients for shapeless recipe");
 			} else {
-				ItemStack itemStack = this.validateRecipeOutput(ConditionedShapedRecipe.getItemStack(JsonHelper.getObject(jsonObject, "result")), configName);
+				ItemStack itemStack = this.validateRecipeOutput(ConditionedShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(jsonObject, "result")), configName);
 				return new ConditionedShaplessRecipe(identifier, groupName, itemStack, defaultedList, configName);
 			}
 		}
 
-		private static DefaultedList<Ingredient> getIngredients(JsonArray json) {
-			DefaultedList<Ingredient> defaultedList = DefaultedList.of();
+		private static NonNullList<Ingredient> itemsFromJson(JsonArray json) {
+			NonNullList<Ingredient> defaultedList = NonNullList.create();
 
 			for (int i = 0; i < json.size(); ++i) {
 				Ingredient ingredient = Ingredient.fromJson(json.get(i));
@@ -111,32 +114,32 @@ public class ConditionedShaplessRecipe extends ShapelessRecipe {
 			return defaultedList;
 		}
 
-		public ConditionedShaplessRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
-			String groupName = packetByteBuf.readString(32767);
-			String configName = packetByteBuf.readString(32767);
+		public ConditionedShaplessRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf packetByteBuf) {
+			String groupName = packetByteBuf.readUtf(32767);
+			String configName = packetByteBuf.readUtf(32767);
 			int i = packetByteBuf.readVarInt();
-			DefaultedList<Ingredient> defaultedList = DefaultedList.ofSize(i, Ingredient.EMPTY);
+			NonNullList<Ingredient> defaultedList = NonNullList.withSize(i, Ingredient.EMPTY);
 
 			for (int j = 0; j < defaultedList.size(); ++j) {
-				defaultedList.set(j, Ingredient.fromPacket(packetByteBuf));
+				defaultedList.set(j, Ingredient.fromNetwork(packetByteBuf));
 			}
 
-			ItemStack itemStack = this.validateRecipeOutput(packetByteBuf.readItemStack(), configName);
+			ItemStack itemStack = this.validateRecipeOutput(packetByteBuf.readItem(), configName);
 			return new ConditionedShaplessRecipe(identifier, groupName, itemStack, defaultedList, configName);
 		}
 
-		public void write(PacketByteBuf packetByteBuf, ConditionedShaplessRecipe shapelessRecipe) {
-			packetByteBuf.writeString(shapelessRecipe.group);
-			packetByteBuf.writeString(shapelessRecipe.configName);
+		public void toNetwork(FriendlyByteBuf packetByteBuf, ConditionedShaplessRecipe shapelessRecipe) {
+			packetByteBuf.writeUtf(shapelessRecipe.group);
+			packetByteBuf.writeUtf(shapelessRecipe.configName);
 			packetByteBuf.writeVarInt(shapelessRecipe.input.size());
 			Iterator var3 = shapelessRecipe.input.iterator();
 
 			while (var3.hasNext()) {
 				Ingredient ingredient = (Ingredient) var3.next();
-				ingredient.write(packetByteBuf);
+				ingredient.toNetwork(packetByteBuf);
 			}
 
-			packetByteBuf.writeItemStack(shapelessRecipe.output);
+			packetByteBuf.writeItem(shapelessRecipe.output);
 		}
 
 		public ItemStack validateRecipeOutput(ItemStack originalOutput, String configName) {

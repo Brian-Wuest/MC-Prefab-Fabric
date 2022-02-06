@@ -1,12 +1,12 @@
 package com.wuest.prefab.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.gui.controls.ExtendedButton;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 public class GuiUtils {
@@ -16,7 +16,7 @@ public class GuiUtils {
      *
      * @param resourceLocation The resource location to bind.
      */
-    public static void bindTexture(Identifier resourceLocation) {
+    public static void bindTexture(ResourceLocation resourceLocation) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, resourceLocation);
@@ -33,8 +33,8 @@ public class GuiUtils {
      * @param textureWidth  The width of the texture.
      * @param textureHeight The height of the texture.
      */
-    public static void drawTexture(MatrixStack matrixStack, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
-        DrawableHelper.drawTexture(matrixStack, x, y, z, 0, 0, width, height, textureWidth, textureHeight);
+    public static void drawTexture(PoseStack matrixStack, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
+        GuiComponent.blit(matrixStack, x, y, z, 0, 0, width, height, textureWidth, textureHeight);
     }
 
     /**
@@ -57,7 +57,7 @@ public class GuiUtils {
      * @param rightBorder   the size of the box's right border
      * @param zLevel        the zLevel to draw at
      */
-    public static void drawContinuousTexturedBox(Identifier res, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight,
+    public static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight,
                                                  int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel) {
         GuiUtils.bindTexture(res);
         GuiUtils.drawContinuousTexturedBox(x, y, u, v, width, height, textureWidth, textureHeight, topBorder, bottomBorder, leftBorder, rightBorder, zLevel);
@@ -136,28 +136,28 @@ public class GuiUtils {
         final float uScale = 1f / 0x100;
         final float vScale = 1f / 0x100;
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder wr = tessellator.getBuffer();
-        wr.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-        wr.vertex(x, y + height, zLevel).texture(u * uScale, ((v + height) * vScale)).next();
-        wr.vertex(x + width, y + height, zLevel).texture((u + width) * uScale, ((v + height) * vScale)).next();
-        wr.vertex(x + width, y, zLevel).texture((u + width) * uScale, (v * vScale)).next();
-        wr.vertex(x, y, zLevel).texture(u * uScale, (v * vScale)).next();
-        tessellator.draw();
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder wr = tessellator.getBuilder();
+        wr.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        wr.vertex(x, y + height, zLevel).uv(u * uScale, ((v + height) * vScale)).endVertex();
+        wr.vertex(x + width, y + height, zLevel).uv((u + width) * uScale, ((v + height) * vScale)).endVertex();
+        wr.vertex(x + width, y, zLevel).uv((u + width) * uScale, (v * vScale)).endVertex();
+        wr.vertex(x, y, zLevel).uv(u * uScale, (v * vScale)).endVertex();
+        tessellator.end();
     }
 
-    public static void bindAndDrawTexture(Identifier resourceLocation, MatrixStack matrixStack, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
+    public static void bindAndDrawTexture(ResourceLocation resourceLocation, PoseStack matrixStack, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
         GuiUtils.bindTexture(resourceLocation);
         GuiUtils.drawTexture(matrixStack, x, y, z, width, height, textureWidth, textureHeight);
     }
 
-    public static void bindAndDrawScaledTexture(Identifier resourceLocation, MatrixStack matrixStack, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    public static void bindAndDrawScaledTexture(ResourceLocation resourceLocation, PoseStack matrixStack, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         GuiUtils.bindTexture(resourceLocation);
         GuiUtils.bindAndDrawScaledTexture(matrixStack, x, y, width, height, regionWidth, regionHeight, textureWidth, textureHeight);
     }
 
-    public static void bindAndDrawScaledTexture(MatrixStack matrixStack, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        DrawableHelper.drawTexture(matrixStack, x, y, width, height, 0, 0, regionWidth, regionHeight, textureWidth, textureHeight);
+    public static void bindAndDrawScaledTexture(PoseStack matrixStack, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+        GuiComponent.blit(matrixStack, x, y, width, height, 0, 0, regionWidth, regionHeight, textureWidth, textureHeight);
     }
 
     public static void setButtonText(ExtendedButton button, String message) {

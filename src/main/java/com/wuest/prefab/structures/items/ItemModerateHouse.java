@@ -2,7 +2,7 @@ package com.wuest.prefab.structures.items;
 
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.gui.GuiModerateHouse;
-import net.minecraft.item.ItemUsageContext;
+import net.minecraft.world.item.context.UseOnContext;
 
 /**
  * @author WuestMan
@@ -17,7 +17,7 @@ public class ItemModerateHouse extends StructureItem {
     }
 
     @Override
-    public void scanningMode(ItemUsageContext context) {
+    public void scanningMode(UseOnContext context) {
     }
 
     /**

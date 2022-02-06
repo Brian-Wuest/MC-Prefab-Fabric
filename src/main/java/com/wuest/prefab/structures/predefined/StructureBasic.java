@@ -12,19 +12,19 @@ import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.config.enums.AdvancedFarmOptions;
 import com.wuest.prefab.structures.config.enums.BaseOption;
 import com.wuest.prefab.structures.config.enums.ModerateFarmOptions;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.MobSpawnerBlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.ChickenEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 
 import java.util.ArrayList;
 
@@ -35,13 +35,13 @@ import java.util.ArrayList;
  * @author WuestMan
  */
 public class StructureBasic extends Structure {
-    private BlockPos customBlockPos = null;
     private final ArrayList<BlockPos> mobSpawnerPos = new ArrayList<>();
+    private BlockPos customBlockPos = null;
     private BlockPos signPosition = null;
 
     @Override
-    protected Boolean CustomBlockProcessingHandled(StructureConfiguration configuration, BuildBlock block, World world, BlockPos originalPos,
-                                                   Direction assumedNorth, Block foundBlock, BlockState blockState, PlayerEntity player) {
+    protected Boolean CustomBlockProcessingHandled(StructureConfiguration configuration, BuildBlock block, Level world, BlockPos originalPos,
+                                                   Block foundBlock, BlockState blockState, Player player) {
         BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
 
         String structureName = config.basicStructureName.getName();
@@ -52,7 +52,7 @@ public class StructureBasic extends Structure {
                     originalPos,
                     this.getClearSpace().getShape().getDirection(),
                     configuration.houseFacing);
-        } else if (foundBlock instanceof TrapdoorBlock && structureName.equals(EnumBasicStructureName.MineshaftEntrance.getName())) {
+        } else if (foundBlock instanceof TrapDoorBlock && structureName.equals(EnumBasicStructureName.MineshaftEntrance.getName())) {
             this.customBlockPos = block.getStartingPosition().getRelativePosition(
                     originalPos,
                     this.getClearSpace().getShape().getDirection(),
@@ -63,7 +63,7 @@ public class StructureBasic extends Structure {
             this.customBlockPos = block.getStartingPosition().getRelativePosition(
                     originalPos,
                     this.getClearSpace().getShape().getDirection(),
-                    configuration.houseFacing).up();
+                    configuration.houseFacing).above();
         } else if (foundBlock instanceof BedBlock && config.chosenOption.getHasBedColor()) {
             // Even if a structure has a bed; we may want to keep a specific color to match what the design of the structure is.
             BlockPos bedHeadPosition = block.getStartingPosition().getRelativePosition(originalPos, this.getClearSpace().getShape().getDirection(), configuration.houseFacing);
@@ -84,7 +84,7 @@ public class StructureBasic extends Structure {
                     originalPos,
                     this.getClearSpace().getShape().getDirection(),
                     configuration.houseFacing));
-        } else if (foundBlock instanceof AbstractSignBlock && structureName.equals(EnumBasicStructureName.AdvancedFarm.getName()) && chosenOption == AdvancedFarmOptions.MonsterMasher) {
+        } else if (foundBlock instanceof SignBlock && structureName.equals(EnumBasicStructureName.AdvancedFarm.getName()) && chosenOption == AdvancedFarmOptions.MonsterMasher) {
             this.signPosition = block.getStartingPosition().getRelativePosition(
                     originalPos,
                     this.getClearSpace().getShape().getDirection(),
@@ -92,12 +92,11 @@ public class StructureBasic extends Structure {
         }
 
 
-
         return false;
     }
 
     @Override
-    protected Boolean BlockShouldBeClearedDuringConstruction(StructureConfiguration configuration, World world, BlockPos originalPos, Direction assumedNorth, BlockPos blockPos) {
+    protected Boolean BlockShouldBeClearedDuringConstruction(StructureConfiguration configuration, Level world, BlockPos originalPos, BlockPos blockPos) {
         BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
 
         if (config.basicStructureName.getName().equals(EnumBasicStructureName.AquaBase.getName())
@@ -116,11 +115,10 @@ public class StructureBasic extends Structure {
      * @param configuration The structure configuration.
      * @param world         The current world.
      * @param originalPos   The original position clicked on.
-     * @param assumedNorth  The assumed northern direction.
      * @param player        The player which initiated the construction.
      */
     @Override
-    public void AfterBuilding(StructureConfiguration configuration, ServerWorld world, BlockPos originalPos, Direction assumedNorth, PlayerEntity player) {
+    public void AfterBuilding(StructureConfiguration configuration, ServerLevel world, BlockPos originalPos, Player player) {
         BasicStructureConfiguration config = (BasicStructureConfiguration) configuration;
         String structureName = config.basicStructureName.getName();
         BaseOption chosenOption = config.chosenOption;
@@ -129,14 +127,14 @@ public class StructureBasic extends Structure {
             if (structureName.equals(EnumBasicStructureName.ModerateFarm.getName()) && chosenOption == ModerateFarmOptions.AutomatedChickenCoop) {
                 // For the advanced chicken coop, spawn 4 chickens above the hopper.
                 for (int i = 0; i < 4; i++) {
-                    ChickenEntity entity = new ChickenEntity(EntityType.CHICKEN, world);
-                    entity.setPos(this.customBlockPos.getX(), this.customBlockPos.up().getY(), this.customBlockPos.getZ());
-                    world.spawnEntity(entity);
+                    Chicken entity = new Chicken(EntityType.CHICKEN, world);
+                    entity.setPos(this.customBlockPos.getX(), this.customBlockPos.above().getY(), this.customBlockPos.getZ());
+                    world.addFreshEntity(entity);
                 }
             } else if (structureName.equals(EnumBasicStructureName.MineshaftEntrance.getName())
                     || structureName.equals(BasicStructureConfiguration.EnumBasicStructureName.WorkShop.getName())) {
                 // Build the mineshaft where the trap door exists.
-                BuildingMethods.PlaceMineShaft(world, this.customBlockPos.down(), configuration.houseFacing, true);
+                BuildingMethods.PlaceMineShaft(world, this.customBlockPos.below(), configuration.houseFacing, true);
             }
 
             this.customBlockPos = null;
@@ -149,31 +147,31 @@ public class StructureBasic extends Structure {
             for (BlockPos pos : this.mobSpawnerPos) {
                 BlockEntity tileEntity = world.getBlockEntity(pos);
 
-                if (tileEntity instanceof MobSpawnerBlockEntity) {
-                    MobSpawnerBlockEntity spawner = (MobSpawnerBlockEntity) tileEntity;
+                if (tileEntity instanceof SpawnerBlockEntity) {
+                    SpawnerBlockEntity spawner = (SpawnerBlockEntity) tileEntity;
 
                     switch (monstersPlaced) {
                         case 0: {
                             // Zombie.
-                            spawner.getLogic().setEntityId(EntityType.ZOMBIE);
+                            spawner.getSpawner().setEntityId(EntityType.ZOMBIE);
                             break;
                         }
 
                         case 1: {
                             // Skeleton.
-                            spawner.getLogic().setEntityId(EntityType.SKELETON);
+                            spawner.getSpawner().setEntityId(EntityType.SKELETON);
                             break;
                         }
 
                         case 2: {
                             // Spider.
-                            spawner.getLogic().setEntityId(EntityType.SPIDER);
+                            spawner.getSpawner().setEntityId(EntityType.SPIDER);
                             break;
                         }
 
                         default: {
                             // Creeper.
-                            spawner.getLogic().setEntityId(EntityType.CREEPER);
+                            spawner.getSpawner().setEntityId(EntityType.CREEPER);
                             break;
                         }
                     }
@@ -187,9 +185,9 @@ public class StructureBasic extends Structure {
 
                 if (tileEntity instanceof SignBlockEntity) {
                     SignBlockEntity signTile = (SignBlockEntity) tileEntity;
-                    signTile.setTextOnRow(0, new LiteralText("Lamp On=Mobs"));
+                    signTile.setMessage(0, new TextComponent("Lamp On=Mobs"));
 
-                    signTile.setTextOnRow(2, new LiteralText("Lamp Off=No Mobs"));
+                    signTile.setMessage(2, new TextComponent("Lamp Off=No Mobs"));
                 }
             }
         }
@@ -197,40 +195,40 @@ public class StructureBasic extends Structure {
         if (structureName.equals(EnumBasicStructureName.AquaBase.getName())
                 || structureName.equals(EnumBasicStructureName.AdvancedAquaBase.getName())) {
             // Replace the entrance area with air blocks.
-            BlockPos airPos = originalPos.up(4).offset(configuration.houseFacing.getOpposite(), 1);
+            BlockPos airPos = originalPos.above(4).relative(configuration.houseFacing.getOpposite(), 1);
 
             // This is the first wall.
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYClockwise()), false);
+            world.removeBlock(airPos.relative(configuration.houseFacing.getClockWise()), false);
             world.removeBlock(airPos, false);
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYCounterclockwise()), false);
+            world.removeBlock(airPos.relative(configuration.houseFacing.getCounterClockWise()), false);
 
-            airPos = airPos.down();
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYClockwise()), false);
+            airPos = airPos.below();
+            world.removeBlock(airPos.relative(configuration.houseFacing.getClockWise()), false);
             world.removeBlock(airPos, false);
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYCounterclockwise()), false);
+            world.removeBlock(airPos.relative(configuration.houseFacing.getCounterClockWise()), false);
 
-            airPos = airPos.down();
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYClockwise()), false);
+            airPos = airPos.below();
+            world.removeBlock(airPos.relative(configuration.houseFacing.getClockWise()), false);
             world.removeBlock(airPos, false);
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYCounterclockwise()), false);
+            world.removeBlock(airPos.relative(configuration.houseFacing.getCounterClockWise()), false);
 
-            airPos = airPos.down();
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYClockwise()), false);
+            airPos = airPos.below();
+            world.removeBlock(airPos.relative(configuration.houseFacing.getClockWise()), false);
             world.removeBlock(airPos, false);
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYCounterclockwise()), false);
+            world.removeBlock(airPos.relative(configuration.houseFacing.getCounterClockWise()), false);
 
             // Second part of the wall.
-            airPos = airPos.offset(configuration.houseFacing.getOpposite()).up();
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYClockwise()), false);
+            airPos = airPos.relative(configuration.houseFacing.getOpposite()).above();
+            world.removeBlock(airPos.relative(configuration.houseFacing.getClockWise()), false);
             world.removeBlock(airPos, false);
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYCounterclockwise()), false);
+            world.removeBlock(airPos.relative(configuration.houseFacing.getCounterClockWise()), false);
 
-            airPos = airPos.up();
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYClockwise()), false);
+            airPos = airPos.above();
+            world.removeBlock(airPos.relative(configuration.houseFacing.getClockWise()), false);
             world.removeBlock(airPos, false);
-            world.removeBlock(airPos.offset(configuration.houseFacing.rotateYCounterclockwise()), false);
+            world.removeBlock(airPos.relative(configuration.houseFacing.getCounterClockWise()), false);
 
-            airPos = airPos.up();
+            airPos = airPos.above();
             world.removeBlock(airPos, false);
         }
     }

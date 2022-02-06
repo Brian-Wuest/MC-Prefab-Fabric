@@ -5,13 +5,12 @@ import com.wuest.prefab.base.TileEntityBase;
 import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.structures.base.BuildClear;
 import com.wuest.prefab.structures.base.BuildShape;
-import com.wuest.prefab.structures.base.PositionOffset;
 import com.wuest.prefab.structures.base.Structure;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class StructureScannerBlockEntity extends TileEntityBase<StructureScannerConfig> {
     public StructureScannerBlockEntity(BlockPos pos, BlockState state) {
@@ -21,7 +20,7 @@ public class StructureScannerBlockEntity extends TileEntityBase<StructureScanner
         this.config.blockPos = pos;
     }
 
-    public static void ScanShape(StructureScannerConfig config, ServerPlayerEntity playerEntity, ServerWorld serverWorld) {
+    public static void ScanShape(StructureScannerConfig config, ServerPlayer playerEntity, ServerLevel serverWorld) {
         BuildClear clearedSpace = new BuildClear();
         clearedSpace.getShape().setDirection(config.direction);
         clearedSpace.getShape().setHeight(config.blocksTall);
@@ -44,17 +43,17 @@ public class StructureScannerBlockEntity extends TileEntityBase<StructureScanner
         // Down is inverse on the GUI so make sure that it's negative when saving to the file.
         clearedSpace.getStartingPosition().setHeightOffset(-downOffset);
         clearedSpace.getStartingPosition().setHorizontalOffset(playerFacing, config.blocksParallel);
-        clearedSpace.getStartingPosition().setHorizontalOffset(playerFacing.rotateYCounterclockwise(), config.blocksToTheLeft);
+        clearedSpace.getStartingPosition().setHorizontalOffset(playerFacing.getCounterClockWise(), config.blocksToTheLeft);
 
         BlockPos cornerPos = config.blockPos
-                .offset(playerFacing.rotateYCounterclockwise(), config.blocksToTheLeft)
-                .offset(playerFacing, config.blocksParallel)
-                .down(downOffset);
+                .relative(playerFacing.getCounterClockWise(), config.blocksToTheLeft)
+                .relative(playerFacing, config.blocksParallel)
+                .below(downOffset);
 
         BlockPos otherCorner = cornerPos
-                .offset(playerFacing, buildShape.getLength())
-                .offset(playerFacing.rotateYClockwise(), buildShape.getWidth())
-                .up(buildShape.getHeight());
+                .relative(playerFacing, buildShape.getLength())
+                .relative(playerFacing.getClockWise(), buildShape.getWidth())
+                .above(buildShape.getHeight());
 
         Structure.ScanStructure(
                 serverWorld,

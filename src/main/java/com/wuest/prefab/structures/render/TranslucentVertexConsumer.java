@@ -1,7 +1,7 @@
 package com.wuest.prefab.structures.render;
 
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.util.math.MathHelper;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.Mth;
 
 public class TranslucentVertexConsumer implements VertexConsumer {
     private final VertexConsumer inner;
@@ -11,7 +11,8 @@ public class TranslucentVertexConsumer implements VertexConsumer {
         this.inner = inner;
 
         // Alpha value should be between 0 and 255
-        this.tintAlpha = MathHelper.clamp(alpha, 0, 0xFF);;
+        this.tintAlpha = Mth.clamp(alpha, 0, 0xFF);
+        ;
     }
 
     @Override
@@ -25,18 +26,18 @@ public class TranslucentVertexConsumer implements VertexConsumer {
     }
 
     @Override
-    public VertexConsumer texture(float u, float v) {
-        return inner.texture(u, v);
+    public VertexConsumer uv(float u, float v) {
+        return inner.uv(u, v);
     }
 
     @Override
-    public VertexConsumer overlay(int u, int v) {
-        return inner.overlay(u, v);
+    public VertexConsumer overlayCoords(int u, int v) {
+        return inner.overlayCoords(u, v);
     }
 
     @Override
-    public VertexConsumer light(int u, int v) {
-        return inner.light(u, v);
+    public VertexConsumer uv2(int u, int v) {
+        return inner.uv2(u, v);
     }
 
     @Override
@@ -45,18 +46,17 @@ public class TranslucentVertexConsumer implements VertexConsumer {
     }
 
     @Override
-    public void next() {
-        inner.next();
+    public void endVertex() {
+        inner.endVertex();
     }
 
     @Override
-    public void fixedColor(int red, int green, int blue, int alpha) {
-        inner.fixedColor(red, green, blue, (alpha * tintAlpha) / 0xFF);
+    public void defaultColor(int red, int green, int blue, int alpha) {
+        inner.defaultColor(red, green, blue, (alpha * tintAlpha) / 0xFF);
     }
 
     @Override
-    public void unfixColor() {
-        inner.unfixColor();
+    public void unsetDefaultColor() {
+        inner.unsetDefaultColor();
     }
-
 }

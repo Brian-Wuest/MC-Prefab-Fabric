@@ -1,10 +1,10 @@
 package com.wuest.prefab.config;
 
 import com.wuest.prefab.base.BaseConfig;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 
 public class StructureScannerConfig extends BaseConfig {
     public int blocksToTheLeft = 0;
@@ -24,34 +24,34 @@ public class StructureScannerConfig extends BaseConfig {
     }
 
     @Override
-    public void WriteToNBTCompound(NbtCompound compound) {
+    public void WriteToNBTCompound(CompoundTag compound) {
         compound.putInt("blocksToTheLeft", this.blocksToTheLeft);
         compound.putInt("blocksDown", this.blocksDown);
         compound.putInt("blocksWide", this.blocksWide);
         compound.putInt("blocksLong", this.blocksLong);
         compound.putInt("blocksTall", this.blocksTall);
         compound.putString("structureZipName", this.structureZipName);
-        compound.putInt("direction", this.direction.getId());
+        compound.putInt("direction", this.direction.get3DDataValue());
         compound.putInt("blocksParallel", this.blocksParallel);
 
         if (this.blockPos != null) {
-            compound.put("pos", NbtHelper.fromBlockPos(this.blockPos));
+            compound.put("pos", NbtUtils.writeBlockPos(this.blockPos));
         }
     }
 
     @Override
-    public StructureScannerConfig ReadFromCompoundNBT(NbtCompound compound) {
+    public StructureScannerConfig ReadFromCompoundNBT(CompoundTag compound) {
         this.blocksToTheLeft = compound.getInt("blocksToTheLeft");
         this.blocksDown = compound.getInt("blocksDown");
         this.blocksWide = compound.getInt("blocksWide");
         this.blocksLong = compound.getInt("blocksLong");
         this.blocksTall = compound.getInt("blocksTall");
         this.structureZipName = compound.getString("structureZipName");
-        this.direction = Direction.byId(compound.getInt("direction"));
+        this.direction = Direction.from3DDataValue(compound.getInt("direction"));
         this.blocksParallel = compound.getInt("blocksParallel");
 
         if (compound.contains("pos")) {
-            this.blockPos = NbtHelper.toBlockPos(compound.getCompound("pos"));
+            this.blockPos = NbtUtils.readBlockPos(compound.getCompound("pos"));
         }
 
         return this;
