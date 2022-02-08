@@ -29,9 +29,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.World;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author WuestMan, Dqu1J
@@ -50,6 +48,7 @@ public class StructureRenderHandler {
     private static int dimensionTop;
     private static int dimensionBottom;
     private static VertexBuffer vertexBuffer;
+    private static final TranslucentBufferBuilderWrapper translucentBuilder = new TranslucentBufferBuilderWrapper(new BufferBuilder(32768), 100);
     private static final RenderLayer renderLayer = PrefabRenderLayer.createRenderLayer();
 
     /**
@@ -158,17 +157,16 @@ public class StructureRenderHandler {
 
     private static void buildVertexBuffer(Set<BuildBlock> blocks) {
         vertexBuffer = new VertexBuffer();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
-        StructureRenderHandler.buildBlockMesh(blocks, new MatrixStack(), bufferBuilder);
-        bufferBuilder.end();
-        vertexBuffer.upload(bufferBuilder);
+        translucentBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
+        StructureRenderHandler.buildBlockMesh(blocks, new MatrixStack(), translucentBuilder);
+        translucentBuilder.end();
+        vertexBuffer.upload(translucentBuilder.getInner());
+        translucentBuilder.clear();
     }
 
     private static void buildBlockMesh(Set<BuildBlock> blocks, MatrixStack matrixStack, VertexConsumer vertexConsumer) {
         MinecraftClient mc = MinecraftClient.getInstance();
         BlockRenderManager blockRenderManager = mc.getBlockRenderManager();
-        TranslucentVertexConsumer translucentConsumer = new TranslucentVertexConsumer(vertexConsumer, 100);
         PrefabRenderView renderView = currentStructure.asRenderView(currentConfiguration.houseFacing);
 
         for (BuildBlock block : blocks) {
@@ -182,7 +180,7 @@ public class StructureRenderHandler {
             matrixStack.push();
             matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
             StructureRenderHandler.renderBlockModel(renderView, bakedModel, state, pos, matrixStack,
-                    translucentConsumer, mc.world.random);
+                    vertexConsumer, mc.world.random);
             matrixStack.pop();
         }
     }
