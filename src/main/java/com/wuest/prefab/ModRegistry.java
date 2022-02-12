@@ -186,6 +186,9 @@ public class ModRegistry {
     public static final ItemWoodenCrate BunchOfBeets = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Bunch_Of_Beets);
     public static final ItemBlockWoodenCrate ItemCrateOfBeets = new ItemBlockWoodenCrate(ModRegistry.CrateOfBeets, ItemWoodenCrate.CrateType.Crate_Of_Beets);
 
+    public static final Item Pencil = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+    public static final Item BlankBlueprint = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+
     /* *********************************** Blueprint Items *********************************** */
     public static final ItemInstantBridge InstantBridge = new ItemInstantBridge();
     public static final ItemModerateHouse ModerateHouse = new ItemModerateHouse();
@@ -360,6 +363,9 @@ public class ModRegistry {
         ModRegistry.registerItem("item_crate_of_carrots", ModRegistry.ItemCrateOfCarrots);
         ModRegistry.registerItem("item_bunch_of_beets", ModRegistry.BunchOfBeets);
         ModRegistry.registerItem("item_crate_of_beets", ModRegistry.ItemCrateOfBeets);
+
+        ModRegistry.registerItem("item_pencil", ModRegistry.Pencil);
+        ModRegistry.registerItem("item_blank_blueprint", ModRegistry.BlankBlueprint);
     }
 
     private static void registerBluePrints() {

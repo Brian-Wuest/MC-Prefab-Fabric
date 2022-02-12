@@ -3,19 +3,25 @@
   "configName": "Drafting Table",
   "group": "Drafting Table",
   "pattern": [
-    "aaa",
-    "bcb",
-    "ccc"
+    "ab ",
+    "cdc",
+    "e e"
   ],
   "key": {
     "a": {
-      "item": "minecraft:paper"
+      "item": "prefab:item_pencil"
     },
     "b": {
-      "item": "prefab:block_compressed_quartz_crete"
+      "item": "prefab:item_blank_blueprint"
     },
     "c": {
-      "item": "prefab:item_bundle_of_timber"
+      "item": "minecraft:stick"
+    },
+    "d": {
+      "item": "minecraft:diorite"
+    },
+    "e": {
+      "tag": "minecraft:planks"
     }
   },
   "result": {

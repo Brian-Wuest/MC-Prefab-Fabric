@@ -113,6 +113,9 @@
   "item.prefab.item_bunch_of_beets": "Горсть Свёклы",
   "block.prefab.item_crate_of_beets": "Ящик Свёклы",
 
+  "item.prefab.item_pencil": "Карандаш",
+  "item.prefab.item_blank_blueprint": "Пустой план",
+
   "block.prefab.block_compressed_stone": "Сжатый Камень",
   "block.prefab.block_double_compressed_stone": "Двойной Сжатый Камень",
   "block.prefab.block_triple_compressed_stone": "Тройной Сжатый Камень",

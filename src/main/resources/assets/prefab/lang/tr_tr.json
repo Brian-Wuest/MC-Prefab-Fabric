@@ -114,6 +114,9 @@
   "item.prefab.item_bunch_of_beets": "pancar demeti",
   "block.prefab.item_crate_of_beets": "Pancar Sandığı",
 
+  "item.prefab.item_pencil": "Kalem",
+  "item.prefab.item_blank_blueprint": "boş plan",
+
   "block.prefab.block_compressed_stone": "Sıkıştırılmış Taş",
   "block.prefab.block_double_compressed_stone": "Çifte Sıkıştırılmış Taş",
   "block.prefab.block_triple_compressed_stone": "Üçlü Sıkıştırılmış Taş",

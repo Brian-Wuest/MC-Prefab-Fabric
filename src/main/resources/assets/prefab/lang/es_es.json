@@ -113,6 +113,9 @@
   "item.prefab.item_bunch_of_beets": "Manojo de remolachas",
   "block.prefab.item_crate_of_beets": "Caja de remolachas",
 
+  "item.prefab.item_pencil": "Lápiz",
+  "item.prefab.item_blank_blueprint": "plano en blanco",
+
   "block.prefab.block_compressed_stone": "Piedra comprimida",
   "block.prefab.block_double_compressed_stone": "Doble piedra comprimida",
   "block.prefab.block_triple_compressed_stone": "Triple piedra comprimida",

@@ -113,6 +113,9 @@
     "item.prefab.item_bunch_of_beets": "Жменя Буряків",
     "block.prefab.item_crate_of_beets": "Ящик Буряків",
 
+    "item.prefab.item_pencil": "олівець",
+    "item.prefab.item_blank_blueprint": "Пустий план",
+
     "block.prefab.block_compressed_stone": "Стиснений Камінь",
     "block.prefab.block_double_compressed_stone": "Подвійно Стиснений Камінь",
     "block.prefab.block_triple_compressed_stone": "Потрійно Стиснений Камінь",

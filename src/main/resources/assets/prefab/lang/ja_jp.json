@@ -113,6 +113,9 @@
   "item.prefab.item_bunch_of_beets": "ビートの束",
   "block.prefab.item_crate_of_beets": "ビートの箱",
 
+  "item.prefab.item_pencil": "鉛筆",
+  "item.prefab.item_blank_blueprint": "空白の青写真",
+
   "block.prefab.block_compressed_stone": "圧縮石",
   "block.prefab.block_double_compressed_stone": "二重圧縮石",
   "block.prefab.block_triple_compressed_stone": "三重圧縮ストーン",

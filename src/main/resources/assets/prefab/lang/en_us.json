@@ -113,6 +113,9 @@
   "item.prefab.item_bunch_of_beets": "Bunch of Beets",
   "block.prefab.item_crate_of_beets": "Crate of Beets",
 
+  "item.prefab.item_pencil": "Pencil",
+  "item.prefab.item_blank_blueprint": "Blank Blueprint",
+
   "block.prefab.block_compressed_stone": "Compressed Stone",
   "block.prefab.block_double_compressed_stone": "Double Compressed Stone",
   "block.prefab.block_triple_compressed_stone": "Triple Compressed Stone",

@@ -113,6 +113,9 @@
   "item.prefab.item_bunch_of_beets": "一串甜菜",
   "block.prefab.item_crate_of_beets": "一箱甜菜",
 
+  "item.prefab.item_pencil": "铅笔",
+  "item.prefab.item_blank_blueprint": "空白蓝图",
+
   "block.prefab.block_compressed_stone": "压缩石头",
   "block.prefab.block_double_compressed_stone": "双倍压缩石头",
   "block.prefab.block_triple_compressed_stone": "三倍压缩石头",

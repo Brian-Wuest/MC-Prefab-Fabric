@@ -113,6 +113,9 @@
   "item.prefab.item_bunch_of_beets": "mazzo di barbabietole",
   "block.prefab.item_crate_of_beets": "Cassa di barbabietole",
 
+  "item.prefab.item_pencil": "Matita",
+  "item.prefab.item_blank_blueprint": "Progetto vuoto",
+
   "block.prefab.block_compressed_stone": "Pietra Compressa",
   "block.prefab.block_double_compressed_stone": "Pietra Doppiamente Compressa",
   "block.prefab.block_triple_compressed_stone": "Pietra Triplamente Compressa",
