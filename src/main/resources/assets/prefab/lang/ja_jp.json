@@ -150,7 +150,8 @@
   "block.prefab.block_quartz_crete_smooth_stairs": "滑らかなコンクリートクォーツ階段",
   "block.prefab.block_quartz_crete_smooth_slab": "滑らかなコンクリートクォーツスラブ",
 
-  "block.prefab.block_structure_scanner": "Structure Scanner",
+  "block.prefab.block_structure_scanner": "建物のスキャナー",
+  "block.prefab.block_drafting_table": "製図台",
 
   "prefab.gui.cleared_area": "クリアされたエリアは、あなたが向いている方向になります。",
 

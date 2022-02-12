@@ -150,7 +150,8 @@
   "block.prefab.block_quartz_crete_smooth_stairs": "Escaleras de Cuarzo de Concreto Liso",
   "block.prefab.block_quartz_crete_smooth_slab": "Losa de cuarzo de hormigón liso",
 
-  "block.prefab.block_structure_scanner": "Structure Scanner",
+  "block.prefab.block_structure_scanner": "Escáner de construcción",
+  "block.prefab.block_drafting_table": "Mesa de dibujo",
 
   "prefab.gui.producefarm.structure.size": "Esta estructura es 32x32 bloques de tamaño.",
 

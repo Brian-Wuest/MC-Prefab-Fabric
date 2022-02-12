@@ -1,0 +1,25 @@
+{
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Drafting Table",
+  "group": "Drafting Table",
+  "pattern": [
+    "aaa",
+    "bcb",
+    "ccc"
+  ],
+  "key": {
+    "a": {
+      "item": "minecraft:paper"
+    },
+    "b": {
+      "item": "prefab:block_compressed_quartz_crete"
+    },
+    "c": {
+      "item": "prefab:item_bundle_of_timber"
+    }
+  },
+  "result": {
+    "item": "prefab:block_drafting_table",
+    "count": 1
+  }
+}

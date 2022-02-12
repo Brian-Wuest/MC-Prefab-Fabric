@@ -213,6 +213,7 @@ public class ModConfiguration implements ConfigData {
         public static String bunchOfPotatoesKey = "Bunch Of Potatoes";
         public static String woodenCrateKey = "WoodenCrate";
         public static String quartzCreteKey = "Quartz-Crete";
+        public static String draftingTableKey = "Drafting Table";
 
         public static String[] Keys = new String[]
                 {ConfigKeyNames.compressedStoneKey, ConfigKeyNames.compressedGlowStoneKey, ConfigKeyNames.compressedDirtKey, ConfigKeyNames.compressedChestKey, ConfigKeyNames.pileOfBricksKey,
@@ -226,7 +227,8 @@ public class ModConfiguration implements ConfigData {
                         ConfigKeyNames.bulldozerKey,ConfigKeyNames.jailKey, ConfigKeyNames.saloonKey, ConfigKeyNames.skiLodgeKey, ConfigKeyNames.windMillKey,
                         ConfigKeyNames.townHallKey, ConfigKeyNames.heapOfTimberKey, ConfigKeyNames.tonOfTimberKey, ConfigKeyNames.workshopKey, ConfigKeyNames.modernBuildingsKey,
                         ConfigKeyNames.swiftBladeKey, ConfigKeyNames.sickleKey, ConfigKeyNames.dirtRecipesKey, ConfigKeyNames.bunchOfBeetsKey, ConfigKeyNames.bunchOfCarrotsKey, ConfigKeyNames.bunchOfPotatoesKey,
-                        ConfigKeyNames.woodenCrateKey, ConfigKeyNames.starterFarmKey, ConfigKeyNames.moderateFarmKey, ConfigKeyNames.advancedFarmKey, ConfigKeyNames.quartzCreteKey};
+                        ConfigKeyNames.woodenCrateKey, ConfigKeyNames.starterFarmKey, ConfigKeyNames.moderateFarmKey, ConfigKeyNames.advancedFarmKey, ConfigKeyNames.quartzCreteKey,
+                        ConfigKeyNames.draftingTableKey};
 
         // Config file option names.
         static String includeSpawnersInMasherName = "Include Spawners in Monster Masher";

@@ -30,6 +30,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
@@ -95,6 +96,7 @@ public class ModRegistry {
     public static final WallBlock SmoothQuartzCreteWall = new WallBlock(Block.Properties.copy(ModRegistry.SmoothQuartzCrete));
     public static final BlockCustomStairs SmoothQuartzCreteStairs = new BlockCustomStairs(ModRegistry.SmoothQuartzCrete.defaultBlockState(), Block.Properties.copy(ModRegistry.SmoothQuartzCrete));
     public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(Block.Properties.copy(SmoothQuartzCrete));
+    public static final Block DraftingTable = new BlockDraftingTable();
 
     /* *********************************** Messages *********************************** */
     public static final ResourceLocation ConfigSync = new ResourceLocation(Prefab.MODID, "config_sync");
@@ -144,6 +146,7 @@ public class ModRegistry {
     public static final BlockItem SmoothQuartzCreteWallItem = new BlockItem(ModRegistry.SmoothQuartzCreteWall, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem SmoothQuartzCreteStairsItem = new BlockItem(ModRegistry.SmoothQuartzCreteStairs, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem SmoothQuartzCreteSlabItem = new BlockItem(ModRegistry.SmoothQuartzCreteSlab, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+    public static final BlockItem DraftingTableItem = new BlockItem(ModRegistry.DraftingTable, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
 
     /* *********************************** Items *********************************** */
     public static final Item ItemPileOfBricks = new BlockItem(ModRegistry.PileOfBricks, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
@@ -314,6 +317,7 @@ public class ModRegistry {
         ModRegistry.registerBlock("block_quartz_crete_smooth_wall", ModRegistry.SmoothQuartzCreteWall);
         ModRegistry.registerBlock("block_quartz_crete_smooth_stairs", ModRegistry.SmoothQuartzCreteStairs);
         ModRegistry.registerBlock("block_quartz_crete_smooth_slab", ModRegistry.SmoothQuartzCreteSlab);
+        ModRegistry.registerBlock("block_drafting_table", ModRegistry.DraftingTable);
     }
 
     private static void registerItems() {
@@ -432,6 +436,7 @@ public class ModRegistry {
         ModRegistry.registerItem("block_quartz_crete_smooth_wall", ModRegistry.SmoothQuartzCreteWallItem);
         ModRegistry.registerItem("block_quartz_crete_smooth_stairs", ModRegistry.SmoothQuartzCreteStairsItem);
         ModRegistry.registerItem("block_quartz_crete_smooth_slab", ModRegistry.SmoothQuartzCreteSlabItem);
+        ModRegistry.registerItem("block_drafting_table", ModRegistry.DraftingTableItem);
     }
 
     /**

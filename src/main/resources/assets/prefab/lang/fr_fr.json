@@ -150,7 +150,8 @@
   "block.prefab.block_quartz_crete_smooth_stairs": "Escalier de quartz en béton lisse",
   "block.prefab.block_quartz_crete_smooth_slab": "Dalle de quartz en béton lisse",
 
-  "block.prefab.block_structure_scanner": "Structure Scanner",
+  "block.prefab.block_structure_scanner": "Scanner de bâtiment",
+  "block.prefab.block_drafting_table": "Table à dessin",
 
   "prefab.gui.producefarm.structure.size": "Cette structure est 32x32 blocs de taille.",
 

@@ -150,7 +150,8 @@
   "block.prefab.block_quartz_crete_smooth_stairs": "光滑的混凝土石英楼梯",
   "block.prefab.block_quartz_crete_smooth_slab": "光滑混凝土石英板",
 
-  "block.prefab.block_structure_scanner": "Structure Scanner",
+  "block.prefab.block_structure_scanner": "建筑扫描仪",
+  "block.prefab.block_drafting_table": "绘图表",
 
   "prefab.gui.cleared_area": "你面朝方向的一片区域将被清除。",
 

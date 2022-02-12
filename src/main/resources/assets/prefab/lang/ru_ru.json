@@ -150,7 +150,8 @@
   "block.prefab.block_quartz_crete_smooth_stairs": "Гладкие Бетонно-Кварцевые Ступеньки",
   "block.prefab.block_quartz_crete_smooth_slab": "Гладкая Бетонно-Кварцевая Плита",
 
-  "block.prefab.block_structure_scanner": "Сканер Структур",
+  "block.prefab.block_structure_scanner": "Строительный сканер",
+  "block.prefab.block_drafting_table": "Чертежный стол",
 
   "prefab.gui.cleared_area": "Очищенная область будет находиться в направлении, куда вы смотрите",
 

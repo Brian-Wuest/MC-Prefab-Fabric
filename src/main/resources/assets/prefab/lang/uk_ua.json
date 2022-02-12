@@ -150,7 +150,8 @@
     "block.prefab.block_quartz_crete_smooth_stairs": "Гладкі Кварцово-Бетонні Сходи",
     "block.prefab.block_quartz_crete_smooth_slab": "Гладка Кварцово-Бетонна Плита",
 
-    "block.prefab.block_structure_scanner": "Сканер Структур",
+    "block.prefab.block_structure_scanner": "Будівельний сканер",
+    "block.prefab.block_drafting_table": "Чертежна таблиця",
 
     "prefab.gui.cleared_area": "Очищена зона буде в тому напрямку, в який ви спрямовані.",
 

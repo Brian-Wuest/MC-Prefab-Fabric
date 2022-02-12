@@ -150,7 +150,8 @@
   "block.prefab.block_quartz_crete_smooth_stairs": "Scale di quarzo in cemento liscio",
   "block.prefab.block_quartz_crete_smooth_slab": "Lastra di quarzo in cemento liscio",
 
-  "block.prefab.block_structure_scanner": "Structure Scanner",
+  "block.prefab.block_structure_scanner": "Scanner per edifici",
+  "block.prefab.block_drafting_table": "Tavolo da disegno",
 
   "prefab.gui.cleared_area": "L'area verrà sgombrata nella direzione che stai guardando.",
 
