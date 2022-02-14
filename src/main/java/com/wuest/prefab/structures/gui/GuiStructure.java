@@ -33,7 +33,9 @@ public abstract class GuiStructure extends GuiBase {
     protected Button btnBuild;
     protected Button btnVisualize;
     protected ResourceLocation structureImageLocation;
-    private Direction structureFacing;
+    protected StructureConfiguration configuration;
+    protected Structure selectedStructure;
+    protected Direction structureFacing;
 
     public GuiStructure(String title) {
         super(title);
@@ -98,21 +100,19 @@ public abstract class GuiStructure extends GuiBase {
     /**
      * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
      */
-    protected void performCancelOrBuildOrHouseFacing(StructureConfiguration configuration, AbstractButton button) {
-        configuration.houseFacing = this.structureFacing;
-
+    protected void performCancelOrBuildOrHouseFacing(AbstractButton button) {
         if (button == this.btnCancel) {
             this.closeScreen();
         } else if (button == this.btnBuild) {
-            FriendlyByteBuf messagePacket = Utils.createStructureMessageBuffer(configuration.WriteToCompoundTag(), this.structureConfiguration);
+            FriendlyByteBuf messagePacket = Utils.createStructureMessageBuffer(this.configuration.WriteToCompoundTag(), this.structureConfiguration);
             ClientPlayNetworking.send(ModRegistry.StructureBuild, messagePacket);
 
             this.closeScreen();
         }
     }
 
-    protected void performPreview(Structure structure, StructureConfiguration structureConfiguration) {
-        StructureRenderHandler.setStructure(structure, structureConfiguration);
+    protected void performPreview() {
+        StructureRenderHandler.setStructure(this.selectedStructure, this.configuration);
         this.closeScreen();
     }
 }

@@ -35,7 +35,7 @@ public class GuiStartHouseChooser extends GuiStructure {
     private GuiCheckBox btnAddMineShaft;
     private boolean allowItemsInChestAndFurnace = true;
 
-    private HouseConfiguration configuration;
+    private HouseConfiguration specificConfiguration;
 
     public GuiStartHouseChooser() {
         super("Starter House");
@@ -61,8 +61,10 @@ public class GuiStartHouseChooser extends GuiStructure {
         }
 
         this.serverConfiguration = Prefab.serverConfiguration;
-        this.configuration = ClientModRegistry.playerConfig.getClientConfig("Starter House", HouseConfiguration.class);
+        this.configuration = this.specificConfiguration = ClientModRegistry.playerConfig.getClientConfig("Starter House", HouseConfiguration.class);
         this.configuration.pos = this.pos;
+
+        this.selectedStructure = StructureAlternateStart.CreateInstance(this.specificConfiguration.houseStyle.getStructureLocation(), StructureAlternateStart.class);
 
         // Get the upper left hand corner of the GUI box.
         Tuple<Integer, Integer> adjustedXYValue = this.getAdjustedXYValue();
@@ -70,12 +72,12 @@ public class GuiStartHouseChooser extends GuiStructure {
         int grayBoxY = adjustedXYValue.getSecond();
 
         // Create the buttons.
-        this.btnHouseStyle = this.createAndAddButton(grayBoxX + 8, grayBoxY + 25, 90, 20, this.configuration.houseStyle.getDisplayName(), false, GuiLangKeys.translateString(GuiLangKeys.STARTER_HOUSE_STYLE));
-        this.btnBedColor = this.createAndAddDyeButton(grayBoxX + 8, grayBoxY + 60, 90, 20, this.configuration.bedColor, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR));
-        this.btnGlassColor = this.createAndAddFullDyeButton(grayBoxX + 8, grayBoxY + 95, 90, 20, this.configuration.glassColor, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_GLASS));
-        this.btnAddChest = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 120, GuiLangKeys.STARTER_HOUSE_ADD_CHEST, this.configuration.addChest, this::buttonClicked);
-        this.btnAddMineShaft = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 137, GuiLangKeys.STARTER_HOUSE_BUILD_MINESHAFT, this.configuration.addChestContents, this::buttonClicked);
-        this.btnAddChestContents = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 154, GuiLangKeys.STARTER_HOUSE_ADD_CHEST_CONTENTS, this.configuration.addMineShaft, this::buttonClicked);
+        this.btnHouseStyle = this.createAndAddButton(grayBoxX + 8, grayBoxY + 25, 90, 20, this.specificConfiguration.houseStyle.getDisplayName(), false, GuiLangKeys.translateString(GuiLangKeys.STARTER_HOUSE_STYLE));
+        this.btnBedColor = this.createAndAddDyeButton(grayBoxX + 8, grayBoxY + 60, 90, 20, this.specificConfiguration.bedColor, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR));
+        this.btnGlassColor = this.createAndAddFullDyeButton(grayBoxX + 8, grayBoxY + 95, 90, 20, this.specificConfiguration.glassColor, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_GLASS));
+        this.btnAddChest = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 120, GuiLangKeys.STARTER_HOUSE_ADD_CHEST, this.specificConfiguration.addChest, this::buttonClicked);
+        this.btnAddMineShaft = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 137, GuiLangKeys.STARTER_HOUSE_BUILD_MINESHAFT, this.specificConfiguration.addChestContents, this::buttonClicked);
+        this.btnAddChestContents = this.createAndAddCheckBox(grayBoxX + 8, grayBoxY + 154, GuiLangKeys.STARTER_HOUSE_ADD_CHEST_CONTENTS, this.specificConfiguration.addMineShaft, this::buttonClicked);
 
         // Create the standard buttons.
         this.btnVisualize = this.createAndAddCustomButton(grayBoxX + 26, grayBoxY + 177, 90, 20, GuiLangKeys.GUI_BUTTON_PREVIEW);
@@ -98,7 +100,7 @@ public class GuiStartHouseChooser extends GuiStructure {
         int imageLocation = imagePanelUpperLeft + (imagePanelMiddle - middleOfImage);
 
         GuiUtils.bindAndDrawScaledTexture(
-                this.configuration.houseStyle.getHousePicture(),
+                this.specificConfiguration.houseStyle.getHousePicture(),
                 matrixStack,
                 imageLocation,
                 y + 15,
@@ -129,30 +131,30 @@ public class GuiStartHouseChooser extends GuiStructure {
      */
     @Override
     public void buttonClicked(AbstractButton button) {
-        this.configuration.addBed = this.serverConfiguration.starterHouseOptions.addBed;
-        this.configuration.addChest = this.serverConfiguration.starterHouseOptions.addChests && this.btnAddChest.isChecked();
-        this.configuration.addChestContents = this.allowItemsInChestAndFurnace && (this.serverConfiguration.starterHouseOptions.addChestContents && this.btnAddChestContents.isChecked());
-        this.configuration.addCraftingTable = this.serverConfiguration.starterHouseOptions.addCraftingTable;
-        this.configuration.addFurnace = this.serverConfiguration.starterHouseOptions.addFurnace;
-        this.configuration.addMineShaft = this.serverConfiguration.starterHouseOptions.addMineshaft && this.btnAddMineShaft.isChecked();
-        this.configuration.addTorches = this.serverConfiguration.chestOptions.addTorches;
+        this.specificConfiguration.addBed = this.serverConfiguration.starterHouseOptions.addBed;
+        this.specificConfiguration.addChest = this.serverConfiguration.starterHouseOptions.addChests && this.btnAddChest.isChecked();
+        this.specificConfiguration.addChestContents = this.allowItemsInChestAndFurnace && (this.serverConfiguration.starterHouseOptions.addChestContents && this.btnAddChestContents.isChecked());
+        this.specificConfiguration.addCraftingTable = this.serverConfiguration.starterHouseOptions.addCraftingTable;
+        this.specificConfiguration.addFurnace = this.serverConfiguration.starterHouseOptions.addFurnace;
+        this.specificConfiguration.addMineShaft = this.serverConfiguration.starterHouseOptions.addMineshaft && this.btnAddMineShaft.isChecked();
+        this.specificConfiguration.addTorches = this.serverConfiguration.chestOptions.addTorches;
         this.configuration.houseFacing = this.getMinecraft().player.getDirection().getOpposite();
 
-        this.performCancelOrBuildOrHouseFacing(this.configuration, button);
+        this.performCancelOrBuildOrHouseFacing(button);
 
         if (button == this.btnHouseStyle) {
-            int id = this.configuration.houseStyle.getValue() + 1;
-            this.configuration.houseStyle = HouseConfiguration.HouseStyle.ValueOf(id);
-            GuiUtils.setButtonText(btnHouseStyle, this.configuration.houseStyle.getDisplayName());
+            int id = this.specificConfiguration.houseStyle.getValue() + 1;
+            this.specificConfiguration.houseStyle = HouseConfiguration.HouseStyle.ValueOf(id);
+            this.selectedStructure = StructureAlternateStart.CreateInstance(this.specificConfiguration.houseStyle.getStructureLocation(), StructureAlternateStart.class);
+            GuiUtils.setButtonText(btnHouseStyle, this.specificConfiguration.houseStyle.getDisplayName());
         } else if (button == this.btnGlassColor) {
-            this.configuration.glassColor = FullDyeColor.byId(this.configuration.glassColor.getId() + 1);
-            GuiUtils.setButtonText(this.btnGlassColor, GuiLangKeys.translateFullDye(this.configuration.glassColor));
+            this.specificConfiguration.glassColor = FullDyeColor.byId(this.specificConfiguration.glassColor.getId() + 1);
+            GuiUtils.setButtonText(this.btnGlassColor, GuiLangKeys.translateFullDye(this.specificConfiguration.glassColor));
         } else if (button == this.btnBedColor) {
-            this.configuration.bedColor = DyeColor.byId(this.configuration.bedColor.getId() + 1);
-            GuiUtils.setButtonText(btnBedColor, GuiLangKeys.translateDye(this.configuration.bedColor));
+            this.specificConfiguration.bedColor = DyeColor.byId(this.specificConfiguration.bedColor.getId() + 1);
+            GuiUtils.setButtonText(btnBedColor, GuiLangKeys.translateDye(this.specificConfiguration.bedColor));
         } else if (button == this.btnVisualize) {
-            StructureAlternateStart structure = StructureAlternateStart.CreateInstance(this.configuration.houseStyle.getStructureLocation(), StructureAlternateStart.class);
-            this.performPreview(structure, this.configuration);
+            this.performPreview();
         }
     }
 }
