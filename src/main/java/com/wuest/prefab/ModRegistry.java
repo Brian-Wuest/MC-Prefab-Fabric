@@ -1,5 +1,8 @@
 package com.wuest.prefab;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.wuest.prefab.blocks.*;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.StructureScannerConfig;
@@ -15,6 +18,7 @@ import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -30,11 +34,15 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -157,6 +165,8 @@ public class ModRegistry {
     public static final Item StringOfLanterns = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item CoilOfLanterns = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item WarehouseUpgrade = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+    public static final Item Pencil = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+    public static final Item BlankBlueprint = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item SwiftBladeWood = new ItemSwiftBlade(Tiers.WOOD, 2, .5f);
     public static final Item SwiftBladeStone = new ItemSwiftBlade(Tiers.STONE, 2, .5f);
     public static final Item SwiftBladeIron = new ItemSwiftBlade(Tiers.IRON, 2, .5f);
@@ -174,7 +184,6 @@ public class ModRegistry {
     public static final ItemSickle SickleIron = new ItemSickle(Tiers.IRON);
     public static final ItemSickle SickleDiamond = new ItemSickle(Tiers.DIAMOND);
     public static final ItemSickle SickleNetherite = new ItemSickle(Tiers.NETHERITE);
-
     // Note: Empty crate must be registered first to avoid null-pointer errors with the rest of the ItemWoodenCrate items.
     public static final ItemBlockWoodenCrate ItemEmptyCrate = new ItemBlockWoodenCrate(ModRegistry.EmptyCrate, ItemWoodenCrate.CrateType.Empty);
     public static final ItemWoodenCrate ClutchOfEggs = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Clutch_Of_Eggs);
@@ -185,10 +194,6 @@ public class ModRegistry {
     public static final ItemBlockWoodenCrate ItemCrateOfCarrots = new ItemBlockWoodenCrate(ModRegistry.CrateOfCarrots, ItemWoodenCrate.CrateType.Crate_Of_Carrots);
     public static final ItemWoodenCrate BunchOfBeets = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Bunch_Of_Beets);
     public static final ItemBlockWoodenCrate ItemCrateOfBeets = new ItemBlockWoodenCrate(ModRegistry.CrateOfBeets, ItemWoodenCrate.CrateType.Crate_Of_Beets);
-
-    public static final Item Pencil = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
-    public static final Item BlankBlueprint = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
-
     /* *********************************** Blueprint Items *********************************** */
     public static final ItemInstantBridge InstantBridge = new ItemInstantBridge();
     public static final ItemModerateHouse ModerateHouse = new ItemModerateHouse();
@@ -249,9 +254,11 @@ public class ModRegistry {
 
         ModRegistry.registerItemBlocks();
 
-        ModRegistry.RegisterClientToServerMessageHandlers();
+        ModRegistry.registerClientToServerMessageHandlers();
 
-        ModRegistry.RegisterRecipeSerializers();
+        ModRegistry.registerRecipeSerializers();
+
+        ModRegistry.registerCustomStructures();
     }
 
     private static void registerSounds() {
@@ -448,7 +455,7 @@ public class ModRegistry {
     /**
      * This is where the mod messages are registered.
      */
-    private static void RegisterClientToServerMessageHandlers() {
+    private static void registerClientToServerMessageHandlers() {
 
         ModRegistry.registerStructureBuilderMessageHandler();
 
@@ -457,10 +464,56 @@ public class ModRegistry {
         ModRegistry.registerStructureScannerActionMessageHandler();
     }
 
-    private static void RegisterRecipeSerializers() {
+    private static void registerRecipeSerializers() {
         Registry.register(Registry.RECIPE_SERIALIZER, new ResourceLocation(Prefab.MODID, "condition_crafting_shaped"), ModRegistry.ConditionedShapedRecipeSeriaizer);
         Registry.register(Registry.RECIPE_SERIALIZER, new ResourceLocation(Prefab.MODID, "condition_crafting_shapeless"), ModRegistry.ConditionedShapelessRecipeSeriaizer);
         Registry.register(Registry.RECIPE_SERIALIZER, new ResourceLocation(Prefab.MODID, "condition_smelting"), ModRegistry.ConditionedSmeltingRecipeSeriaizer);
+    }
+
+    private static void registerCustomStructures() {
+        Prefab.configFolder = FabricLoader.getInstance().getConfigDir().resolve(Prefab.MODID);
+
+        // Make sure the main folder exists, if not; try to create it.
+        if (!Files.exists(Prefab.configFolder)) {
+            try {
+                Files.createDirectory(Prefab.configFolder);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        Prefab.customStructuresFolder = Prefab.configFolder.resolve("structure_files");
+
+        // Make sure the main folder exists, if not; try to create it.
+        if (!Files.exists(Prefab.customStructuresFolder)) {
+            try {
+                Files.createDirectory(Prefab.customStructuresFolder);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        // Find every json file in the config directory
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(Prefab.configFolder, "*.json")) {
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
+            ds.forEach(path -> {
+                try (Reader reader = Files.newBufferedReader(path)) {
+                    // TODO: Create classes to contain data.
+                    // TODO: Ensure that specified structure zip file exists.
+                    ////Object contents = gson.fromJson(reader, Object.class);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JsonSyntaxException js) {
+                    Prefab.logger.error("There was a problem loading a custom structure on path {}.\r\nThe error is: {}", path.toString(), js.getLocalizedMessage());
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void registerBlock(String registryName, Block block) {
