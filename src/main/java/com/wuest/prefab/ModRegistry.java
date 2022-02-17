@@ -112,7 +112,9 @@ public class ModRegistry {
     public static final ResourceLocation StructureBuild = new ResourceLocation(Prefab.MODID, "structure_build");
     public static final ResourceLocation StructureScannerSync = new ResourceLocation(Prefab.MODID, "structure_scanner_sync");
     public static final ResourceLocation StructureScannerAction = new ResourceLocation(Prefab.MODID, "structure_scanner_action");
-    public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
+    public static final ResourceLocation CustomStructureSync = new ResourceLocation(Prefab.MODID, "custom_structure_sync");
+
+    /* *********************************** Item Group *********************************** */
     public static final Item LogoItem = new Item(new Item.Properties());
     public static final CreativeModeTab PREFAB_GROUP = FabricItemGroupBuilder.build(
             new ResourceLocation(Prefab.MODID, "logo"),
@@ -157,6 +159,7 @@ public class ModRegistry {
     public static final BlockItem DraftingTableItem = new BlockItem(ModRegistry.DraftingTable, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
 
     /* *********************************** Items *********************************** */
+    public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
     public static final Item ItemPileOfBricks = new BlockItem(ModRegistry.PileOfBricks, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item ItemPalletOfBricks = new BlockItem(ModRegistry.PalletOfBricks, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item ItemBundleOfTimber = new BlockItem(ModRegistry.BundleOfTimber, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
@@ -194,6 +197,7 @@ public class ModRegistry {
     public static final ItemBlockWoodenCrate ItemCrateOfCarrots = new ItemBlockWoodenCrate(ModRegistry.CrateOfCarrots, ItemWoodenCrate.CrateType.Crate_Of_Carrots);
     public static final ItemWoodenCrate BunchOfBeets = new ItemWoodenCrate(ItemWoodenCrate.CrateType.Bunch_Of_Beets);
     public static final ItemBlockWoodenCrate ItemCrateOfBeets = new ItemBlockWoodenCrate(ModRegistry.CrateOfBeets, ItemWoodenCrate.CrateType.Crate_Of_Beets);
+
     /* *********************************** Blueprint Items *********************************** */
     public static final ItemInstantBridge InstantBridge = new ItemInstantBridge();
     public static final ItemModerateHouse ModerateHouse = new ItemModerateHouse();
@@ -525,21 +529,18 @@ public class ModRegistry {
     }
 
     private static void registerStructureBuilderMessageHandler() {
-        ServerSidePacketRegistry.INSTANCE.register(ModRegistry.StructureBuild,
-                (packetContext, attachedData) -> {
-                    // Can only access the "attachedData" on the "network thread" which is here.
-                    StructureTagMessage message = StructureTagMessage.decode(attachedData);
-                    StructureTagMessage.EnumStructureConfiguration structureConfig = message.getStructureConfig();
+        ServerPlayNetworking.registerGlobalReceiver(ModRegistry.StructureBuild, (server, player, handler, buf, responseSender) -> {
+            // Can only access the "attachedData" on the "network thread" which is here.
+            StructureTagMessage message = StructureTagMessage.decode(buf);
+            StructureTagMessage.EnumStructureConfiguration structureConfig = message.getStructureConfig();
 
-                    packetContext.getTaskQueue().execute(() -> {
-                        ServerPlayer serverPlayerEntity = (ServerPlayer) packetContext.getPlayer();
-                        // This is now on the "main" server thread and things can be done in the world!
-                        StructureConfiguration configuration = structureConfig.structureConfig.ReadFromCompoundTag(message.getMessageTag());
+            server.execute(() -> {
+                // This is now on the "main" server thread and things can be done in the world!
+                StructureConfiguration configuration = structureConfig.structureConfig.ReadFromCompoundTag(message.getMessageTag());
 
-                        configuration.BuildStructure(serverPlayerEntity, serverPlayerEntity.getLevel());
-                    });
-                }
-        );
+                configuration.BuildStructure(player, player.getLevel());
+            });
+        });
     }
 
     private static void registerStructureScannerMessageHandler() {

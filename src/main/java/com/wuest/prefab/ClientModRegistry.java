@@ -15,6 +15,7 @@ import com.wuest.prefab.structures.gui.GuiStructure;
 import com.wuest.prefab.structures.items.StructureItem;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 import net.minecraft.client.KeyMapping;
@@ -85,23 +86,23 @@ public class ClientModRegistry {
     }
 
     private static void registerServerToClientMessageHandlers() {
-        ClientSidePacketRegistry.INSTANCE.register(ModRegistry.ConfigSync,
-                (packetContext, attachedData) -> {
+        ClientPlayNetworking.registerGlobalReceiver(ModRegistry.ConfigSync,
+                (client, handler, buf, responseSender) -> {
                     // Can only access the "attachedData" on the "network thread" which is here.
-                    ConfigSyncMessage syncMessage = ConfigSyncMessage.decode(attachedData);
+                    ConfigSyncMessage syncMessage = ConfigSyncMessage.decode(buf);
 
-                    packetContext.getTaskQueue().execute(() -> {
+                    client.execute(() -> {
                         // This is now on the "main" client thread and things can be done in the world!
                         Prefab.serverConfiguration.readFromTag(syncMessage.getMessageTag());
                     });
                 }
         );
 
-        ClientSidePacketRegistry.INSTANCE.register(ModRegistry.PlayerConfigSync, (packetContext, attachedData) -> {
+        ClientPlayNetworking.registerGlobalReceiver(ModRegistry.PlayerConfigSync, (client, handler, buf, responseSender) -> {
             // Can only access the "attachedData" on the "network thread" which is here.
-            PlayerEntityTagMessage syncMessage = PlayerEntityTagMessage.decode(attachedData);
+            PlayerEntityTagMessage syncMessage = PlayerEntityTagMessage.decode(buf);
 
-            packetContext.getTaskQueue().execute(() -> {
+            client.execute(() -> {
                 // This is now on the "main" client thread and things can be done in the world!
                 UUID playerUUID = Minecraft.getInstance().player.getUUID();
 
