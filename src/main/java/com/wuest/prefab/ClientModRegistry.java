@@ -99,7 +99,7 @@ public class ClientModRegistry {
         );
 
         ClientPlayNetworking.registerGlobalReceiver(ModRegistry.PlayerConfigSync, (client, handler, buf, responseSender) -> {
-            // Can only access the "attachedData" on the "network thread" which is here.
+            // Can only access the "buf" on the "network thread" which is here.
             PlayerEntityTagMessage syncMessage = PlayerEntityTagMessage.decode(buf);
 
             client.execute(() -> {
@@ -107,6 +107,19 @@ public class ClientModRegistry {
                 UUID playerUUID = Minecraft.getInstance().player.getUUID();
 
                 ClientModRegistry.playerConfig = EntityPlayerConfiguration.loadFromTag(playerUUID, syncMessage.getMessageTag());
+            });
+        });
+
+        // TODO: Add this logic for handling structure sync.
+        ClientPlayNetworking.registerGlobalReceiver(ModRegistry.CustomStructureSync, (client, handler, buf, responseSender) -> {
+            // Can only access the "buf" on the "network thread" which is here.
+            ////PlayerEntityTagMessage syncMessage = PlayerEntityTagMessage.decode(buf);
+
+            client.execute(() -> {
+                // This is now on the "main" client thread and things can be done in the world!
+                ////UUID playerUUID = client.player.getUUID();
+
+                ////ClientModRegistry.playerConfig = EntityPlayerConfiguration.loadFromTag(playerUUID, syncMessage.getMessageTag());
             });
         });
     }
