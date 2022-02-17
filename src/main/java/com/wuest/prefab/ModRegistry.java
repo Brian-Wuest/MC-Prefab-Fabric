@@ -1,5 +1,6 @@
 package com.wuest.prefab;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -12,6 +13,7 @@ import com.wuest.prefab.recipe.ConditionedShaplessRecipe;
 import com.wuest.prefab.recipe.ConditionedSmeltingRecipe;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration;
 import com.wuest.prefab.structures.config.StructureConfiguration;
+import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.items.*;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
@@ -507,8 +509,18 @@ public class ModRegistry {
                 try (Reader reader = Files.newBufferedReader(path)) {
                     // TODO: Create classes to contain data.
                     // TODO: Ensure that specified structure zip file exists.
-                    ////Object contents = gson.fromJson(reader, Object.class);
+                    CustomStructureInfo contents = gson.fromJson(reader, CustomStructureInfo.class);
 
+                    if (!Strings.isNullOrEmpty(contents.structureFileName)) {
+                        Path structureFilePath = Prefab.customStructuresFolder.resolve(contents.structureFileName);
+
+                        // This has to be a zip file.
+                        if (Files.exists(structureFilePath) && structureFilePath.endsWith(".zip")) {
+                            contents.structureFilePath = structureFilePath;
+
+                            // TODO: Create registry for discovered structures.
+                        }
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JsonSyntaxException js) {
