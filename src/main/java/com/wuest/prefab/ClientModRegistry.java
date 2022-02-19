@@ -10,7 +10,9 @@ import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.screens.GuiStructureScanner;
 import com.wuest.prefab.network.message.ConfigSyncMessage;
+import com.wuest.prefab.network.message.CustomStructureSyncMessage;
 import com.wuest.prefab.network.message.PlayerEntityTagMessage;
+import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.gui.GuiStructure;
 import com.wuest.prefab.structures.items.StructureItem;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -43,6 +45,8 @@ public class ClientModRegistry {
     public static EntityPlayerConfiguration playerConfig = new EntityPlayerConfiguration();
     public static KeyMapping keyBinding;
     public static ArrayList<StructureScannerConfig> structureScanners;
+    public static ArrayList<CustomStructureInfo> ServerRegisteredStructures = new ArrayList<>();
+
     /**
      * The hashmap of mod guis.
      */
@@ -110,16 +114,38 @@ public class ClientModRegistry {
             });
         });
 
-        // TODO: Add this logic for handling structure sync.
         ClientPlayNetworking.registerGlobalReceiver(ModRegistry.CustomStructureSync, (client, handler, buf, responseSender) -> {
             // Can only access the "buf" on the "network thread" which is here.
-            ////PlayerEntityTagMessage syncMessage = PlayerEntityTagMessage.decode(buf);
+            CustomStructureSyncMessage syncMessage = CustomStructureSyncMessage.decode(buf);
 
             client.execute(() -> {
-                // This is now on the "main" client thread and things can be done in the world!
-                ////UUID playerUUID = client.player.getUUID();
+                ArrayList<CustomStructureInfo> tempServerRegisteredStructures = syncMessage.getDecodedStructures();
 
-                ////ClientModRegistry.playerConfig = EntityPlayerConfiguration.loadFromTag(playerUUID, syncMessage.getMessageTag());
+                // Always clear out the list of server registered structures to avoid adding duplicates or from other worlds.
+                ClientModRegistry.ServerRegisteredStructures = new ArrayList<>();
+
+                // Nested loop for server and client custom structures to ensure that everything is in-sync.
+                if (tempServerRegisteredStructures != null && ModRegistry.CustomStructures != null) {
+                    for (CustomStructureInfo serverStructure : tempServerRegisteredStructures) {
+                        boolean foundClientStructure = false;
+
+                        for (CustomStructureInfo clientStructure : ModRegistry.CustomStructures) {
+                            if (serverStructure.infoFileName.equalsIgnoreCase(clientStructure.infoFileName)) {
+                                // Update the server structure to use the client structure file path.
+                                // This is for the preview function.
+                                // Since this path is important for the client is the only piece of information which should come solely from the client.
+                                serverStructure.structureFilePath = clientStructure.structureFilePath;
+                                foundClientStructure = true;
+                                ClientModRegistry.ServerRegisteredStructures.add(serverStructure);
+                                break;
+                            }
+                        }
+
+                        if(foundClientStructure) {
+                            break;
+                        }
+                    }
+                }
             });
         });
     }

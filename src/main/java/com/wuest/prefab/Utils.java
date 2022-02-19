@@ -57,8 +57,13 @@ public class Utils {
 
     public static FriendlyByteBuf createMessageBuffer(CompoundTag tag) {
         TagMessage message = new TagMessage(tag);
+
+        return Utils.createMessageBuffer(message);
+    }
+
+    public static FriendlyByteBuf createMessageBuffer(TagMessage tagMessage) {
         FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-        TagMessage.encode(message, byteBuf);
+        TagMessage.encode(tagMessage, byteBuf);
 
         return byteBuf;
     }

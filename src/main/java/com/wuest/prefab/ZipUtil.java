@@ -1,6 +1,7 @@
 package com.wuest.prefab;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
@@ -9,6 +10,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.zip.DataFormatException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -148,6 +150,27 @@ public class ZipUtil {
 	 */
 	public static String decompressResource(String resourceLocation) {
 		InputStream stream = Prefab.class.getClassLoader().getResourceAsStream(resourceLocation);
+
+		return ZipUtil.decompressStreamToString(stream);
+	}
+
+	public static String decompressFile(Path filePath) {
+		String returnValue = "";
+
+		if (java.nio.file.Files.exists(filePath)) {
+			try {
+				InputStream stream = java.nio.file.Files.newInputStream(filePath);
+
+				returnValue = ZipUtil.decompressStreamToString(stream);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return returnValue;
+	}
+
+	public static String decompressStreamToString(InputStream stream) {
 		byte[] buf;
 		String returnValue = "";
 
