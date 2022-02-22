@@ -103,7 +103,7 @@ public class ModRegistry {
     public static final WallBlock SmoothQuartzCreteWall = new WallBlock(Block.Properties.copy(ModRegistry.SmoothQuartzCrete));
     public static final BlockCustomStairs SmoothQuartzCreteStairs = new BlockCustomStairs(ModRegistry.SmoothQuartzCrete.defaultBlockState(), Block.Properties.copy(ModRegistry.SmoothQuartzCrete));
     public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(Block.Properties.copy(SmoothQuartzCrete));
-    public static final Block DraftingTable = new BlockDraftingTable();
+    public static final BlockDraftingTable DraftingTable = new BlockDraftingTable();
 
     /* *********************************** Messages *********************************** */
     public static final ResourceLocation ConfigSync = new ResourceLocation(Prefab.MODID, "config_sync");
@@ -156,6 +156,8 @@ public class ModRegistry {
     public static final BlockItem SmoothQuartzCreteStairsItem = new BlockItem(ModRegistry.SmoothQuartzCreteStairs, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem SmoothQuartzCreteSlabItem = new BlockItem(ModRegistry.SmoothQuartzCreteSlab, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem DraftingTableItem = new BlockItem(ModRegistry.DraftingTable, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+
+    /* *********************************** Items *********************************** */
     public static final Item ItemPileOfBricks = new BlockItem(ModRegistry.PileOfBricks, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item ItemPalletOfBricks = new BlockItem(ModRegistry.PalletOfBricks, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item ItemBundleOfTimber = new BlockItem(ModRegistry.BundleOfTimber, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
@@ -166,7 +168,6 @@ public class ModRegistry {
     public static final Item WarehouseUpgrade = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item Pencil = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item BlankBlueprint = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
-    /* *********************************** Items *********************************** */
     public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
     public static final Item SwiftBladeWood = new ItemSwiftBlade(Tiers.WOOD, 2, .5f);
     public static final Item SwiftBladeStone = new ItemSwiftBlade(Tiers.STONE, 2, .5f);
