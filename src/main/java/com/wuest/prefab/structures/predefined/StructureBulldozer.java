@@ -6,7 +6,6 @@ import com.wuest.prefab.structures.base.BuildingMethods;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.BulldozerConfiguration;
 import com.wuest.prefab.structures.config.StructureConfiguration;
-import net.fabricmc.fabric.impl.tool.attribute.ToolManagerImpl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -68,9 +67,9 @@ public class StructureBulldozer extends Structure {
         BlockState state = world.getBlockState(blockPos);
         BulldozerConfiguration specificConfiguration = (BulldozerConfiguration) configuration;
 
-        boolean pickAxeEffective = ToolManagerImpl.handleIsEffectiveOnIgnoresVanilla(state, StructureBulldozer.diamondPickaxeStack, null, StructureBulldozer.diamondPickaxe.isCorrectToolForDrops(state));
-        boolean axeEffective = ToolManagerImpl.handleIsEffectiveOnIgnoresVanilla(state, StructureBulldozer.diamondAxeStack, null, StructureBulldozer.diamondAxe.isCorrectToolForDrops(state));
-        boolean shovelEffective = ToolManagerImpl.handleIsEffectiveOnIgnoresVanilla(state, StructureBulldozer.diamondShovelStack, null, StructureBulldozer.diamondShovel.isCorrectToolForDrops(state));
+        boolean pickAxeEffective = StructureBulldozer.diamondPickaxe.isCorrectToolForDrops(state);
+        boolean axeEffective = StructureBulldozer.diamondAxe.isCorrectToolForDrops(state);
+        boolean shovelEffective = StructureBulldozer.diamondShovel.isCorrectToolForDrops(state);
 
         if (!specificConfiguration.creativeMode &&
                 Prefab.serverConfiguration.allowBulldozerToCreateDrops

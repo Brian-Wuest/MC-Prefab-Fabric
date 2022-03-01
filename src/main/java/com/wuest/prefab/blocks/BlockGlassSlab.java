@@ -1,13 +1,18 @@
 package com.wuest.prefab.blocks;
 
+import com.wuest.prefab.Utils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -56,8 +61,8 @@ public class BlockGlassSlab extends GlassBlock implements SimpleWaterloggedBlock
     @Override
     @Environment(EnvType.CLIENT)
     public boolean skipRendering(BlockState state, BlockState adjacentBlockState, Direction side) {
-        Tag<Block> tags = BlockTags.getAllTags().getTag(new ResourceLocation("c", "glass"));
         Block adjacentBlock = adjacentBlockState.getBlock();
+        boolean foundBlock = Utils.doesBlockStateHaveTag(adjacentBlockState, new ResourceLocation("c", "glass"));
 
 		/*
 			Hide this side under the following conditions
@@ -65,7 +70,7 @@ public class BlockGlassSlab extends GlassBlock implements SimpleWaterloggedBlock
 			2. This block and the other block has a matching type.
 			3. The other block is a double slab and this is a single slab.
 		*/
-        return tags.contains(adjacentBlock) || (adjacentBlock == this
+        return foundBlock || (adjacentBlock == this
                 && (adjacentBlockState.getValue(SlabBlock.TYPE) == state.getValue(SlabBlock.TYPE)
                 || (adjacentBlockState.getValue(SlabBlock.TYPE) == SlabType.DOUBLE
                 && state.getValue(SlabBlock.TYPE) != SlabType.DOUBLE)));
