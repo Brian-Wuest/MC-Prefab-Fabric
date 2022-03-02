@@ -81,7 +81,7 @@ public class ModRegistry {
     public static final BlockCustomWall DirtWall = new BlockCustomWall(Blocks.DIRT, BlockCustomWall.EnumType.DIRT);
     public static final BlockDirtStairs DirtStairs = new BlockDirtStairs();
     public static final BlockDirtSlab DirtSlab = new BlockDirtSlab();
-    public static final BlockStructureScanner StructureScanner = new BlockStructureScanner();
+    public static BlockStructureScanner StructureScanner = null;
     public static final BlockRotatableHorizontalShaped PileOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PileOfBricks, Block.Properties.of(Material.CLAY, MaterialColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
     public static final BlockRotatableHorizontalShaped PalletOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PalletOfBricks, Block.Properties.of(Material.CLAY, MaterialColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
     public static final BlockRotatableHorizontalShaped BundleOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.BundleOfTimber, Block.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
@@ -143,7 +143,7 @@ public class ModRegistry {
     public static final BlockItem DirtWallItem = new BlockItem(ModRegistry.DirtWall, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem DirtStairsItem = new BlockItem(ModRegistry.DirtStairs, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem DirtSlabItem = new BlockItem(ModRegistry.DirtSlab, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
-    public static final BlockItem StructureScannerItem = new BlockItem(ModRegistry.StructureScanner, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+    public static BlockItem StructureScannerItem = null;
     public static final BlockItem QuartzCreteItem = new BlockItem(ModRegistry.QuartzCrete, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem QuartzCreteWallItem = new BlockItem(ModRegistry.QuartzCreteWall, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final BlockItem QuartzCreteBricksItem = new BlockItem(ModRegistry.QuartzCreteBricks, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
@@ -250,9 +250,9 @@ public class ModRegistry {
     public static void registerModComponents() {
         ModRegistry.registerSounds();
 
-        ModRegistry.registerBlockEntities();
-
         ModRegistry.registerBlocks();
+
+        ModRegistry.registerBlockEntities();
 
         ModRegistry.registerItems();
 
@@ -319,6 +319,7 @@ public class ModRegistry {
         ModRegistry.registerBlock("item_crate_of_beets", ModRegistry.CrateOfBeets);
 
         if (Prefab.isDebug) {
+            ModRegistry.StructureScanner = new BlockStructureScanner();
             ModRegistry.registerBlock("block_structure_scanner", ModRegistry.StructureScanner);
         }
 
@@ -441,6 +442,7 @@ public class ModRegistry {
         ModRegistry.registerItem("block_dirt_slab", ModRegistry.DirtSlabItem);
 
         if (Prefab.isDebug) {
+            ModRegistry.StructureScannerItem = new BlockItem(ModRegistry.StructureScanner, new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
             ModRegistry.registerItem("block_structure_scanner", ModRegistry.StructureScannerItem);
         }
 
