@@ -6,7 +6,7 @@ import com.wuest.prefab.blocks.BlockCustomWall;
 import com.wuest.prefab.blocks.BlockGrassSlab;
 import com.wuest.prefab.blocks.BlockGrassStairs;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
-import com.wuest.prefab.config.StructureScannerConfig;
+import com.wuest.prefab.config.block_entities.StructureScannerConfig;
 import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.screens.GuiStructureScanner;
 import com.wuest.prefab.network.message.ConfigSyncMessage;
@@ -18,7 +18,6 @@ import com.wuest.prefab.structures.items.StructureItem;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

@@ -3,7 +3,7 @@ package com.wuest.prefab.blocks;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.base.TileBlockBase;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
-import com.wuest.prefab.config.StructureScannerConfig;
+import com.wuest.prefab.config.block_entities.StructureScannerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
