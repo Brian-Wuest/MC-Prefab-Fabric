@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.wuest.prefab.blocks.*;
+import com.wuest.prefab.blocks.entities.DraftingTableBlockEntity;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.block_entities.StructureScannerConfig;
 import com.wuest.prefab.items.*;
@@ -239,6 +240,7 @@ public class ModRegistry {
 
     /* *********************************** Block Entities Types *********************************** */
     public static BlockEntityType<StructureScannerBlockEntity> StructureScannerEntityType;
+    public static BlockEntityType<DraftingTableBlockEntity> DraftingTableEntityType;
 
     /* *********************************** Block Entities *********************************** */
     public static StructureScannerBlockEntity StructureScannerEntity;
@@ -272,13 +274,20 @@ public class ModRegistry {
 
     private static void registerBlockEntities() {
         if (Prefab.isDebug) {
-            StructureScannerEntityType = Registry.register(
+            ModRegistry.StructureScannerEntityType = Registry.register(
                     Registry.BLOCK_ENTITY_TYPE,
                     "prefab:structure_scanner_entity",
                     FabricBlockEntityTypeBuilder
                             .create(StructureScannerBlockEntity::new, ModRegistry.StructureScanner)
                             .build(null));
         }
+
+        ModRegistry.DraftingTableEntityType = Registry.register(
+                Registry.BLOCK_ENTITY_TYPE,
+                "prefab:drafting_table_entity",
+                FabricBlockEntityTypeBuilder
+                        .create(DraftingTableBlockEntity::new, ModRegistry.DraftingTable)
+                        .build(null));
     }
 
     private static void registerBlocks() {
@@ -512,7 +521,7 @@ public class ModRegistry {
                     String fileContents = Files.readString(path);
                     CustomStructureInfo contents = gson.fromJson(fileContents, CustomStructureInfo.class);
 
-                    if (!Strings.isNullOrEmpty(contents.structureFileName)
+                    if (contents != null && !Strings.isNullOrEmpty(contents.structureFileName)
                             && !Strings.isNullOrEmpty(contents.displayName)
                             && contents.requiredItems != null
                             && contents.requiredItems.size() > 0) {
