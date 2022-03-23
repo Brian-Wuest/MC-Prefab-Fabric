@@ -13,14 +13,15 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.DyeColor;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 
@@ -330,6 +331,9 @@ public abstract class GuiBase extends Screen {
                 if (currentButton.visible) {
                     currentButton.renderButton(matrixStack, mouseX, mouseY, this.getMinecraft().getFrameTime());
                 }
+            }
+            else if (button instanceof Widget currentWidget) {
+                currentWidget.render(matrixStack, mouseX, mouseY, this.getMinecraft().getFrameTime());
             }
         }
     }
