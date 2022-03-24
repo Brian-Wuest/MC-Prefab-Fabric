@@ -5,17 +5,21 @@ import com.wuest.prefab.Tuple;
 import com.wuest.prefab.blocks.BlockStructureScanner;
 import com.wuest.prefab.config.block_entities.DraftingTableConfiguration;
 import com.wuest.prefab.gui.GuiBase;
+import com.wuest.prefab.gui.GuiUtils;
 import com.wuest.prefab.gui.controls.GuiListBox;
 import com.wuest.prefab.gui.controls.GuiTextBox;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import com.wuest.prefab.gui.controls.GuiListBox.ListEntry;
 
 import java.awt.*;
 
 public class GuiDraftingTable extends GuiBase {
+    private final ResourceLocation backgroundTexture = new ResourceLocation("prefab", "textures/gui/drafting_table.png");
+
     private final BlockPos blockPos;
     private final Level world;
     private DraftingTableConfiguration config;
@@ -35,8 +39,8 @@ public class GuiDraftingTable extends GuiBase {
     protected void Initialize() {
         super.Initialize();
 
-        this.modifiedInitialXAxis = 170;
-        this.modifiedInitialYAxis = 100;
+        this.modifiedInitialXAxis = 129;
+        this.modifiedInitialYAxis = 120;
 
         Tuple<Integer, Integer> adjustedXYValues = this.getAdjustedXYValue();
         int adjustedX = adjustedXYValues.first;
@@ -58,7 +62,17 @@ public class GuiDraftingTable extends GuiBase {
 
     @Override
     protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        this.drawControlBackground(matrixStack, x, y, 350, 250);
+        GuiUtils.bindAndDrawScaledTexture(
+                this.backgroundTexture,
+                matrixStack,
+                x,
+                y,
+                256,
+                256,
+                256,
+                256,
+                256,
+                256);
     }
 
     @Override
