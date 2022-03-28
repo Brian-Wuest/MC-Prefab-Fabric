@@ -67,7 +67,7 @@ public class GuiDraftingTable extends GuiBase {
     @Override
     protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
-        
+
         GuiUtils.bindAndDrawScaledTexture(
                 this.backgroundTexture,
                 matrixStack,
