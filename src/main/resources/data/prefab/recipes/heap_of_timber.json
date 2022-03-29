@@ -8,11 +8,9 @@
     "###"
   ],
   "key": {
-    "#": [
-      {
-        "item": "prefab:item_bundle_of_timber"
-      }
-    ]
+    "#": {
+      "item": "prefab:item_bundle_of_timber"
+    }
   },
   "result": {
     "item": "prefab:item_heap_of_timber",

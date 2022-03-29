@@ -1,26 +1,22 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "config": "Swift Blade",
-    "group": "Swift Blade",
-    "pattern": [
-        "  a",
-        " a ",
-        "b  "
-    ],
-    "key": {
-        "a": [
-            {
-                "item": "minecraft:gold_ingot"
-            }
-        ],
-        "b" : [
-            {
-                "item": "minecraft:stick"
-            }
-        ]
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Swift Blade",
+  "group": "Swift Blade",
+  "pattern": [
+    "  a",
+    " a ",
+    "b  "
+  ],
+  "key": {
+    "a": {
+      "item": "minecraft:gold_ingot"
     },
-    "result": {
-        "item": "prefab:item_swift_blade_gold",
-        "count": 1
+    "b": {
+      "item": "minecraft:stick"
     }
+  },
+  "result": {
+    "item": "prefab:item_swift_blade_gold",
+    "count": 1
+  }
 }

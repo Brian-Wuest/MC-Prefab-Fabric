@@ -1,26 +1,22 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "config": "Sickle",
-    "group": "Sickle",
-    "pattern": [
-        " a ",
-        "  a",
-        "ba "
-    ],
-    "key": {
-        "a": [
-            {
-                "tag": "minecraft:planks"
-            }
-        ],
-        "b" : [
-            {
-                "item": "minecraft:stick"
-            }
-        ]
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Sickle",
+  "group": "Sickle",
+  "pattern": [
+    " a ",
+    "  a",
+    "ba "
+  ],
+  "key": {
+    "a": {
+      "tag": "minecraft:planks"
     },
-    "result": {
-        "item": "prefab:item_sickle_wood",
-        "count": 1
+    "b": {
+      "item": "minecraft:stick"
     }
+  },
+  "result": {
+    "item": "prefab:item_sickle_wood",
+    "count": 1
+  }
 }

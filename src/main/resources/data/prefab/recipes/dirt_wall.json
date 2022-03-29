@@ -1,20 +1,18 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "config": "Dirt Recipes",
-    "group": "Dirt Recipes",
-    "pattern": [
-        "###",
-        "###"
-    ],
-    "key": {
-        "#": [
-            {
-                "item": "minecraft:dirt"
-            }
-        ]
-    },
-    "result": {
-        "item": "prefab:block_dirt_wall",
-        "count": 6
+  "type": "prefab:condition_crafting_shaped",
+  "config": "Dirt Recipes",
+  "group": "Dirt Recipes",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:dirt"
     }
+  },
+  "result": {
+    "item": "prefab:block_dirt_wall",
+    "count": 6
+  }
 }

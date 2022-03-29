@@ -8,11 +8,9 @@
     "###"
   ],
   "key": {
-    "#": [
-      {
-        "tag": "minecraft:logs"
-      }
-    ]
+    "#": {
+      "tag": "minecraft:logs"
+    }
   },
   "result": {
     "item": "prefab:item_bundle_of_timber",

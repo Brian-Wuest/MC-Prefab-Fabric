@@ -1,26 +1,22 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "configName": "Bunch of Potatoes",
-    "group": "Bunch of Potatoes",
-    "pattern": [
-        "AAA",
-        "ABA",
-        "AAA"
-    ],
-    "key": {
-        "A": [
-            {
-                "item": "prefab:item_bunch_of_potatoes"
-            }
-        ],
-        "B": [
-            {
-                "item": "prefab:item_wooden_crate"
-            }
-        ]
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Bunch of Potatoes",
+  "group": "Bunch of Potatoes",
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "prefab:item_bunch_of_potatoes"
     },
-    "result": {
-        "item": "prefab:item_crate_of_potatoes",
-        "count": 1
+    "B": {
+      "item": "prefab:item_wooden_crate"
     }
+  },
+  "result": {
+    "item": "prefab:item_crate_of_potatoes",
+    "count": 1
+  }
 }

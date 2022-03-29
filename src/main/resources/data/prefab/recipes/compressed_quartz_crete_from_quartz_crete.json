@@ -11,11 +11,9 @@
     "###"
   ],
   "key": {
-    "#": [
-      {
-        "item": "prefab:block_quartz_crete"
-      }
-    ]
+    "#": {
+      "item": "prefab:block_quartz_crete"
+    }
   },
   "result": {
     "item": "prefab:block_compressed_quartz_crete",

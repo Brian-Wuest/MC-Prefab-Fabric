@@ -1,21 +1,19 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "configName": "Bunch of Potatoes",
-    "group": "Bunch of Potatoes",
-    "pattern": [
-        "AAA",
-        "A A",
-        "AAA"
-    ],
-    "key": {
-        "A": [
-            {
-                "item": "minecraft:potato"
-            }
-        ]
-    },
-    "result": {
-        "item": "prefab:item_bunch_of_potatoes",
-        "count": 1
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Bunch of Potatoes",
+  "group": "Bunch of Potatoes",
+  "pattern": [
+    "AAA",
+    "A A",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:potato"
     }
+  },
+  "result": {
+    "item": "prefab:item_bunch_of_potatoes",
+    "count": 1
+  }
 }

@@ -1,20 +1,18 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "config": "Dirt Recipes",
-    "group": "Dirt Recipes",
-    "pattern": [
-        "#",
-        "#"
-    ],
-    "key": {
-        "#": [
-            {
-                "item": "prefab:block_grass_slab"
-            }
-        ]
-    },
-    "result": {
-        "item": "minecraft:grass_block",
-        "count": 1
+  "type": "prefab:condition_crafting_shaped",
+  "config": "Dirt Recipes",
+  "group": "Dirt Recipes",
+  "pattern": [
+    "#",
+    "#"
+  ],
+  "key": {
+    "#": {
+      "item": "prefab:block_grass_slab"
     }
+  },
+  "result": {
+    "item": "minecraft:grass_block",
+    "count": 1
+  }
 }

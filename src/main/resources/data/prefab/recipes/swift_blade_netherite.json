@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shaped",
-  "config": "Swift Blade",
+  "configName": "Swift Blade",
   "group": "Swift Blade",
   "pattern": [
     "  b",
@@ -8,16 +8,12 @@
     "a  "
   ],
   "key": {
-    "a": [
-      {
-        "item": "minecraft:stick"
-      }
-    ],
-    "b": [
-      {
-        "item": "minecraft:netherite_ingot"
-      }
-    ]
+    "a": {
+      "item": "minecraft:stick"
+    },
+    "b": {
+      "item": "minecraft:netherite_ingot"
+    }
   },
   "result": {
     "item": "prefab:item_swift_blade_netherite",

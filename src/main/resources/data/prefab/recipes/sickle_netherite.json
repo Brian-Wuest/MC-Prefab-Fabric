@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shaped",
-  "config": "Sickle",
+  "configName": "Sickle",
   "group": "Sickle",
   "pattern": [
     " a ",
@@ -8,16 +8,12 @@
     "ba "
   ],
   "key": {
-    "a": [
-      {
-        "item": "minecraft:netherite_ingot"
-      }
-    ],
-    "b": [
-      {
-        "item": "minecraft:stick"
-      }
-    ]
+    "a": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "b": {
+      "item": "minecraft:stick"
+    }
   },
   "result": {
     "item": "prefab:item_sickle_netherite",

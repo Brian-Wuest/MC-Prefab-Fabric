@@ -1,21 +1,19 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "configName": "Bunch of Beets",
-    "group": "Bunch of Beets",
-    "pattern": [
-        "AAA",
-        "A A",
-        "AAA"
-    ],
-    "key": {
-        "A": [
-            {
-                "item": "minecraft:beetroot"
-            }
-        ]
-    },
-    "result": {
-        "item": "prefab:item_bunch_of_beets",
-        "count": 1
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Bunch of Beets",
+  "group": "Bunch of Beets",
+  "pattern": [
+    "AAA",
+    "A A",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:beetroot"
     }
+  },
+  "result": {
+    "item": "prefab:item_bunch_of_beets",
+    "count": 1
+  }
 }

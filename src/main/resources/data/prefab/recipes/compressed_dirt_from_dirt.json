@@ -11,11 +11,9 @@
     "###"
   ],
   "key": {
-    "#": [
-      {
-        "item": "minecraft:dirt"
-      }
-    ]
+    "#": {
+      "item": "minecraft:dirt"
+    }
   },
   "result": {
     "item": "prefab:block_compressed_dirt",

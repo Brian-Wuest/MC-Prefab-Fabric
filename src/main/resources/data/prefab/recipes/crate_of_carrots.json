@@ -1,26 +1,22 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "configName": "Bunch of Carrots",
-    "group": "Bunch of Carrots",
-    "pattern": [
-        "AAA",
-        "ABA",
-        "AAA"
-    ],
-    "key": {
-        "A": [
-            {
-                "item": "prefab:item_bunch_of_carrots"
-            }
-        ],
-        "B": [
-            {
-                "item": "prefab:item_wooden_crate"
-            }
-        ]
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Bunch of Carrots",
+  "group": "Bunch of Carrots",
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "prefab:item_bunch_of_carrots"
     },
-    "result": {
-        "item": "prefab:item_crate_of_carrots",
-        "count": 1
+    "B": {
+      "item": "prefab:item_wooden_crate"
     }
+  },
+  "result": {
+    "item": "prefab:item_crate_of_carrots",
+    "count": 1
+  }
 }

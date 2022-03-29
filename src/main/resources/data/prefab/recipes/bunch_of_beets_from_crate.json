@@ -1,16 +1,16 @@
 {
-    "type": "prefab:condition_crafting_shapeless",
-    "configName": "Bunch of Beets",
-    "group": "Bunch of Beets",
-    "ingredients": [
-        {
-            "item": "prefab:item_crate_of_beets",
-            "count": 1,
-            "data": 8
-        }
-    ],
-    "result": {
-        "item": "prefab:item_bunch_of_beets",
-        "count": 8
+  "type": "prefab:condition_crafting_shapeless",
+  "configName": "Bunch of Beets",
+  "group": "Bunch of Beets",
+  "ingredients": [
+    {
+      "item": "prefab:item_crate_of_beets",
+      "count": 1,
+      "data": 8
     }
+  ],
+  "result": {
+    "item": "prefab:item_bunch_of_beets",
+    "count": 8
+  }
 }

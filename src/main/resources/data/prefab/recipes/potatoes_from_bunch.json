@@ -1,15 +1,15 @@
 {
-    "type": "prefab:condition_crafting_shapeless",
-    "configName": "Bunch of Potatoes",
-    "group": "Bunch of Potatoes",
-    "ingredients": [
-        {
-            "item": "prefab:item_bunch_of_potatoes",
-            "count": 1
-        }
-    ],
-    "result": {
-        "item": "minecraft:potato",
-        "count": 8
+  "type": "prefab:condition_crafting_shapeless",
+  "configName": "Bunch of Potatoes",
+  "group": "Bunch of Potatoes",
+  "ingredients": [
+    {
+      "item": "prefab:item_bunch_of_potatoes",
+      "count": 1
     }
+  ],
+  "result": {
+    "item": "minecraft:potato",
+    "count": 8
+  }
 }

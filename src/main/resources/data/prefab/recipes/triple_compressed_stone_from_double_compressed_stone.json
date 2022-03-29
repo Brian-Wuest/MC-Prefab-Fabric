@@ -11,11 +11,9 @@
     "###"
   ],
   "key": {
-    "#": [
-      {
-        "tag": "c:double_compressed_stone"
-      }
-    ]
+    "#": {
+      "tag": "c:double_compressed_stone"
+    }
   },
   "result": {
     "item": "prefab:block_triple_compressed_stone",

@@ -1,21 +1,19 @@
 {
-    "type": "prefab:condition_crafting_shaped",
-    "configName": "Bunch of Eggs",
-    "group": "Bunch of Eggs",
-    "pattern": [
-        "AAA",
-        "A A",
-        "AAA"
-    ],
-    "key": {
-        "A": [
-            {
-                "item": "minecraft:egg"
-            }
-        ]
-    },
-    "result": {
-        "item": "prefab:item_clutch_of_eggs",
-        "count": 1
+  "type": "prefab:condition_crafting_shaped",
+  "configName": "Bunch of Eggs",
+  "group": "Bunch of Eggs",
+  "pattern": [
+    "AAA",
+    "A A",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:egg"
     }
+  },
+  "result": {
+    "item": "prefab:item_clutch_of_eggs",
+    "count": 1
+  }
 }

@@ -7,11 +7,9 @@
     "#"
   ],
   "key": {
-    "#": [
-      {
-        "tag": "c:glass"
-      }
-    ]
+    "#": {
+      "tag": "c:glass"
+    }
   },
   "result": {
     "item": "prefab:block_glass_slab",

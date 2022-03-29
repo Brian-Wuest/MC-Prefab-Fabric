@@ -11,11 +11,9 @@
     "###"
   ],
   "key": {
-    "#": [
-      {
-        "tag": "c:compressed_dirt"
-      }
-    ]
+    "#": {
+      "tag": "c:compressed_dirt"
+    }
   },
   "result": {
     "item": "prefab:block_double_compressed_dirt",

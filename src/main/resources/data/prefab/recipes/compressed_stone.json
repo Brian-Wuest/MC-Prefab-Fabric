@@ -11,11 +11,9 @@
     "###"
   ],
   "key": {
-    "#": [
-      {
-        "item": "minecraft:stone"
-      }
-    ]
+    "#": {
+      "item": "minecraft:stone"
+    }
   },
   "result": {
     "item": "prefab:block_compressed_stone",
