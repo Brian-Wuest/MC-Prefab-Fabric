@@ -1,5 +1,6 @@
 package com.wuest.prefab.gui.controls;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.Utils;
 import net.fabricmc.api.EnvType;
@@ -11,12 +12,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.awt.*;
+import java.util.Collection;
 
 public class GuiListBox extends ObjectSelectionList<GuiListBox.ListEntry> {
-    private final int rowWidth;
-    private final int itemHeight;
-    private final int bufferColor;
-    private final IEntryChanged entryChangedHandler;
+    protected final int rowWidth;
+    protected final int itemHeight;
+    protected final int bufferColor;
+    protected final IEntryChanged entryChangedHandler;
+    protected boolean visible;
 
     /**
      * Initializes a new instance of the GuiListBox class.
@@ -44,6 +47,7 @@ public class GuiListBox extends ObjectSelectionList<GuiListBox.ListEntry> {
         this.y1 = y + height;
         this.bufferColor = bufferColor;
         this.entryChangedHandler = entryChangedHandler;
+        this.visible = true;
     }
 
     @Override
@@ -57,12 +61,17 @@ public class GuiListBox extends ObjectSelectionList<GuiListBox.ListEntry> {
     }
 
     @Override
-    protected void renderDecorations(PoseStack poseStack, int mouseX, int mouseY) {
-        // This fills the area above the control with the buffer color.
-        GuiComponent.fill(poseStack, this.x0, this.y0 - this.itemHeight, this.x1, this.y0, this.bufferColor);
+    public boolean mouseScrolled(double d, double e, double f) {
+        if (!this.visible) {
+            return false;
+        }
 
-        // This fills the area below the control with the buffer color.
-        GuiComponent.fill(poseStack, this.x0, this.y1, this.x1, this.y1 + this.itemHeight, this.bufferColor);
+        return super.mouseScrolled(d, e, f);
+    }
+
+    @Override
+    protected void replaceEntries(Collection<ListEntry> collection) {
+        super.replaceEntries(collection);
     }
 
     @Override
@@ -78,6 +87,28 @@ public class GuiListBox extends ObjectSelectionList<GuiListBox.ListEntry> {
         }
 
         return result;
+    }
+
+    @Override
+    public void render(PoseStack poseStack, int i, int j, float f) {
+        if (this.visible) {
+            double d = this.minecraft.getWindow().getGuiScale();
+            int heightBuffer = (int) (((this.itemHeight / 2) + 4) * d);
+
+            // Scissor help cut off any of the half-way shown items.
+            RenderSystem.enableScissor((int) ((double) this.x0 * d), (int) (this.y1 * d) - (int) (4 * d), (int) (this.width * d) + (int) (4 * d), (int) (this.height * d));
+            super.render(poseStack, i, j, f);
+            RenderSystem.disableScissor();
+        }
+    }
+
+    public boolean getVisible() {
+        return this.visible;
+    }
+
+    public GuiListBox setVisible(boolean value) {
+        this.visible = value;
+        return this;
     }
 
     /**
@@ -179,6 +210,10 @@ public class GuiListBox extends ObjectSelectionList<GuiListBox.ListEntry> {
 
         @Override
         public boolean mouseClicked(double d, double e, int i) {
+            if (!this.parent.visible) {
+                return false;
+            }
+
             this.parent.setSelected(this);
 
             if (this.parent.entryChangedHandler != null) {
