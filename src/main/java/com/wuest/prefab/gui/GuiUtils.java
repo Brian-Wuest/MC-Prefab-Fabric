@@ -164,4 +164,22 @@ public class GuiUtils {
         button.setMessage(Utils.createTextComponent(message));
     }
 
+    /**
+     * Draws the background icon for an item, using a texture from stats.png with the given coords
+     */
+    public static void drawItemBackground(int x, int y) {
+        GuiUtils.bindTexture(GuiComponent.STATS_ICON_LOCATION);
+        float f = 0.0078125F;
+        int i = 18;
+        int j = 18;
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder vertexBuffer = tesselator.getBuilder();
+        vertexBuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        vertexBuffer.vertex(x, (y + i), 0).uv(0, ((float) j * f)).endVertex();
+        vertexBuffer.vertex((x + i), (y + j), 0).uv(((float) j * f), ((float) j * 0.0078125F)).endVertex();
+        vertexBuffer.vertex((x + i), y, 0).uv(((float) j * f), 0).endVertex();
+        vertexBuffer.vertex(x, y, 0).uv(0, 0).endVertex();
+        tesselator.end();
+    }
+
 }
