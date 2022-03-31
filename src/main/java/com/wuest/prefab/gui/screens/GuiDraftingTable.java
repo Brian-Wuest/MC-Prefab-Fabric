@@ -1,7 +1,7 @@
 package com.wuest.prefab.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wuest.prefab.ModRegistry;
+import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.config.block_entities.DraftingTableConfiguration;
 import com.wuest.prefab.gui.GuiBase;
@@ -10,10 +10,12 @@ import com.wuest.prefab.gui.controls.GuiItemList;
 import com.wuest.prefab.gui.controls.GuiListBox;
 import com.wuest.prefab.gui.controls.GuiListBox.ListEntry;
 import com.wuest.prefab.gui.controls.TextureButton;
+import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
+import com.wuest.prefab.structures.custom.base.ItemInfo;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.awt.*;
@@ -38,6 +40,7 @@ public class GuiDraftingTable extends GuiBase {
     private GuiListBox schematicsList;
     private GuiItemList materialsList;
     private boolean showingMaterials;
+    private CustomStructureInfo selectedStructureInfo;
 
     public GuiDraftingTable(BlockPos blockPos, Level world, DraftingTableConfiguration config) {
         super("Drafting Table");
@@ -63,16 +66,8 @@ public class GuiDraftingTable extends GuiBase {
         // Starting position.
         int bufferColor = new Color(198, 198, 198).getRGB();
         this.schematicsList = new GuiListBox(this.minecraft, 157, 100, adjustedX + 7, adjustedY + 22, 16, bufferColor, this::structureListEntryChanged);
-        this.schematicsList.addEntry("Some cool value");
-        this.schematicsList.addEntry("Some other cool value");
-        this.schematicsList.addEntry("Some other new cool value");
-        this.schematicsList.addEntry("Some other old and broken value");
-        this.schematicsList.addEntry("Just some text I wrote when drunk");
-        this.schematicsList.addEntry("Just some other text I wrote when drunk");
-        this.schematicsList.addEntry("Just some new text I wrote when drunk");
-        this.schematicsList.addEntry("Just some old text I wrote when drunk");
-        this.schematicsList.addEntry("Just some other text I wrote when drunk");
-        this.schematicsList.addEntry("Just some super other text I wrote when drunk");
+
+        this.loadCustomStructureEntries();
 
         if (!this.showingMaterials) {
             this.addRenderableWidget(this.schematicsList);
@@ -80,19 +75,8 @@ public class GuiDraftingTable extends GuiBase {
 
         this.materialsList = new GuiItemList(this.minecraft, 157, 100, adjustedX + 7, adjustedY + 22, 22, bufferColor, null);
         this.materialsList.setVisible(this.showingMaterials);
-        this.materialsList.addEntry(ModRegistry.DoubleCompressedQuartzCreteItem, 3, 2);
-        this.materialsList.addEntry(ModRegistry.Pencil, 3, 3);
-        this.materialsList.addEntry(Items.CHEST, 1, 2);
-        this.materialsList.addEntry(Items.GLOW_ITEM_FRAME, 1, 2);
-        this.materialsList.addEntry(Items.ACACIA_SLAB, 1, 2);
-        this.materialsList.addEntry(Items.AZURE_BLUET, 1, 2);
-        this.materialsList.addEntry(Items.BIRCH_STAIRS, 4, 2);
-        this.materialsList.addEntry(Items.INFESTED_STONE_BRICKS, 1, 2);
-        this.materialsList.addEntry(Items.IRON_HOE, 1, 2);
-        this.materialsList.addEntry(Items.GREEN_DYE, 1, 2);
-        this.materialsList.addEntry(Items.GRAY_BED, 2, 2);
-        this.materialsList.addEntry(Items.IRON_CHESTPLATE, 7, 2);
-        this.materialsList.addEntry(Items.IRON_HORSE_ARMOR, 1, 2);
+
+        this.loadMaterialEntries();
 
         if (this.showingMaterials) {
             this.addRenderableWidget(this.materialsList);
@@ -172,5 +156,39 @@ public class GuiDraftingTable extends GuiBase {
     }
 
     public void structureListEntryChanged(ListEntry newEntry) {
+        if (newEntry != null && newEntry.getTag() != null) {
+            CustomStructureInfo info = (CustomStructureInfo) newEntry.getTag();
+            this.selectedStructureInfo = info;
+            this.loadMaterialEntries();
+        }
+    }
+
+    private void loadCustomStructureEntries() {
+        if (ClientModRegistry.ServerRegisteredStructures != null && ClientModRegistry.ServerRegisteredStructures.size() > 0) {
+            this.schematicsList.children().clear();
+
+            for (CustomStructureInfo info : ClientModRegistry.ServerRegisteredStructures) {
+                this.schematicsList.addEntry(info.displayName).setTag(info);
+            }
+        }
+    }
+
+    private void loadMaterialEntries() {
+        if (this.selectedStructureInfo != null && this.selectedStructureInfo.requiredItems != null && this.selectedStructureInfo.requiredItems.size() > 0) {
+            this.materialsList.children().clear();
+            ItemStack offHandItem = this.getMinecraft().player.getOffhandItem();
+
+            for (ItemInfo itemInfo : this.selectedStructureInfo.requiredItems) {
+                if (itemInfo.registeredItem != null) {
+                    int hasCount = this.getMinecraft().player.getInventory().countItem(itemInfo.registeredItem);
+
+                    if (offHandItem.getItem() == itemInfo.registeredItem) {
+                        hasCount += offHandItem.getCount();
+                    }
+
+                    this.materialsList.addEntry(itemInfo.registeredItem, itemInfo.count, hasCount);
+                }
+            }
+        }
     }
 }
