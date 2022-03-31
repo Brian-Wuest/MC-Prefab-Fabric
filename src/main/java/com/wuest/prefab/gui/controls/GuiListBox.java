@@ -93,7 +93,6 @@ public class GuiListBox extends ObjectSelectionList<GuiListBox.ListEntry> {
     public void render(PoseStack poseStack, int i, int j, float f) {
         if (this.visible) {
             double d = this.minecraft.getWindow().getGuiScale();
-            int heightBuffer = (int) (((this.itemHeight / 2) + 4) * d);
 
             // Scissor help cut off any of the half-way shown items.
             RenderSystem.enableScissor((int) ((double) this.x0 * d), (int) (this.y1 * d) - (int) (4 * d), (int) (this.width * d) + (int) (4 * d), (int) (this.height * d));
