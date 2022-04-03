@@ -20,6 +20,18 @@ import net.minecraft.world.level.Level;
 
 import java.awt.*;
 
+/**
+ * TODO:
+ * NOTE: Use the "ContainerScreen", and the "ChestMenu" as a basis for this screen for slots.
+ * 
+ *  1. Need to load all items from player's inventory into the grid.
+ *  2. Need ability to take things out of the grid and "throw away" like any other inventory.
+ *  3. Need ability to grab blueprint from inventory slot.
+ *  4. When blueprint grabbed, need to immediately update inventory (look at crafting table for all of this)
+ *  5. When player puts item in inventory; need to send data back to server so data is saved.
+ *  6. Need to create custom blueprint item so we can save tag data about the custom blueprint.
+ */
+
 public class GuiDraftingTable extends GuiBase {
     private final ResourceLocation backgroundTexture = new ResourceLocation("prefab", "textures/gui/drafter.png");
     private final ResourceLocation schematicDefault = new ResourceLocation("prefab", "textures/gui/schematics.png");
@@ -176,15 +188,10 @@ public class GuiDraftingTable extends GuiBase {
     private void loadMaterialEntries() {
         if (this.selectedStructureInfo != null && this.selectedStructureInfo.requiredItems != null && this.selectedStructureInfo.requiredItems.size() > 0) {
             this.materialsList.children().clear();
-            ItemStack offHandItem = this.getMinecraft().player.getOffhandItem();
 
             for (ItemInfo itemInfo : this.selectedStructureInfo.requiredItems) {
                 if (itemInfo.registeredItem != null) {
                     int hasCount = this.getMinecraft().player.getInventory().countItem(itemInfo.registeredItem);
-
-                    if (offHandItem.getItem() == itemInfo.registeredItem) {
-                        hasCount += offHandItem.getCount();
-                    }
 
                     this.materialsList.addEntry(itemInfo.registeredItem, itemInfo.count, hasCount);
                 }
