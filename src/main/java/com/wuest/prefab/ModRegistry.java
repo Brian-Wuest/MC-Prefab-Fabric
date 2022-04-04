@@ -8,6 +8,7 @@ import com.wuest.prefab.blocks.*;
 import com.wuest.prefab.blocks.entities.DraftingTableBlockEntity;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.block_entities.StructureScannerConfig;
+import com.wuest.prefab.gui.screens.menus.DraftingTableMenu;
 import com.wuest.prefab.items.*;
 import com.wuest.prefab.recipe.ConditionedShapedRecipe;
 import com.wuest.prefab.recipe.ConditionedShaplessRecipe;
@@ -20,6 +21,7 @@ import com.wuest.prefab.structures.messages.StructureTagMessage;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -27,6 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -245,6 +248,9 @@ public class ModRegistry {
     /* *********************************** Block Entities *********************************** */
     public static StructureScannerBlockEntity StructureScannerEntity;
 
+    /* *********************************** Block Entities Types *********************************** */
+    public static MenuType<DraftingTableMenu> DraftingTableMenuType;
+
     /* *********************************** Custom Structures *********************************** */
     public static ArrayList<CustomStructureInfo> CustomStructures;
 
@@ -266,6 +272,8 @@ public class ModRegistry {
         ModRegistry.registerRecipeSerializers();
 
         ModRegistry.registerCustomStructures();
+
+        ModRegistry.registerMenuTypes();
     }
 
     private static void registerSounds() {
@@ -547,6 +555,12 @@ public class ModRegistry {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void registerMenuTypes() {
+        MenuType<DraftingTableMenu> draftingTableMenuMenuType = new MenuType<>(DraftingTableMenu::RegisteredMenuType);
+
+        ModRegistry.DraftingTableMenuType = Registry.register(Registry.MENU, "prefab:drafting_table_menu", draftingTableMenuMenuType);
     }
 
     private static void registerBlock(String registryName, Block block) {

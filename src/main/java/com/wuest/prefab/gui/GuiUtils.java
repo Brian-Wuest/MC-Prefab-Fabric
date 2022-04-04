@@ -4,10 +4,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.gui.controls.ExtendedButton;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public class GuiUtils {
 
@@ -182,4 +188,45 @@ public class GuiUtils {
         tesselator.end();
     }
 
+    /**
+     * Draws a string on the screen.
+     *
+     * @param text  The text to draw.
+     * @param x     The X-Coordinates of the string to start.
+     * @param y     The Y-Coordinates of the string to start.
+     * @param color The color of the text.
+     * @return Some integer value.
+     */
+    public static int drawString(PoseStack matrixStack, String text, float x, float y, int color) {
+        return GuiUtils.getFontRenderer().draw(matrixStack, text, x, y, color);
+    }
+
+    /**
+     * Draws a string on the screen with word wrapping.
+     *
+     * @param str       The text to draw.
+     * @param x         The X-Coordinates of the string to start.
+     * @param y         The Y-Coordinates of the string to start.
+     * @param wrapWidth The maximum width before wrapping begins.
+     * @param textColor The color of the text.
+     */
+    public static void drawSplitString(String str, int x, int y, int wrapWidth, int textColor) {
+        GuiUtils.getFontRenderer().drawWordWrap(Utils.createTextComponent(str), x, y, wrapWidth, textColor);
+    }
+
+    public static List<FormattedCharSequence> getSplitString(String str, int wrapWidth) {
+        return GuiUtils.getFontRenderer().split(Utils.createTextComponent(str), wrapWidth);
+    }
+
+    public static List<FormattedCharSequence> getSplitString(FormattedText str, int wrapWidth) {
+        return GuiUtils.getFontRenderer().split(str, wrapWidth);
+    }
+
+    public static Font getFontRenderer() {
+        return GuiUtils.getMinecraft().font;
+    }
+
+    public static Minecraft getMinecraft() {
+        return Minecraft.getInstance();
+    }
 }

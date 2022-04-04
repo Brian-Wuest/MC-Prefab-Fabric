@@ -370,7 +370,6 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             NonNullList<Ingredient> defaultedList = ConditionedShapedRecipe.dissolvePattern(strings, map, width, height);
             ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(ConditionedShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(jsonObject, "result")), configName);
 
-            Prefab.logger.info("Processed recipe for location: {}, valid item stack: {}", identifier.toString(), itemStack.toString());
             return new ConditionedShapedRecipe(identifier, groupName, width, height, defaultedList, itemStack, configName, ingredientResult.getFirst());
         }
 

@@ -23,7 +23,7 @@ import java.awt.*;
 /**
  * TODO:
  * NOTE: Use the "ContainerScreen", and the "ChestMenu" as a basis for this screen for slots.
- * 
+ *
  *  1. Need to load all items from player's inventory into the grid.
  *  2. Need ability to take things out of the grid and "throw away" like any other inventory.
  *  3. Need ability to grab blueprint from inventory slot.
