@@ -1,8 +1,8 @@
 package com.wuest.prefab.gui.screens.menus;
 
 import com.wuest.prefab.ModRegistry;
+import com.wuest.prefab.gui.screens.containers.DraftingTableContainer;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -24,26 +24,35 @@ public class DraftingTableMenu extends AbstractContainerMenu {
         int l;
         int m;
 
+        // Create the player hot-bar slots
+        for(l = 0; l < 9; ++l) {
+            this.addSlot(new Slot(inventory, l, 8 + l * 18, 194 + k));
+        }
+
         // Create the player inventory slots.
         for(l = 0; l < 3; ++l) {
             for(m = 0; m < 9; ++m) {
-                this.addSlot(new Slot(inventory, m + l * 9 + 9, 8 + m * 18, 103 + l * 18 + k));
+                this.addSlot(new Slot(inventory, m + l * 9 + 9, 8 + m * 18, 136 + l * 18 + k));
             }
         }
-
-        // Create the player hot-bar slots
-        for(l = 0; l < 9; ++l) {
-            this.addSlot(new Slot(inventory, l, 8 + l * 18, 161 + k));
-        }
-
     }
 
     private DraftingTableMenu(MenuType<?> menuType, int i, Inventory inventory) {
-        this(menuType, i, inventory, new SimpleContainer(1));
+        this(menuType, i, inventory, new DraftingTableContainer(1));
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        this.container.stopOpen(player);
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return false;
+        return this.container.stillValid(player);
+    }
+
+    public Container getContainer() {
+        return this.container;
     }
 }

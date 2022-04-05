@@ -23,6 +23,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.RenderType;
@@ -79,7 +81,7 @@ public class ClientModRegistry {
     }
 
     public static void openGuiForBlock(BlockPos blockPos, Level world, BaseConfig config) {
-        GuiBase screen = null;
+        Screen screen = null;
 
         if (config instanceof StructureScannerConfig) {
             screen = new GuiStructureScanner(blockPos, world, (StructureScannerConfig) config);
@@ -87,6 +89,7 @@ public class ClientModRegistry {
 
         if (config instanceof DraftingTableConfiguration) {
             screen = new GuiDraftingTable(blockPos, world, (DraftingTableConfiguration) config);
+            Minecraft.getInstance().player.containerMenu = ((MenuAccess)screen).getMenu();
         }
 
         if (screen != null) {

@@ -2,37 +2,46 @@ package com.wuest.prefab.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
+import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Tuple;
+import com.wuest.prefab.Utils;
 import com.wuest.prefab.config.block_entities.DraftingTableConfiguration;
-import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.GuiUtils;
 import com.wuest.prefab.gui.controls.GuiItemList;
 import com.wuest.prefab.gui.controls.GuiListBox;
 import com.wuest.prefab.gui.controls.GuiListBox.ListEntry;
 import com.wuest.prefab.gui.controls.TextureButton;
+import com.wuest.prefab.gui.screens.menus.DraftingTableMenu;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.custom.base.ItemInfo;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 
 /**
  * TODO:
  * NOTE: Use the "ContainerScreen", and the "ChestMenu" as a basis for this screen for slots.
- *
- *  1. Need to load all items from player's inventory into the grid.
- *  2. Need ability to take things out of the grid and "throw away" like any other inventory.
- *  3. Need ability to grab blueprint from inventory slot.
- *  4. When blueprint grabbed, need to immediately update inventory (look at crafting table for all of this)
- *  5. When player puts item in inventory; need to send data back to server so data is saved.
- *  6. Need to create custom blueprint item so we can save tag data about the custom blueprint.
+ * <p>
+ * 1. Need to load all items from player's inventory into the grid.
+ * 2. Need ability to take things out of the grid and "throw away" like any other inventory.
+ * 3. Need ability to grab blueprint from inventory slot.
+ * 4. When blueprint grabbed, need to immediately update inventory (look at crafting table for all of this)
+ * 5. When player puts item in inventory; need to send data back to server so data is saved.
+ * 6. Need to create custom blueprint item so we can save tag data about the custom blueprint.
  */
 
-public class GuiDraftingTable extends GuiBase {
+public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu> implements MenuAccess<DraftingTableMenu> {
     private final ResourceLocation backgroundTexture = new ResourceLocation("prefab", "textures/gui/drafter.png");
     private final ResourceLocation schematicDefault = new ResourceLocation("prefab", "textures/gui/schematics.png");
     private final ResourceLocation schematicSelected = new ResourceLocation("prefab", "textures/gui/schematics_selected.png");
@@ -46,6 +55,9 @@ public class GuiDraftingTable extends GuiBase {
 
     private final BlockPos blockPos;
     private final Level world;
+    private int modifiedInitialXAxis = 0;
+    private int modifiedInitialYAxis = 0;
+    private int textColor = Color.DARK_GRAY.getRGB();
     private DraftingTableConfiguration config;
     private TextureButton schematicsButton;
     private TextureButton materialsButton;
@@ -55,7 +67,7 @@ public class GuiDraftingTable extends GuiBase {
     private CustomStructureInfo selectedStructureInfo;
 
     public GuiDraftingTable(BlockPos blockPos, Level world, DraftingTableConfiguration config) {
-        super("Drafting Table");
+        super(ModRegistry.DraftingTableMenuType.create(1, Minecraft.getInstance().player.getInventory()), Minecraft.getInstance().player.getInventory(), Utils.createTextComponent("Drafting Table"));
 
         this.blockPos = blockPos;
         this.world = world;
@@ -64,9 +76,21 @@ public class GuiDraftingTable extends GuiBase {
         this.showingMaterials = false;
     }
 
+    public @Nonnull
+    Minecraft getMinecraft() {
+        return this.minecraft;
+    }
+
+    public Font getFontRenderer() {
+        return this.getMinecraft().font;
+    }
+
     @Override
-    protected void Initialize() {
-        super.Initialize();
+    protected void init() {
+        this.imageWidth = 176;
+        this.imageHeight = 237;
+
+        super.init();
 
         this.modifiedInitialXAxis = 88;
         this.modifiedInitialYAxis = 120;
@@ -116,7 +140,22 @@ public class GuiDraftingTable extends GuiBase {
     }
 
     @Override
-    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int x, int y, float f) {
+        Tuple<Integer, Integer> adjustedXYValue = this.getAdjustedXYValue();
+
+        this.preButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
+
+        super.render(matrixStack, x, y, f);
+
+        this.renderButtons(matrixStack, x, y);
+
+        this.postButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
+    }
+
+    @Override
+    protected void renderBg(PoseStack poseStack, float f, int i, int j){}
+
+    private void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
 
         GuiUtils.bindAndDrawScaledTexture(
@@ -132,16 +171,26 @@ public class GuiDraftingTable extends GuiBase {
                 237);
     }
 
-    @Override
-    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    private void renderButtons(PoseStack matrixStack, int mouseX, int mouseY) {
+        for (GuiEventListener button : this.children()) {
+            if (button instanceof AbstractWidget currentButton) {
+                if (currentButton.visible) {
+                    currentButton.renderButton(matrixStack, mouseX, mouseY, this.getMinecraft().getFrameTime());
+                }
+            } else if (button instanceof Widget currentWidget) {
+                currentWidget.render(matrixStack, mouseX, mouseY, this.getMinecraft().getFrameTime());
+            }
+        }
+    }
+
+    private void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         GuiUtils.drawItemBackground(x + 151, y + 130);
 
         // Draw Text here.
-        this.drawString(matrixStack, "Available Structures", x + 10, y + 10, this.textColor);
+        GuiUtils.drawString(matrixStack, "Available Structures", x + 10, y + 10, this.textColor);
     }
 
-    @Override
-    public void buttonClicked(AbstractButton button) {
+    private void buttonClicked(AbstractButton button) {
         if (button == this.schematicsButton) {
             this.materialsButton.setIsSelected(false);
             this.showingMaterials = false;
@@ -197,5 +246,32 @@ public class GuiDraftingTable extends GuiBase {
                 }
             }
         }
+    }
+
+    /**
+     * Gets the adjusted x/y coordinates for the topleft most part of the screen.
+     *
+     * @return A new tuple containing the x/y coordinates.
+     */
+    private Tuple<Integer, Integer> getAdjustedXYValue() {
+        return new Tuple<>(this.getCenteredXAxis() - this.modifiedInitialXAxis, this.getCenteredYAxis() - this.modifiedInitialYAxis);
+    }
+
+    /**
+     * Gets the X-Coordinates of the center of the screen.
+     *
+     * @return The coordinate value.
+     */
+    protected int getCenteredXAxis() {
+        return this.width / 2;
+    }
+
+    /**
+     * Gets the Y-Coordinates of the center off the screen.
+     *
+     * @return The coordinate value.
+     */
+    protected int getCenteredYAxis() {
+        return this.height / 2;
     }
 }
