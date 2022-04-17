@@ -13,6 +13,7 @@ import com.wuest.prefab.gui.controls.GuiTextBox;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
@@ -41,7 +42,8 @@ public class GuiStructureScanner extends GuiBase {
     public GuiStructureScanner(BlockPos blockPos, Level world, StructureScannerConfig config) {
         super("Structure Scanner");
 
-        this.blockPos = blockPos;
+        // Always assume that this block is 1 above ground level of the structure.
+        this.blockPos = blockPos.relative(Direction.DOWN);
         this.world = world;
         this.config = config;
         this.config.blockPos = this.blockPos;
@@ -51,7 +53,7 @@ public class GuiStructureScanner extends GuiBase {
     protected void Initialize() {
         super.Initialize();
 
-        this.config.direction = this.world.getBlockState(this.blockPos).getValue(BlockStructureScanner.FACING);
+        this.config.direction = this.world.getBlockState(this.blockPos.relative(Direction.UP)).getValue(BlockStructureScanner.FACING);
 
         Tuple<Integer, Integer> adjustedXYValues = this.getAdjustedXYValue();
         int adjustedX = adjustedXYValues.first;

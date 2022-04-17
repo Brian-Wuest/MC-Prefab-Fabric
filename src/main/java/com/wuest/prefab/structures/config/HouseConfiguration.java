@@ -24,20 +24,20 @@ import net.minecraft.world.item.DyeColor;
  * @author WuestMan
  */
 public class HouseConfiguration extends StructureConfiguration {
-    private static String addTorchesTag = "addTorches";
-    private static String addBedTag = "addBed";
-    private static String addCraftingTableTag = "addCraftingTable";
-    private static String addFurnaceTag = "addFurnace";
-    private static String addChestTag = "addChest";
-    private static String addChestContentsTag = "addChestContents";
-    private static String addMineShaftTag = "addMineShaft";
-    private static String hitXTag = "hitX";
-    private static String hitYTag = "hitY";
-    private static String hitZTag = "hitZ";
-    private static String houseFacingTag = "houseFacing";
-    private static String houseStyleTag = "houseStyle";
-    private static String glassColorTag = "glassColor";
-    private static String bedColorTag = "bedColor";
+    private static final String addTorchesTag = "addTorches";
+    private static final String addBedTag = "addBed";
+    private static final String addCraftingTableTag = "addCraftingTable";
+    private static final String addFurnaceTag = "addFurnace";
+    private static final String addChestTag = "addChest";
+    private static final String addChestContentsTag = "addChestContents";
+    private static final String addMineShaftTag = "addMineShaft";
+    private static final String hitXTag = "hitX";
+    private static final String hitYTag = "hitY";
+    private static final String hitZTag = "hitZ";
+    private static final String houseFacingTag = "houseFacing";
+    private static final String houseStyleTag = "houseStyle";
+    private static final String glassColorTag = "glassColor";
+    private static final String bedColorTag = "bedColor";
 
     public boolean addTorches;
     public boolean addBed;
@@ -171,11 +171,9 @@ public class HouseConfiguration extends StructureConfiguration {
      */
     @Override
     protected void ConfigurationSpecificBuildStructure(Player player, ServerLevel world, BlockPos hitBlockPos) {
-        boolean houseBuilt = true;
-
         // Build the alternate starter house instead.
         StructureAlternateStart structure = StructureAlternateStart.CreateInstance(this.houseStyle.getStructureLocation(), StructureAlternateStart.class);
-        houseBuilt = structure.BuildStructure(this, world, hitBlockPos, player);
+        boolean houseBuilt = structure.BuildStructure(this, world, hitBlockPos, player);
 
         // The house was successfully built, remove the item from the inventory.
         if (houseBuilt) {
@@ -236,7 +234,19 @@ public class HouseConfiguration extends StructureConfiguration {
         IZBA(10,
                 GuiLangKeys.STARTER_HOUSE_IZBA_DISPLAY,
                 new ResourceLocation("prefab", "textures/gui/izba_house.png"),
-                "assets/prefab/structures/starter_house_izba.zip");
+                "assets/prefab/structures/starter_house_izba.zip"),
+        TOWER(11,
+                GuiLangKeys.STARTER_HOUSE_TOWER_DISPLAY,
+                new ResourceLocation("prefab", "textures/gui/starter_house_tower.png"),
+                "assets/prefab/structures/starter_house_tower.zip"),
+        CABIN(12,
+                GuiLangKeys.STARTER_HOUSE_CABIN_DISPLAY,
+                new ResourceLocation("prefab", "textures/gui/starter_house_cabin.png"),
+                "assets/prefab/structures/starter_house_cabin.zip"),
+        TREE(13,
+                GuiLangKeys.STARTER_HOUSE_TREE_HOUSE_DISPLAY,
+                new ResourceLocation("prefab", "textures/gui/starter_house_tree.png"),
+                "assets/prefab/structures/starter_house_tree.zip");
 
         private final int value;
         private final String displayName;

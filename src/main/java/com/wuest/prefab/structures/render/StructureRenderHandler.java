@@ -333,7 +333,7 @@ public class StructureRenderHandler {
 
             // Make sure the block exists in the world at the block pos.
             if (pos != null) {
-                removeConfig = !(Minecraft.getInstance().level.getBlockState(pos).getBlock() instanceof BlockStructureScanner);
+                removeConfig = !(Minecraft.getInstance().level.getBlockState(pos.relative(Direction.UP)).getBlock() instanceof BlockStructureScanner);
             }
 
             if (removeConfig) {

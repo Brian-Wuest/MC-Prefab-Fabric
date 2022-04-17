@@ -165,17 +165,13 @@ public class StructureConfiguration {
             stack.shrink(1);
 
             if (stack.isEmpty()) {
-                player.getInventory().offhand.set(0, ItemStack.EMPTY);
+                player.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
             }
         } else {
-            int slot = this.getSlotFor(player.getInventory(), stack);
+            stack.shrink(1);
 
-            if (slot != -1) {
-                stack.shrink(1);
-
-                if (stack.isEmpty()) {
-                    player.getInventory().setItem(slot, ItemStack.EMPTY);
-                }
+            if (stack.isEmpty()) {
+                player.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
             }
         }
 
