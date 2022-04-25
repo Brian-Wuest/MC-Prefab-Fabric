@@ -1,17 +1,24 @@
 package com.wuest.prefab.blocks;
 
 import com.wuest.prefab.ClientModRegistry;
+import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.base.TileBlockBase;
 import com.wuest.prefab.blocks.entities.DraftingTableBlockEntity;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.block_entities.DraftingTableConfiguration;
 import com.wuest.prefab.config.block_entities.StructureScannerConfig;
+import com.wuest.prefab.gui.screens.menus.DraftingTableMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -23,6 +30,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockDraftingTable extends TileBlockBase<DraftingTableBlockEntity> {
     public static VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 15.0D, 16.0D);
@@ -103,15 +111,9 @@ public class BlockDraftingTable extends TileBlockBase<DraftingTableBlockEntity> 
     @Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (world.isClientSide) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-
-            if (blockEntity instanceof DraftingTableBlockEntity) {
-                DraftingTableConfiguration config = ((DraftingTableBlockEntity) blockEntity).getConfig();
-                ClientModRegistry.openGuiForBlock(pos, world, config);
-            }
-
             return InteractionResult.SUCCESS;
         } else {
+            player.openMenu(state.getMenuProvider(world, pos));
             return InteractionResult.CONSUME;
         }
     }
@@ -119,5 +121,13 @@ public class BlockDraftingTable extends TileBlockBase<DraftingTableBlockEntity> 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new DraftingTableBlockEntity(pos, state);
+    }
+
+    @Override
+    @Nullable
+    public MenuProvider getMenuProvider(BlockState blockState, Level level, BlockPos blockPos) {
+        return new SimpleMenuProvider((i, inventory, player) -> {
+            return new DraftingTableMenu(i, inventory);
+        }, new TextComponent(""));
     }
 }

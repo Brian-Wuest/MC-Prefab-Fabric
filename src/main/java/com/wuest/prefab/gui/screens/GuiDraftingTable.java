@@ -23,7 +23,10 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
@@ -53,7 +56,6 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
     private final ResourceLocation materialHover = new ResourceLocation("prefab", "textures/gui/materials_hovered.png");
     private final ResourceLocation materialHoverSelected = new ResourceLocation("prefab", "textures/gui/materials_selected_hovered.png");
 
-    private final BlockPos blockPos;
     private final Level world;
     private int modifiedInitialXAxis = 0;
     private int modifiedInitialYAxis = 0;
@@ -66,13 +68,9 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
     private boolean showingMaterials;
     private CustomStructureInfo selectedStructureInfo;
 
-    public GuiDraftingTable(BlockPos blockPos, Level world, DraftingTableConfiguration config) {
-        super(ModRegistry.DraftingTableMenuType.create(1, Minecraft.getInstance().player.getInventory()), Minecraft.getInstance().player.getInventory(), Utils.createTextComponent("Drafting Table"));
-
-        this.blockPos = blockPos;
-        this.world = world;
-        this.config = config;
-        this.config.blockPos = this.blockPos;
+    public GuiDraftingTable(DraftingTableMenu menu, Inventory inventory, Component component) {
+        super(menu, inventory, component);
+        this.world = inventory.player.level;
         this.showingMaterials = false;
     }
 

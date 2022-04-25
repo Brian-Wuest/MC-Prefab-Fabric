@@ -6,6 +6,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 
@@ -37,8 +38,12 @@ public class DraftingTableMenu extends AbstractContainerMenu {
         }
     }
 
-    private DraftingTableMenu(MenuType<?> menuType, int i, Inventory inventory) {
+    public DraftingTableMenu(MenuType<?> menuType, int i, Inventory inventory) {
         this(menuType, i, inventory, new DraftingTableContainer(1));
+    }
+
+    public DraftingTableMenu(int i, Inventory inventory) {
+        this(ModRegistry.DraftingTableMenuType, i, inventory, new DraftingTableContainer(1));
     }
 
     @Override

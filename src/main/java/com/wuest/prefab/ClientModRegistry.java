@@ -23,6 +23,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -85,11 +86,6 @@ public class ClientModRegistry {
 
         if (config instanceof StructureScannerConfig) {
             screen = new GuiStructureScanner(blockPos, world, (StructureScannerConfig) config);
-        }
-
-        if (config instanceof DraftingTableConfiguration) {
-            screen = new GuiDraftingTable(blockPos, world, (DraftingTableConfiguration) config);
-            Minecraft.getInstance().player.containerMenu = ((MenuAccess)screen).getMenu();
         }
 
         if (screen != null) {
@@ -222,6 +218,9 @@ public class ClientModRegistry {
         for (Consumer<Object> consumer : ModRegistry.guiRegistrations) {
             consumer.accept(null);
         }
+
+        // Register the drafting table menu.
+        MenuScreens.register(ModRegistry.DraftingTableMenuType, GuiDraftingTable::new);
     }
 
     private static void registerKeyBindings() {
