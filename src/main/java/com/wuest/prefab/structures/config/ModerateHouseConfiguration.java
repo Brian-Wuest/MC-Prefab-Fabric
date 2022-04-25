@@ -71,7 +71,7 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
         tag.putBoolean(ModerateHouseConfiguration.addChestTag, this.addChests);
         tag.putBoolean(ModerateHouseConfiguration.addChestContentsTag, this.addChestContents);
         tag.putBoolean(ModerateHouseConfiguration.addMineshaftTag, this.addMineshaft);
-        tag.putString(ModerateHouseConfiguration.bedColorTag, this.bedColor.getSerializedName().toUpperCase());
+        tag.putInt(ModerateHouseConfiguration.bedColorTag, this.bedColor.getId());
 
         return tag;
     }
@@ -97,7 +97,7 @@ public class ModerateHouseConfiguration extends StructureConfiguration {
         }
 
         if (messageTag.contains(ModerateHouseConfiguration.bedColorTag)) {
-            houseConfiguration.bedColor = DyeColor.valueOf(messageTag.getString(ModerateHouseConfiguration.bedColorTag));
+            houseConfiguration.bedColor = DyeColor.byId(messageTag.getInt(ModerateHouseConfiguration.bedColorTag));
         }
     }
 

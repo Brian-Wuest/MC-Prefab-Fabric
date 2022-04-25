@@ -158,21 +158,18 @@ public class StructureConfiguration {
      */
     protected void RemoveStructureItemFromPlayer(Player player, StructureItem item) {
         ItemStack stack = player.getMainHandItem();
+        EquipmentSlot slot = EquipmentSlot.MAINHAND;
 
         if (stack.getItem() != item) {
             stack = player.getOffhandItem();
+            slot = EquipmentSlot.OFFHAND;
 
-            stack.shrink(1);
+        }
 
-            if (stack.isEmpty()) {
-                player.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
-            }
-        } else {
-            stack.shrink(1);
+        stack.shrink(1);
 
-            if (stack.isEmpty()) {
-                player.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-            }
+        if (stack.isEmpty()) {
+            player.setItemSlot(slot, ItemStack.EMPTY);
         }
 
         player.containerMenu.broadcastChanges();
