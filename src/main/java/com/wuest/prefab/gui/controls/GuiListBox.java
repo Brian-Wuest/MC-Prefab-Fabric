@@ -130,7 +130,8 @@ public class GuiListBox extends ObjectSelectionList<GuiListBox.ListEntry> {
      * @return The newly created entry.
      */
     public ListEntry addEntry(String text) {
-        return this.addEntry().setText(text);
+        TranslatableComponent component = new TranslatableComponent(text);
+        return this.addEntry().setText(component.getString());
     }
 
     /**

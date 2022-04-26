@@ -1,13 +1,8 @@
 package com.wuest.prefab.blocks;
 
-import com.wuest.prefab.ClientModRegistry;
-import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.base.TileBlockBase;
 import com.wuest.prefab.blocks.entities.DraftingTableBlockEntity;
-import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
-import com.wuest.prefab.config.block_entities.DraftingTableConfiguration;
-import com.wuest.prefab.config.block_entities.StructureScannerConfig;
 import com.wuest.prefab.gui.screens.menus.DraftingTableMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +12,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -127,7 +121,7 @@ public class BlockDraftingTable extends TileBlockBase<DraftingTableBlockEntity> 
     @Nullable
     public MenuProvider getMenuProvider(BlockState blockState, Level level, BlockPos blockPos) {
         return new SimpleMenuProvider((i, inventory, player) -> {
-            return new DraftingTableMenu(i, inventory);
+            return new DraftingTableMenu(i, inventory, ContainerLevelAccess.create(level, blockPos));
         }, new TextComponent(""));
     }
 }

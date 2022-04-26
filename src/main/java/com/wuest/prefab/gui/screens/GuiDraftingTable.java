@@ -167,6 +167,8 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
                 237,
                 176,
                 237);
+
+        GuiUtils.drawItemBackground(x + 151, y + 130);
     }
 
     private void renderButtons(PoseStack matrixStack, int mouseX, int mouseY) {
@@ -182,7 +184,7 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
     }
 
     private void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        GuiUtils.drawItemBackground(x + 151, y + 130);
+
 
         // Draw Text here.
         GuiUtils.drawString(matrixStack, "Available Structures", x + 10, y + 10, this.textColor);
@@ -218,7 +220,10 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
         if (newEntry != null && newEntry.getTag() != null) {
             CustomStructureInfo info = (CustomStructureInfo) newEntry.getTag();
             this.selectedStructureInfo = info;
+            this.menu.setSelectedStructureInfo(info);
             this.loadMaterialEntries();
+        } else {
+            this.menu.setSelectedStructureInfo(null);
         }
     }
 
