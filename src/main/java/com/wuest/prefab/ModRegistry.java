@@ -539,7 +539,7 @@ public class ModRegistry {
 
                         // This has to be a zip file.
                         // Don't register this custom structure unless it has a corresponding structure file.
-                        if (Files.exists(structureFilePath) && structureFilePath.endsWith(".zip")) {
+                        if (Files.exists(structureFilePath) && structureFilePath.toString().endsWith(".zip")) {
                             contents.structureFilePath = structureFilePath;
 
                             ModRegistry.CustomStructures.add(contents);
