@@ -105,23 +105,33 @@ public class GuiItemList extends GuiListBox {
             Minecraft mc = Minecraft.getInstance();
             int textColor = 16777215;
 
-            this.drawText(poseStack, mc.font, rowTop, rowLeft, textColor);
-
             if (this.entryItem != null) {
-                GuiUtils.drawItemBackground(rowLeft + 25, rowTop);
+                GuiUtils.drawItemBackground(rowLeft + 2, rowTop);
 
-                this.itemRenderer.renderGuiItem(new ItemStack(this.entryItem), rowLeft + 26, rowTop + 1);
+                this.itemRenderer.renderGuiItem(new ItemStack(this.entryItem), rowLeft + 3, rowTop + 1);
+
+                int textWidth = this.drawText(poseStack, mc.font, rowTop, rowLeft, textColor);
 
                 Component textComponent = this.entryItem.getDescription();
 
-                mc.font.draw(poseStack, textComponent, rowLeft + 50, rowTop + 6, textColor);
+                int itemWidth = mc.font.width(textComponent.getString());
+                int maxTextWith = 133 - textWidth;
+
+                if (itemWidth > maxTextWith) {
+                    textComponent = new TextComponent(mc.font.plainSubstrByWidth(textComponent.getString(), maxTextWith));
+                }
+
+                mc.font.draw(poseStack, textComponent, rowLeft + textWidth + 20, rowTop + 6, textColor);
             }
         }
 
-        private void drawText(PoseStack poseStack, Font font, int rowTop, int rowLeft, int textColor) {
+        private int drawText(PoseStack poseStack, Font font, int rowTop, int rowLeft, int textColor) {
             TextComponent textComponent = new TextComponent(String.valueOf(this.neededCount));
 
-            font.draw(poseStack, textComponent, rowLeft + 2, rowTop + 6, textColor);
+            int textRowLeft = rowLeft + 21;
+            int neededWidth = font.width(textComponent.getString()) + 6;
+            int totalWidth = neededWidth;
+            font.draw(poseStack, textComponent, textRowLeft + 2, rowTop + 6, textColor);
 
             if (this.neededCount > this.hasCount) {
                 // Draw red text to show that there is still items needed.
@@ -129,10 +139,14 @@ public class GuiItemList extends GuiListBox {
                 TextComponent amountNeededText = new TextComponent(String.format("-%s", amountNeeded));
                 amountNeededText.setStyle(Style.EMPTY.withColor(ChatFormatting.RED));
 
-                font.draw(poseStack, amountNeededText, rowLeft + 10, rowTop + 6, textColor);
+                font.draw(poseStack, amountNeededText, textRowLeft + neededWidth, rowTop + 6, textColor);
+                totalWidth += font.width(amountNeededText.getString()) + 4;
             } else {
-                GuiUtils.bindAndDrawTexture(this.checkMark, poseStack, rowLeft + 10, rowTop + 4, 0, 12, 12, 12, 12);
+                GuiUtils.bindAndDrawTexture(this.checkMark, poseStack, textRowLeft + neededWidth, rowTop + 4, 0, 12, 12, 12, 12);
+                totalWidth += 18;
             }
+
+            return totalWidth;
         }
     }
 }
