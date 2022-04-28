@@ -1,5 +1,6 @@
 package com.wuest.prefab.gui.controls;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.gui.GuiUtils;
 import net.minecraft.ChatFormatting;
@@ -34,17 +35,20 @@ public class GuiItemList extends GuiListBox {
     }
 
     @Override
-    protected void renderDecorations(PoseStack poseStack, int mouseX, int mouseY) {
-        PoseStack stack = new PoseStack();
-        stack.pushPose();
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float f) {
+        if (this.visible) {
+            super.render(poseStack, mouseX, mouseY, f);
 
-        // This fills the area above the control with the buffer color.
-        GuiComponent.fill(stack, this.x0, this.y0 - this.itemHeight, this.x1, this.y0, this.bufferColor);
-
-        // This fills the area below the control with the buffer color.
-        GuiComponent.fill(stack, this.x0, this.y1, this.x1, this.y1 + this.itemHeight, this.bufferColor);
-
-        stack.popPose();
+            // Render any tooltips after rendering the main box.
+            // This is because the main box rendering has clipping enabled and these tooltips should show outside of the box if necessary.
+            for (ListEntry entry : this.children()) {
+                if (entry instanceof ItemEntry itemEntry) {
+                    if (itemEntry.IsHovered()) {
+                        GuiUtils.renderTooltip(poseStack, new ItemStack(itemEntry.getEntryItem()), mouseX, mouseY, this.x1, this.y1);
+                    }
+                }
+            }
+        }
     }
 
     public GuiItemList addEntry(Item item, int neededCount, int hasCount) {
@@ -66,11 +70,15 @@ public class GuiItemList extends GuiListBox {
         private Item entryItem;
         private int neededCount;
         private int hasCount;
+        private boolean isHovered;
+
+        private GuiItemList parent;
 
         public ItemEntry(GuiItemList parent, ItemRenderer itemRenderer) {
             super(parent);
             this.itemRenderer = itemRenderer;
             this.setText("");
+            this.parent = parent;
         }
 
         public Item getEntryItem() {
@@ -100,6 +108,10 @@ public class GuiItemList extends GuiListBox {
             return this;
         }
 
+        public boolean IsHovered() {
+            return this.isHovered;
+        }
+
         @Override
         public void render(PoseStack poseStack, int entryIndex, int rowTop, int rowLeft, int rowWidth, int rowHeightWithoutBuffer, int mouseX, int mouseY, boolean isHovered, float partialTicks) {
             Minecraft mc = Minecraft.getInstance();
@@ -122,6 +134,8 @@ public class GuiItemList extends GuiListBox {
                 }
 
                 mc.font.draw(poseStack, textComponent, rowLeft + textWidth + 20, rowTop + 6, textColor);
+
+                this.isHovered = isHovered;
             }
         }
 
