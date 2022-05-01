@@ -171,21 +171,14 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             JsonElement ingredientJSON = entry.getValue();
             Ingredient ingredient = Ingredient.fromJson(ingredientJSON);
 
-            ItemStack[] stacks = ingredient.getItems();
+            if (!hasTags) {
+                hasTags = ((JsonObject) ingredientJSON).has("tag");
+            }
 
             if (ingredient.isEmpty()) {
                 // Unable to find a corresponding item for this key. Clear out all entries and return.
                 map.clear();
                 break;
-            }
-
-            if (stacks.length == 0) {
-                JsonElement element = ((JsonObject) ingredientJSON).get("tag");
-
-                if (element != null) {
-                    hasTags = true;
-                }
-
             }
 
             map.put(entry.getKey(), ingredient);
@@ -386,7 +379,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
                 defaultedList.set(k, Ingredient.fromNetwork(packetByteBuf));
             }
 
-            ItemStack itemStack = this.validateRecipeOutput(packetByteBuf.readItem(), configName);
+            ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(packetByteBuf.readItem(), configName);
             return new ConditionedShapedRecipe(identifier, groupName, width, height, defaultedList, itemStack, configName, recipeHasTags);
         }
 
@@ -397,10 +390,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             packetByteBuf.writeUtf(shapedRecipe.configName);
             packetByteBuf.writeBoolean(shapedRecipe.recipeHasTags);
 
-            Iterator var3 = shapedRecipe.inputs.iterator();
-
-            while (var3.hasNext()) {
-                Ingredient ingredient = (Ingredient) var3.next();
+            for (Ingredient ingredient : shapedRecipe.inputs) {
                 ingredient.toNetwork(packetByteBuf);
             }
 
