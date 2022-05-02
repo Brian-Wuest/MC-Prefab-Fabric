@@ -1,14 +1,11 @@
 package com.wuest.prefab.gui.controls;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.gui.GuiUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -122,45 +119,28 @@ public class GuiItemList extends GuiListBox {
 
                 this.itemRenderer.renderGuiItem(new ItemStack(this.entryItem), rowLeft + 3, rowTop + 1);
 
-                int textWidth = this.drawText(poseStack, mc.font, rowTop, rowLeft, textColor);
-
-                Component textComponent = this.entryItem.getDescription();
-
-                int itemWidth = mc.font.width(textComponent.getString());
-                int maxTextWith = 133 - textWidth;
-
-                if (itemWidth > maxTextWith) {
-                    textComponent = new TextComponent(mc.font.plainSubstrByWidth(textComponent.getString(), maxTextWith));
-                }
-
-                mc.font.draw(poseStack, textComponent, rowLeft + textWidth + 20, rowTop + 6, textColor);
+                this.drawText(poseStack, mc.font, rowTop, rowLeft, textColor);
 
                 this.isHovered = isHovered;
             }
         }
 
-        private int drawText(PoseStack poseStack, Font font, int rowTop, int rowLeft, int textColor) {
-            TextComponent textComponent = new TextComponent(String.valueOf(this.neededCount));
+        private void drawText(PoseStack poseStack, Font font, int rowTop, int rowLeft, int textColor) {
+            TextComponent textComponent = new TextComponent(String.valueOf(this.hasCount) + " / " + String.valueOf(this.neededCount));
 
-            int textRowLeft = rowLeft + 21;
+            int textRowLeft = rowLeft + 25;
             int neededWidth = font.width(textComponent.getString()) + 6;
-            int totalWidth = neededWidth;
             font.draw(poseStack, textComponent, textRowLeft + 2, rowTop + 6, textColor);
 
             if (this.neededCount > this.hasCount) {
                 // Draw red text to show that there is still items needed.
-                int amountNeeded = this.neededCount - this.hasCount;
-                TextComponent amountNeededText = new TextComponent(String.format("-%s", amountNeeded));
+                TextComponent amountNeededText = new TextComponent("X");
                 amountNeededText.setStyle(Style.EMPTY.withColor(ChatFormatting.RED));
 
                 font.draw(poseStack, amountNeededText, textRowLeft + neededWidth, rowTop + 6, textColor);
-                totalWidth += font.width(amountNeededText.getString()) + 4;
             } else {
                 GuiUtils.bindAndDrawTexture(this.checkMark, poseStack, textRowLeft + neededWidth, rowTop + 4, 0, 12, 12, 12, 12);
-                totalWidth += 18;
             }
-
-            return totalWidth;
         }
     }
 }
