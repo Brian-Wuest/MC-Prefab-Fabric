@@ -44,7 +44,7 @@ import java.awt.*;
  * 6. Need to create custom blueprint item so we can save tag data about the custom blueprint.
  */
 
-public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu> implements MenuAccess<DraftingTableMenu> {
+public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu> implements MenuAccess<DraftingTableMenu>, DraftingTableMenu.IStructureMaterialLoader {
     private final ResourceLocation backgroundTexture = new ResourceLocation("prefab", "textures/gui/drafter.png");
     private final ResourceLocation schematicDefault = new ResourceLocation("prefab", "textures/gui/schematics.png");
     private final ResourceLocation schematicSelected = new ResourceLocation("prefab", "textures/gui/schematics_selected.png");
@@ -223,23 +223,14 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
             CustomStructureInfo info = (CustomStructureInfo) newEntry.getTag();
             this.selectedStructureInfo = info;
             this.menu.setSelectedStructureInfo(info);
+            this.menu.setParent(this);
             this.loadMaterialEntries();
         } else {
             this.menu.setSelectedStructureInfo(null);
         }
     }
 
-    private void loadCustomStructureEntries() {
-        if (ClientModRegistry.ServerRegisteredStructures != null && ClientModRegistry.ServerRegisteredStructures.size() > 0) {
-            this.schematicsList.children().clear();
-
-            for (CustomStructureInfo info : ClientModRegistry.ServerRegisteredStructures) {
-                this.schematicsList.addEntry(info.displayName).setTag(info);
-            }
-        }
-    }
-
-    private void loadMaterialEntries() {
+    public void loadMaterialEntries() {
         if (this.selectedStructureInfo != null && this.selectedStructureInfo.requiredItems != null && this.selectedStructureInfo.requiredItems.size() > 0) {
             this.materialsList.children().clear();
 
@@ -249,6 +240,16 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
 
                     this.materialsList.addEntry(itemInfo.registeredItem, itemInfo.count, hasCount);
                 }
+            }
+        }
+    }
+
+    private void loadCustomStructureEntries() {
+        if (ClientModRegistry.ServerRegisteredStructures != null && ClientModRegistry.ServerRegisteredStructures.size() > 0) {
+            this.schematicsList.children().clear();
+
+            for (CustomStructureInfo info : ClientModRegistry.ServerRegisteredStructures) {
+                this.schematicsList.addEntry(info.displayName).setTag(info);
             }
         }
     }
