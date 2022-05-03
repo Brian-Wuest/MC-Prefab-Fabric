@@ -63,6 +63,8 @@ public class GuiItemList extends GuiListBox {
 
     public static class ItemEntry extends ListEntry {
         private final ResourceLocation checkMark = new ResourceLocation("prefab", "textures/gui/check_mark.png");
+        private final ResourceLocation xMark = new ResourceLocation("prefab", "textures/gui/x.png");
+
         private final ItemRenderer itemRenderer;
         private Item entryItem;
         private int neededCount;
@@ -133,11 +135,8 @@ public class GuiItemList extends GuiListBox {
             font.draw(poseStack, textComponent, textRowLeft + 2, rowTop + 6, textColor);
 
             if (this.neededCount > this.hasCount) {
-                // Draw red text to show that there is still items needed.
-                TextComponent amountNeededText = new TextComponent("X");
-                amountNeededText.setStyle(Style.EMPTY.withColor(ChatFormatting.RED));
-
-                font.draw(poseStack, amountNeededText, textRowLeft + neededWidth, rowTop + 6, textColor);
+                // Draw red x to show that there is still items needed.
+                GuiUtils.bindAndDrawTexture(this.xMark, poseStack, textRowLeft + neededWidth, rowTop + 4, 0, 12, 12, 12, 12);
             } else {
                 GuiUtils.bindAndDrawTexture(this.checkMark, poseStack, textRowLeft + neededWidth, rowTop + 4, 0, 12, 12, 12, 12);
             }
