@@ -60,21 +60,23 @@ public class CustomStructureInfo {
     }
 
     public void readFromTag(CompoundTag tag) {
-        this.displayName = tag.getString("displayName");
-        this.structureFileName = tag.getString("structureFileName");
-        this.infoFileName = tag.getString("infoFileName");
+        if (tag != null) {
+            this.displayName = tag.getString("displayName");
+            this.structureFileName = tag.getString("structureFileName");
+            this.infoFileName = tag.getString("infoFileName");
 
-        this.requiredItems = new ArrayList<>();
-        ListTag listTag = tag.getList("requiredItems", 10);
+            this.requiredItems = new ArrayList<>();
+            ListTag listTag = tag.getList("requiredItems", 10);
 
-        if (listTag != null) {
-            for (Tag itemTag : listTag) {
-                CompoundTag compoundTag = (CompoundTag) itemTag;
-                ItemInfo itemInfo = new ItemInfo();
-                itemInfo.readFromTag(compoundTag);
+            if (listTag != null) {
+                for (Tag itemTag : listTag) {
+                    CompoundTag compoundTag = (CompoundTag) itemTag;
+                    ItemInfo itemInfo = new ItemInfo();
+                    itemInfo.readFromTag(compoundTag);
 
-                if (itemInfo.count != 0) {
-                    this.requiredItems.add(itemInfo);
+                    if (itemInfo.count != 0) {
+                        this.requiredItems.add(itemInfo);
+                    }
                 }
             }
         }

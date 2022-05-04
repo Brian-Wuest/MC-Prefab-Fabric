@@ -116,6 +116,8 @@ public class ModRegistry {
     public static final ResourceLocation StructureScannerAction = new ResourceLocation(Prefab.MODID, "structure_scanner_action");
     public static final ResourceLocation CustomStructureSync = new ResourceLocation(Prefab.MODID, "custom_structure_sync");
 
+    public static final ResourceLocation DraftingTableResultSync = new ResourceLocation(Prefab.MODID, "drafting_table_result_sync");
+
     /* *********************************** Item Group *********************************** */
     public static final Item LogoItem = new Item(new Item.Properties());
     public static final CreativeModeTab PREFAB_GROUP = FabricItemGroupBuilder.build(
@@ -170,7 +172,7 @@ public class ModRegistry {
     public static final Item CoilOfLanterns = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item WarehouseUpgrade = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final Item Pencil = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
-    public static final Item BlankBlueprint = new Item(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
+    public static final ItemBlueprint BlankBlueprint = new ItemBlueprint(new Item.Properties().tab(ModRegistry.PREFAB_GROUP));
     public static final ItemCompressedChest CompressedChest = new ItemCompressedChest();
     public static final Item SwiftBladeWood = new ItemSwiftBlade(Tiers.WOOD, 2, .5f);
     public static final Item SwiftBladeStone = new ItemSwiftBlade(Tiers.STONE, 2, .5f);
@@ -486,6 +488,8 @@ public class ModRegistry {
         ModRegistry.registerStructureScannerMessageHandler();
 
         ModRegistry.registerStructureScannerActionMessageHandler();
+
+        ModRegistry.registerSetDrafterResultSlotMessageHandler();
     }
 
     private static void registerRecipeSerializers() {
@@ -609,6 +613,20 @@ public class ModRegistry {
 
             server.execute(() -> {
                 StructureScannerBlockEntity.ScanShape(config, player, player.getLevel());
+            });
+        });
+    }
+
+    private static void registerSetDrafterResultSlotMessageHandler() {
+        ServerPlayNetworking.registerGlobalReceiver(ModRegistry.DraftingTableResultSync, (server, player, handler, buf, responseSender) -> {
+            CompoundTag structureTag = buf.readNbt();
+            CustomStructureInfo structureInfo = new CustomStructureInfo();
+            structureInfo.readFromTag(structureTag);
+
+            server.execute(() -> {
+                if (player.containerMenu instanceof DraftingTableMenu draftingTableMenu) {
+                    draftingTableMenu.setSelectedStructureInfo(structureInfo);
+                }
             });
         });
     }

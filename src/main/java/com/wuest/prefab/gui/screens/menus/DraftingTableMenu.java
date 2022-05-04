@@ -1,7 +1,13 @@
 package com.wuest.prefab.gui.screens.menus;
 
 import com.wuest.prefab.ModRegistry;
+import com.wuest.prefab.Utils;
+import com.wuest.prefab.items.ItemBlueprint;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -13,6 +19,7 @@ public class DraftingTableMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private CustomStructureInfo selectedStructureInfo;
     private boolean isTakingStructure;
+    private Player player;
 
     private IStructureMaterialLoader parent;
 
@@ -26,6 +33,7 @@ public class DraftingTableMenu extends AbstractContainerMenu {
 
     public DraftingTableMenu(MenuType<?> menuType, int i, Inventory inventory, ContainerLevelAccess containerLevelAccess) {
         super(menuType, i);
+        this.player = inventory.player;
         this.access = containerLevelAccess;
         int k = 18;
         int l;
@@ -41,7 +49,15 @@ public class DraftingTableMenu extends AbstractContainerMenu {
             }
 
             public void onTake(Player player, ItemStack itemStack) {
+                super.onTake(player, itemStack);
                 DraftingTableMenu.this.onTake(player, itemStack);
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+
+                DraftingTableMenu.this.resultSlotChanged();
             }
         });
 
@@ -90,12 +106,34 @@ public class DraftingTableMenu extends AbstractContainerMenu {
     public void setSelectedStructureInfo(CustomStructureInfo selectedStructureInfo) {
         this.selectedStructureInfo = selectedStructureInfo;
 
-        // TODO: Create blueprint item with this identifier as part of the meta data.
-        // this.resultSlots.setItem(0, ItemStack.EMPTY);
+        this.setResultSlot();
     }
 
     public void setParent(IStructureMaterialLoader parent) {
         this.parent = parent;
+    }
+
+    protected void setResultSlot() {
+        // Note: This is only called from client-side.
+        if (this.selectedStructureInfo != null) {
+            if (this.player.level.isClientSide) {
+                // This way the server can update the result slot with the new item when an item is taken.
+                CompoundTag structureTag = new CompoundTag();
+                this.selectedStructureInfo.writeToTag(structureTag);
+
+                FriendlyByteBuf messagePacket = new FriendlyByteBuf(Unpooled.buffer());
+                messagePacket.writeNbt(structureTag);
+                ClientPlayNetworking.send(ModRegistry.DraftingTableResultSync, messagePacket);
+            }
+            else {
+                ItemStack stack = new ItemStack(ModRegistry.BlankBlueprint);
+                CompoundTag tag = stack.getOrCreateTag();
+                tag.putString(ItemBlueprint.StructureTag, this.selectedStructureInfo.displayName);
+                
+                // Server-side, just set the result slot.
+                this.resultSlots.setItem(0, stack);
+            }
+        }
     }
 
     protected boolean isValidBlock(BlockState blockState) {
@@ -116,7 +154,8 @@ public class DraftingTableMenu extends AbstractContainerMenu {
 
         // Make sure to re-trigger slot changed to update the GUI.
         // This may also allow the player to take another item from the slot.
-        this.triggerSlotChanged();
+        //this.triggerSlotChanged();
+        this.setResultSlot();
     }
 
     protected void triggerSlotChanged() {
@@ -124,6 +163,12 @@ public class DraftingTableMenu extends AbstractContainerMenu {
         if (this.parent != null && !this.isTakingStructure) {
             // This will update the UI to show the potentially updated needed/has values for materials.
             this.parent.loadMaterialEntries();
+        }
+    }
+
+    protected void resultSlotChanged() {
+        if (!this.player.level.isClientSide) {
+            this.setResultSlot();
         }
     }
 
