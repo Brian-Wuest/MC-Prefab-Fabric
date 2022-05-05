@@ -145,9 +145,9 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
 
         super.render(matrixStack, x, y, f);
 
-        this.renderTooltip(matrixStack, x, y);
-
         this.renderButtons(matrixStack, x, y);
+
+        this.renderTooltip(matrixStack, x, y);
 
         this.postButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
     }
