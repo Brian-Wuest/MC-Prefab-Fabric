@@ -1,9 +1,9 @@
 package com.wuest.prefab.gui.screens.menus;
 
 import com.wuest.prefab.ModRegistry;
-import com.wuest.prefab.Utils;
 import com.wuest.prefab.items.ItemBlueprint;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
+import com.wuest.prefab.structures.custom.base.ItemInfo;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.nbt.CompoundTag;
@@ -13,13 +13,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class DraftingTableMenu extends AbstractContainerMenu {
     public final ResultContainer resultSlots = new ResultContainer();
     private final ContainerLevelAccess access;
     private CustomStructureInfo selectedStructureInfo;
     private boolean isTakingStructure;
-    private Player player;
+    private final Player player;
 
     private IStructureMaterialLoader parent;
 
@@ -40,17 +41,17 @@ public class DraftingTableMenu extends AbstractContainerMenu {
         int m;
 
         this.addSlot(new Slot(this.resultSlots, 2, 152, 130) {
-            public boolean mayPlace(ItemStack itemStack) {
+            public boolean mayPlace(@NotNull ItemStack itemStack) {
                 return false;
             }
 
-            public boolean mayPickup(Player player) {
+            public boolean mayPickup(@NotNull Player player) {
                 return DraftingTableMenu.this.mayPickup(player, this.hasItem());
             }
 
-            public void onTake(Player player, ItemStack itemStack) {
+            public void onTake(@NotNull Player player, @NotNull ItemStack itemStack) {
                 super.onTake(player, itemStack);
-                DraftingTableMenu.this.onTake(player, itemStack);
+                DraftingTableMenu.this.onTake(player);
             }
 
             @Override
@@ -89,18 +90,20 @@ public class DraftingTableMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void removed(Player player) {
+    public void removed(@NotNull Player player) {
         super.removed(player);
         this.access.execute((level, blockPos) -> {
+            this.resultSlots.setItem(0, ItemStack.EMPTY);
             this.clearContainer(player, this.resultSlots);
         });
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return (Boolean) this.access.evaluate((level, blockPos) -> {
-            return this.isValidBlock(level.getBlockState(blockPos)) && player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D;
-        }, true);
+    public boolean stillValid(@NotNull Player player) {
+        return this.access.evaluate((level, blockPos) ->
+                this.isValidBlock(level.getBlockState(blockPos))
+                        && player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D,
+                true);
     }
 
     public void setSelectedStructureInfo(CustomStructureInfo selectedStructureInfo) {
@@ -124,37 +127,63 @@ public class DraftingTableMenu extends AbstractContainerMenu {
                 FriendlyByteBuf messagePacket = new FriendlyByteBuf(Unpooled.buffer());
                 messagePacket.writeNbt(structureTag);
                 ClientPlayNetworking.send(ModRegistry.DraftingTableResultSync, messagePacket);
-            }
-            else {
-                ItemStack stack = new ItemStack(ModRegistry.BlankBlueprint);
-                CompoundTag tag = stack.getOrCreateTag();
-                tag.putString(ItemBlueprint.StructureTag, this.selectedStructureInfo.displayName);
-                
+            } else {
+                ItemStack stack = this.createBluePrintStack();
+
                 // Server-side, just set the result slot.
                 this.resultSlots.setItem(0, stack);
             }
         }
     }
 
+    @Override
+    public ItemStack quickMoveStack(Player player, int i) {
+        int slot = player.getInventory().getFreeSlot();
+
+        // Make sure that there are free slots for this operation.
+        if (slot != -1 && this.selectedStructureInfo != null) {
+            ItemStack stack = null;
+
+            while (true) {
+                // Check if the player has enough items, if they do remove the items and then set or create the blueprint stack.
+                if (this.inventoryHasRequiredItems(player)) {
+                    this.removeRequiredItemsFromPlayerInventory(player);
+
+                    if (stack == null) {
+                        stack = this.createBluePrintStack();
+                    } else {
+                        stack.grow(1);
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            if (stack != null) {
+                player.getInventory().setItem(slot, stack);
+            }
+        }
+
+        return ItemStack.EMPTY;
+    }
+
     protected boolean isValidBlock(BlockState blockState) {
         return blockState.getBlock() == ModRegistry.DraftingTable;
     }
 
-    protected boolean mayPickup(Player player, boolean bl) {
-        // TODO: Check player inventory for enough materials for the currently selected structure.
-        return true;
+    protected boolean mayPickup(Player player, boolean ignoredBl) {
+        return this.inventoryHasRequiredItems(player);
     }
 
-    protected void onTake(Player player, ItemStack itemStack) {
+    protected void onTake(Player player) {
         this.isTakingStructure = true;
 
-        // TODO: Remove items from player inventory for currently selected structure.
+        this.removeRequiredItemsFromPlayerInventory(player);
 
         this.isTakingStructure = false;
 
         // Make sure to re-trigger slot changed to update the GUI.
         // This may also allow the player to take another item from the slot.
-        //this.triggerSlotChanged();
         this.setResultSlot();
     }
 
@@ -169,6 +198,72 @@ public class DraftingTableMenu extends AbstractContainerMenu {
     protected void resultSlotChanged() {
         if (!this.player.level.isClientSide) {
             this.setResultSlot();
+        }
+    }
+
+    protected ItemStack createBluePrintStack() {
+        if (this.selectedStructureInfo != null) {
+            ItemStack stack = new ItemStack(ModRegistry.BlankBlueprint);
+            CompoundTag tag = stack.getOrCreateTag();
+            tag.putString(ItemBlueprint.StructureTag, this.selectedStructureInfo.displayName);
+            return stack;
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    protected boolean inventoryHasRequiredItems(Player player) {
+        boolean returnValue = true;
+
+        if (this.selectedStructureInfo == null) {
+            returnValue = false;
+        } else {
+            for (ItemInfo info : this.selectedStructureInfo.requiredItems) {
+                int hasCount = player.getInventory().countItem(info.registeredItem);
+
+                if (info.count > hasCount) {
+                    returnValue = false;
+                    break;
+                }
+            }
+        }
+
+        return returnValue;
+    }
+
+    protected void removeRequiredItemsFromPlayerInventory(Player player) {
+        if (this.selectedStructureInfo != null) {
+            Inventory playerInventory = player.getInventory();
+
+            for (ItemInfo info : this.selectedStructureInfo.requiredItems) {
+                ItemStack itemInfoStack = new ItemStack(info.registeredItem);
+                int countRemaining = info.count;
+
+                while (countRemaining > 0) {
+                    int slot = playerInventory.findSlotMatchingItem(itemInfoStack);
+
+                    if (slot == -1) {
+                        break;
+                    }
+
+                    ItemStack slotStack = playerInventory.getItem(slot);
+                    int slotCount = slotStack.getCount();
+
+                    if (slotCount == 0) {
+                        break;
+                    }
+
+                    if (slotCount > countRemaining) {
+                        slotStack.setCount(slotCount - countRemaining);
+                        countRemaining = 0;
+                    } else {
+                        playerInventory.setItem(slot, ItemStack.EMPTY);
+                        countRemaining -= slotCount;
+                    }
+
+                    playerInventory.setChanged();
+                }
+            }
         }
     }
 
