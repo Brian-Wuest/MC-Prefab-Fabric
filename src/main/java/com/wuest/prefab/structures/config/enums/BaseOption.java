@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class BaseOption {
 
@@ -32,13 +33,13 @@ public class BaseOption {
     }
 
     /**
-     * @param translationString The translation string to use to find the option.
+     * @param hashCode The hashcode to use to find the option.
      * @return The option found.
      */
-    public static BaseOption getOptionByTranslationString(String translationString) {
+    public static BaseOption getOptionByHash(int hashCode) {
         for (Map.Entry<String, ArrayList<BaseOption>> mapping : BaseOption.classOptions.entrySet()) {
             for (BaseOption storedOption : mapping.getValue()) {
-                if (storedOption.getTranslationString().equals(translationString)) {
+                if (storedOption.hashCode() == hashCode) {
                     return storedOption;
                 }
             }
@@ -63,21 +64,21 @@ public class BaseOption {
     }
 
     /**
-     * @return Get's the translation string for the button when choosing this option.
+     * @return Gets the translation string for the button when choosing this option.
      */
     public String getTranslationString() {
         return this.translationString;
     }
 
     /**
-     * @return Get's the asset location to use to build the structure.
+     * @return Gets the asset location to use to build the structure.
      */
     public String getAssetLocation() {
         return this.assetLocation;
     }
 
     /**
-     * @return Get's the picture location to show when this option is chosen.
+     * @return Gets the picture location to show when this option is chosen.
      */
     public ResourceLocation getPictureLocation() {
         return this.pictureLocation;
@@ -121,5 +122,10 @@ public class BaseOption {
      */
     public ArrayList<BaseOption> filterOptions(ArrayList<BaseOption> originalOptions) {
         return originalOptions;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.translationString, this.assetLocation);
     }
 }
