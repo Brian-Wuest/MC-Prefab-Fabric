@@ -101,8 +101,8 @@ public class DraftingTableMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(@NotNull Player player) {
         return this.access.evaluate((level, blockPos) ->
-                this.isValidBlock(level.getBlockState(blockPos))
-                        && player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D,
+                        this.isValidBlock(level.getBlockState(blockPos))
+                                && player.distanceToSqr((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double) blockPos.getZ() + 0.5D) <= 64.0D,
                 true);
     }
 

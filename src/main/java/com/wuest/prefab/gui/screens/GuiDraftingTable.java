@@ -2,10 +2,7 @@ package com.wuest.prefab.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
-import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Tuple;
-import com.wuest.prefab.Utils;
-import com.wuest.prefab.config.block_entities.DraftingTableConfiguration;
 import com.wuest.prefab.gui.GuiUtils;
 import com.wuest.prefab.gui.controls.GuiItemList;
 import com.wuest.prefab.gui.controls.GuiListBox;
@@ -15,34 +12,19 @@ import com.wuest.prefab.gui.screens.menus.DraftingTableMenu;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.custom.base.ItemInfo;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AnvilMenu;
-import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
-
-/**
- * TODO:
- * NOTE: Use the "ContainerScreen", and the "ChestMenu" as a basis for this screen for slots.
- * <p>
- * 1. Need to load all items from player's inventory into the grid.
- * 2. Need ability to take things out of the grid and "throw away" like any other inventory.
- * 3. Need ability to grab blueprint from inventory slot.
- * 4. When blueprint grabbed, need to immediately update inventory (look at crafting table for all of this)
- * 5. When player puts item in inventory; need to send data back to server so data is saved.
- * 6. Need to create custom blueprint item so we can save tag data about the custom blueprint.
- */
 
 public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu> implements MenuAccess<DraftingTableMenu>, DraftingTableMenu.IStructureMaterialLoader {
     private final ResourceLocation backgroundTexture = new ResourceLocation("prefab", "textures/gui/drafter.png");
@@ -56,11 +38,9 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
     private final ResourceLocation materialHover = new ResourceLocation("prefab", "textures/gui/materials_hovered.png");
     private final ResourceLocation materialHoverSelected = new ResourceLocation("prefab", "textures/gui/materials_selected_hovered.png");
 
-    private final Level world;
     private int modifiedInitialXAxis = 0;
     private int modifiedInitialYAxis = 0;
-    private int textColor = Color.DARK_GRAY.getRGB();
-    private DraftingTableConfiguration config;
+    private final int textColor = Color.DARK_GRAY.getRGB();
     private TextureButton schematicsButton;
     private TextureButton materialsButton;
     private GuiListBox schematicsList;
@@ -70,17 +50,12 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
 
     public GuiDraftingTable(DraftingTableMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
-        this.world = inventory.player.level;
         this.showingMaterials = false;
     }
 
     public @Nonnull
     Minecraft getMinecraft() {
         return this.minecraft;
-    }
-
-    public Font getFontRenderer() {
-        return this.getMinecraft().font;
     }
 
     @Override
@@ -138,7 +113,7 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
     }
 
     @Override
-    public void render(PoseStack matrixStack, int x, int y, float f) {
+    public void render(@NotNull PoseStack matrixStack, int x, int y, float f) {
         Tuple<Integer, Integer> adjustedXYValue = this.getAdjustedXYValue();
 
         this.preButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
@@ -153,7 +128,8 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
     }
 
     @Override
-    protected void renderBg(PoseStack poseStack, float f, int i, int j){}
+    protected void renderBg(@NotNull PoseStack poseStack, float f, int i, int j) {
+    }
 
     private void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
@@ -186,8 +162,6 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
     }
 
     private void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
-
-
         // Draw Text here.
         GuiUtils.drawString(matrixStack, "Available Structures", x + 10, y + 10, this.textColor);
     }
