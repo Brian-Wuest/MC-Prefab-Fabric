@@ -143,6 +143,7 @@ public class DraftingTableMenu extends AbstractContainerMenu {
         // Make sure that there are free slots for this operation.
         if (slot != -1 && this.selectedStructureInfo != null) {
             ItemStack stack = null;
+            boolean runProcessAgainForNextStack = false;
 
             while (true) {
                 // Check if the player has enough items, if they do remove the items and then set or create the blueprint stack.
@@ -153,6 +154,12 @@ public class DraftingTableMenu extends AbstractContainerMenu {
                         stack = this.createBluePrintStack();
                     } else {
                         stack.grow(1);
+
+                        if (stack.getCount() == stack.getMaxStackSize() && this.inventoryHasRequiredItems(player)) {
+                            // The stack is full but there are still more materials to take.
+                            runProcessAgainForNextStack = true;
+                            break;
+                        }
                     }
                 } else {
                     break;
@@ -161,6 +168,12 @@ public class DraftingTableMenu extends AbstractContainerMenu {
 
             if (stack != null) {
                 player.getInventory().setItem(slot, stack);
+            }
+
+            // This is needed for situations where the designer made the recipe really cheap and the player can
+            // Generate more than 64 items in a single go.
+            if (runProcessAgainForNextStack) {
+                this.quickMoveStack(player, i);
             }
         }
 
