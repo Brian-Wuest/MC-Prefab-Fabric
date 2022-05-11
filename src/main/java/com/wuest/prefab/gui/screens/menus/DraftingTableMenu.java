@@ -1,7 +1,7 @@
 package com.wuest.prefab.gui.screens.menus;
 
 import com.wuest.prefab.ModRegistry;
-import com.wuest.prefab.items.ItemBlueprint;
+import com.wuest.prefab.structures.items.ItemBlueprint;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.custom.base.ItemInfo;
 import io.netty.buffer.Unpooled;
