@@ -45,6 +45,21 @@ public class ItemBlueprint extends StructureItem {
         return ItemBlueprint.getCustomStructureFromStack(stack);
     }
 
+    public static ItemStack getCustomStructureStackInHand(Player player) {
+        ItemStack stack = player.getOffhandItem();
+
+        // Get off-hand first since that is the right-click hand if there is something in there.
+        if (!(stack.getItem() instanceof ItemBlueprint)) {
+            if (player.getMainHandItem().getItem() instanceof ItemBlueprint) {
+                stack = player.getMainHandItem();
+            } else {
+                return ItemStack.EMPTY;
+            }
+        }
+
+        return stack;
+    }
+
     public static CustomStructureInfo getCustomStructureFromStack(ItemStack stack) {
         CompoundTag tag = stack.getOrCreateTag();
 
