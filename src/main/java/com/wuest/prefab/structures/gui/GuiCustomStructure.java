@@ -1,7 +1,10 @@
 package com.wuest.prefab.structures.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.wuest.prefab.Tuple;
+import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.gui.GuiLangKeys;
+import com.wuest.prefab.gui.GuiUtils;
 import com.wuest.prefab.gui.controls.ExtendedButton;
 import com.wuest.prefab.structures.config.CustomStructureConfiguration;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
@@ -10,14 +13,12 @@ import com.wuest.prefab.structures.messages.StructureTagMessage;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.DyeColor;
 
 /**
  * TODO:
- *  1. Show Name of Custom Structure
- *  2. Show Preview Button
- *  3. Show Cancel Button
- *  4. Show Build Button
- *
+ *  1. Get Preview To Work
+ *  2. Get Build To Work
  */
 public class GuiCustomStructure extends GuiStructure {
     protected CustomStructureInfo selectedStructure;
@@ -34,7 +35,6 @@ public class GuiCustomStructure extends GuiStructure {
 
     @Override
     protected void Initialize() {
-        // TODO: Create Stuff Here
         super.Initialize();
 
         this.selectedStructure = ItemBlueprint.getCustomStructureInHand(this.player);
@@ -48,9 +48,30 @@ public class GuiCustomStructure extends GuiStructure {
             this.hasColorOptions = true;
         }
 
-        if (!this.hasColorOptions) {
-            this.InitializeStandardButtons();
-        }
+        this.modifiedInitialXAxis = 135;
+        this.modifiedInitialYAxis = 100;
+        this.imagePanelWidth = 270;
+        this.imagePanelHeight = 220 - (!hasColorOptions ? 40 : 0);
+
+        // Get the upper left-hand corner of the GUI box.
+        Tuple<Integer, Integer> adjustedXYValue = this.getAdjustedXYValue();
+        int grayBoxX = adjustedXYValue.getFirst();
+        int grayBoxY = adjustedXYValue.getSecond();
+
+        // Create the buttons.
+        int x = grayBoxX + 20;
+        int y = grayBoxY + 35 - (!hasColorOptions ? 25 : 0);
+
+        this.btnBedColor = this.createAndAddDyeButton(x, y, 90, 20, this.specificConfiguration.bedColor, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR));
+        this.btnBedColor.visible = false;
+
+        this.btnGlassColor = this.createAndAddFullDyeButton(x, y + 40, 90, 20, this.specificConfiguration.glassColor, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_GLASS));
+        this.btnGlassColor.visible = false;
+
+        // Create the standard buttons.
+        this.btnVisualize = this.createAndAddCustomButton(grayBoxX + 20, y + 77, 90, 20, GuiLangKeys.GUI_BUTTON_PREVIEW);
+        this.btnBuild = this.createAndAddCustomButton(grayBoxX + 150, y + 40, 90, 20, GuiLangKeys.GUI_BUTTON_BUILD);
+        this.btnCancel = this.createAndAddButton(grayBoxX + 150, y + 77, 90, 20, GuiLangKeys.GUI_BUTTON_CANCEL);
     }
 
     @Override
@@ -61,15 +82,38 @@ public class GuiCustomStructure extends GuiStructure {
     @Override
     protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         // Enable/disable button options here.
-        if (!this.hasColorOptions) {
-            super.preButtonRender(matrixStack, x, y, mouseX, mouseY, partialTicks);
+        super.preButtonRender(matrixStack, x, y, mouseX, mouseY, partialTicks);
+
+        if (this.hasColorOptions) {
+            if (this.selectedStructure.hasGlassColorOptions) {
+                this.btnGlassColor.visible = true;
+            }
+
+            if (this.selectedStructure.hasBedColorOptions) {
+                this.btnBedColor.visible = true;
+            }
         }
     }
 
     @Override
     protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+        int yValue = y + 5;
+        int xValue = x + 20;
+
         // Write out text here for labels.
-        this.drawSplitString(GuiLangKeys.translateString(this.specificConfiguration.customStructureName), x + 8, y + 10, 128, this.textColor);
+        this.drawSplitString(GuiLangKeys.translateString(this.specificConfiguration.customStructureName), xValue, yValue, 128, this.textColor);
+
+        yValue += 20;
+
+        // Draw the text here.
+        if (this.selectedStructure.hasBedColorOptions) {
+            this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR), xValue, yValue, this.textColor);
+            yValue += 40;
+        }
+
+        if (this.selectedStructure.hasGlassColorOptions) {
+            this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_GLASS), xValue, yValue, this.textColor);
+        }
     }
 
     @Override
@@ -78,6 +122,12 @@ public class GuiCustomStructure extends GuiStructure {
 
         if (button == this.btnVisualize) {
             this.performPreview();
+        } else if (button == this.btnBedColor) {
+            this.specificConfiguration.bedColor = DyeColor.byId(this.specificConfiguration.bedColor.getId() + 1);
+            GuiUtils.setButtonText(this.btnBedColor, GuiLangKeys.translateDye(this.specificConfiguration.bedColor));
+        } else if (button == this.btnGlassColor) {
+            this.specificConfiguration.glassColor = FullDyeColor.byId(this.specificConfiguration.glassColor.getId() + 1);
+            GuiUtils.setButtonText(this.btnGlassColor, GuiLangKeys.translateFullDye(this.specificConfiguration.glassColor));
         }
     }
 }
