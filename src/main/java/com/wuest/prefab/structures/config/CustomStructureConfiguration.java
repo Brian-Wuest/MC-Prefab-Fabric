@@ -1,8 +1,9 @@
 package com.wuest.prefab.structures.config;
 
+import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.blocks.FullDyeColor;
+import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.items.ItemBlueprint;
-import com.wuest.prefab.structures.predefined.StructureBasic;
 import com.wuest.prefab.structures.predefined.StructureCustom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +21,8 @@ public class CustomStructureConfiguration extends StructureConfiguration {
     public String customStructureName;
     public DyeColor bedColor;
     public FullDyeColor glassColor;
+
+    public CustomStructureInfo customStructureInfo;
 
     public CustomStructureConfiguration() {
         super();
@@ -82,9 +85,9 @@ public class CustomStructureConfiguration extends StructureConfiguration {
      */
     @Override
     protected void ConfigurationSpecificBuildStructure(Player player, ServerLevel world, BlockPos hitBlockPos) {
-        String assetLocation = "";
+        this.findCustomStructure();
 
-        StructureCustom structure = StructureCustom.CreateInstance(assetLocation, StructureCustom.class);
+        StructureCustom structure = StructureCustom.CreateInstanceFromFile(this.customStructureInfo.structureFilePath, StructureCustom.class);
 
         if (structure.BuildStructure(this, world, hitBlockPos, player)) {
             ItemStack stack = ItemBlueprint.getCustomStructureStackInHand(player);
@@ -102,6 +105,15 @@ public class CustomStructureConfiguration extends StructureConfiguration {
                     // The item has durability; damage it since the building was constructed.
                     this.DamageHeldItem(player, stack.getItem());
                 }
+            }
+        }
+    }
+
+    protected void findCustomStructure() {
+        for (CustomStructureInfo info : ModRegistry.CustomStructures) {
+            if (info.displayName.equalsIgnoreCase(this.customStructureName.toLowerCase())) {
+                this.customStructureInfo = info;
+                return;
             }
         }
     }

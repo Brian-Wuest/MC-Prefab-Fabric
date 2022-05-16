@@ -17,11 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.DyeColor;
 
-/**
- * TODO:
- *  1. Get Preview To Work
- *  2. Get Build To Work
- */
 public class GuiCustomStructure extends GuiStructure {
     protected CustomStructureInfo selectedStructureInfo;
     protected CustomStructureConfiguration specificConfiguration;
