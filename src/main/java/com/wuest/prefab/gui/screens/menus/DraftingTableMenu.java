@@ -1,6 +1,7 @@
 package com.wuest.prefab.gui.screens.menus;
 
 import com.wuest.prefab.ModRegistry;
+import com.wuest.prefab.Prefab;
 import com.wuest.prefab.structures.items.ItemBlueprint;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.custom.base.ItemInfo;
@@ -152,6 +153,11 @@ public class DraftingTableMenu extends AbstractContainerMenu {
 
                     if (stack == null) {
                         stack = this.createBluePrintStack();
+
+                        if (Prefab.isDebug) {
+                            stack.setCount(64);
+                            break;
+                        }
                     } else {
                         stack.grow(1);
 
@@ -232,6 +238,10 @@ public class DraftingTableMenu extends AbstractContainerMenu {
     protected boolean inventoryHasRequiredItems(Player player) {
         boolean returnValue = true;
 
+        if (Prefab.isDebug) {
+            return true;
+        }
+
         if (this.selectedStructureInfo == null) {
             returnValue = false;
         } else {
@@ -249,7 +259,7 @@ public class DraftingTableMenu extends AbstractContainerMenu {
     }
 
     protected void removeRequiredItemsFromPlayerInventory(Player player) {
-        if (this.selectedStructureInfo != null) {
+        if (this.selectedStructureInfo != null && !Prefab.isDebug) {
             Inventory playerInventory = player.getInventory();
 
             for (ItemInfo info : this.selectedStructureInfo.requiredItems) {
