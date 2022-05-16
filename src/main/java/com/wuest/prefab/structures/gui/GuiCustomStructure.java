@@ -6,10 +6,12 @@ import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.gui.GuiUtils;
 import com.wuest.prefab.gui.controls.ExtendedButton;
+import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.CustomStructureConfiguration;
 import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
 import com.wuest.prefab.structures.items.ItemBlueprint;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
+import com.wuest.prefab.structures.predefined.StructureCustom;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -21,7 +23,7 @@ import net.minecraft.world.item.DyeColor;
  *  2. Get Build To Work
  */
 public class GuiCustomStructure extends GuiStructure {
-    protected CustomStructureInfo selectedStructure;
+    protected CustomStructureInfo selectedStructureInfo;
     protected CustomStructureConfiguration specificConfiguration;
     protected boolean hasColorOptions;
 
@@ -37,14 +39,15 @@ public class GuiCustomStructure extends GuiStructure {
     protected void Initialize() {
         super.Initialize();
 
-        this.selectedStructure = ItemBlueprint.getCustomStructureInHand(this.player);
+        this.selectedStructureInfo = ItemBlueprint.getCustomStructureInHand(this.player);
 
         this.configuration = this.specificConfiguration = new CustomStructureConfiguration();
         this.configuration.pos = this.pos;
         this.configuration.houseFacing = this.structureFacing;
-        this.specificConfiguration.customStructureName = this.selectedStructure.displayName;
+        this.specificConfiguration.customStructureName = this.selectedStructureInfo.displayName;
+        this.selectedStructure = Structure.CreateInstanceFromFile(this.selectedStructureInfo.structureFilePath, StructureCustom.class);
 
-        if (this.selectedStructure.hasBedColorOptions || this.selectedStructure.hasGlassColorOptions) {
+        if (this.selectedStructureInfo.hasBedColorOptions || this.selectedStructureInfo.hasGlassColorOptions) {
             this.hasColorOptions = true;
         }
 
@@ -76,7 +79,7 @@ public class GuiCustomStructure extends GuiStructure {
 
     @Override
     public Component getNarrationMessage() {
-        return new TranslatableComponent(this.selectedStructure.displayName);
+        return new TranslatableComponent(this.selectedStructureInfo.displayName);
     }
 
     @Override
@@ -85,11 +88,11 @@ public class GuiCustomStructure extends GuiStructure {
         super.preButtonRender(matrixStack, x, y, mouseX, mouseY, partialTicks);
 
         if (this.hasColorOptions) {
-            if (this.selectedStructure.hasGlassColorOptions) {
+            if (this.selectedStructureInfo.hasGlassColorOptions) {
                 this.btnGlassColor.visible = true;
             }
 
-            if (this.selectedStructure.hasBedColorOptions) {
+            if (this.selectedStructureInfo.hasBedColorOptions) {
                 this.btnBedColor.visible = true;
             }
         }
@@ -106,12 +109,12 @@ public class GuiCustomStructure extends GuiStructure {
         yValue += 20;
 
         // Draw the text here.
-        if (this.selectedStructure.hasBedColorOptions) {
+        if (this.selectedStructureInfo.hasBedColorOptions) {
             this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR), xValue, yValue, this.textColor);
             yValue += 40;
         }
 
-        if (this.selectedStructure.hasGlassColorOptions) {
+        if (this.selectedStructureInfo.hasGlassColorOptions) {
             this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_GLASS), xValue, yValue, this.textColor);
         }
     }
