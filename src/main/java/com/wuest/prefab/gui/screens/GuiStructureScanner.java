@@ -8,36 +8,48 @@ import com.wuest.prefab.Utils;
 import com.wuest.prefab.blocks.BlockStructureScanner;
 import com.wuest.prefab.config.block_entities.StructureScannerConfig;
 import com.wuest.prefab.gui.GuiBase;
+import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.gui.controls.ExtendedButton;
+import com.wuest.prefab.gui.controls.GuiCheckBox;
 import com.wuest.prefab.gui.controls.GuiTextBox;
+import com.wuest.prefab.gui.controls.TextureButton;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 import java.awt.*;
 
 public class GuiStructureScanner extends GuiBase {
+    private final ResourceLocation downTexture = new ResourceLocation("prefab", "textures/gui/down.png");
+    private final ResourceLocation leftTexture = new ResourceLocation("prefab", "textures/gui/left.png");
+    private final ResourceLocation rightTexture = new ResourceLocation("prefab", "textures/gui/right.png");
+    private final ResourceLocation upTexture = new ResourceLocation("prefab", "textures/gui/up.png");
     private final BlockPos blockPos;
     private final Level world;
     private StructureScannerConfig config;
 
-    private ExtendedButton btnStartingPositionMoveLeft;
-    private ExtendedButton btnStartingPositionMoveRight;
-    private ExtendedButton btnStartingPositionMoveDown;
-    private ExtendedButton btnStartingPositionMoveUp;
-    private ExtendedButton btnWidthGrow;
-    private ExtendedButton btnWidthShrink;
-    private ExtendedButton btnLengthGrow;
-    private ExtendedButton btnLengthShrink;
-    private ExtendedButton btnHeightGrow;
-    private ExtendedButton btnHeightShrink;
+    private TextureButton btnStartingPositionMoveLeft;
+    private TextureButton btnStartingPositionMoveRight;
+    private TextureButton btnStartingPositionMoveDown;
+    private TextureButton btnStartingPositionMoveUp;
+    private TextureButton btnWidthGrow;
+    private TextureButton btnWidthShrink;
+    private TextureButton btnDepthGrow;
+    private TextureButton btnDepthShrink;
+    private TextureButton btnHeightGrow;
+    private TextureButton btnHeightShrink;
     private GuiTextBox txtZipName;
     private ExtendedButton btnScan;
     private ExtendedButton btnSet;
+    private ExtendedButton btnReSet;
+
+    private GuiCheckBox hasGlassColorOptions;
+    private GuiCheckBox hasBedColorOptions;
 
     public GuiStructureScanner(BlockPos blockPos, Level world, StructureScannerConfig config) {
         super("Structure Scanner");
@@ -60,32 +72,44 @@ public class GuiStructureScanner extends GuiBase {
         int adjustedY = adjustedXYValues.second;
 
         // Starting position.
-        this.btnStartingPositionMoveDown = this.createAndAddButton(adjustedX + 33, adjustedY + 50, 25, 20, "▲", null);
+        this.btnStartingPositionMoveDown = this.createAndAddTextureButton(adjustedX + 33, adjustedY + 100, 25, 20, 10, 10);
+        this.btnStartingPositionMoveDown.setDefaultTexture(this.downTexture);
 
-        this.btnStartingPositionMoveLeft = this.createAndAddButton(adjustedX + 20, adjustedY + 75, 25, 20, "◄", null);
-        this.btnStartingPositionMoveLeft.fontScale = 2.0f;
-        this.btnStartingPositionMoveRight = this.createAndAddButton(adjustedX + 47, adjustedY + 75, 25, 20, "►", null);
-        this.btnStartingPositionMoveRight.fontScale = 2.0f;
+        this.btnStartingPositionMoveLeft = this.createAndAddTextureButton(adjustedX + 20, adjustedY + 75, 25, 20, 10, 10);
+        this.btnStartingPositionMoveLeft.setDefaultTexture(this.leftTexture);
 
-        this.btnStartingPositionMoveUp = this.createAndAddButton(adjustedX + 33, adjustedY + 100, 25, 20, "▼", null);
+        this.btnStartingPositionMoveRight = this.createAndAddTextureButton(adjustedX + 47, adjustedY + 75, 25, 20, 10, 10);
+        this.btnStartingPositionMoveRight.setDefaultTexture(this.rightTexture);
 
-        // Length
-        this.btnLengthShrink = this.createAndAddButton(adjustedX + 120, adjustedY + 30, 25, 20, "▼", null);
-        this.btnLengthGrow = this.createAndAddButton(adjustedX + 147, adjustedY + 30, 25, 20, "▲", null);
+        this.btnStartingPositionMoveUp = this.createAndAddTextureButton(adjustedX + 33, adjustedY + 50, 25, 20, 10, 10);
+        this.btnStartingPositionMoveUp.setDefaultTexture(this.upTexture);
+
+        // Depth
+        this.btnDepthShrink = this.createAndAddTextureButton(adjustedX + 120, adjustedY + 30, 25, 20, 10, 10);
+        this.btnDepthShrink.setDefaultTexture(this.downTexture);
+
+        this.btnDepthGrow = this.createAndAddTextureButton(adjustedX + 147, adjustedY + 30, 25, 20, 10, 10);
+        this.btnDepthGrow.setDefaultTexture(this.upTexture);
 
         // Width
-        this.btnWidthShrink = this.createAndAddButton(adjustedX + 200, adjustedY + 30, 25, 20, "▼", null);
-        this.btnWidthGrow = this.createAndAddButton(adjustedX + 227, adjustedY + 30, 25, 20, "▲", null);
+        this.btnWidthShrink = this.createAndAddTextureButton(adjustedX + 200, adjustedY + 30, 25, 20, 10, 10);
+        this.btnWidthShrink.setDefaultTexture(this.downTexture);
+
+        this.btnWidthGrow = this.createAndAddTextureButton(adjustedX + 227, adjustedY + 30, 25, 20, 10, 10);
+        this.btnWidthGrow.setDefaultTexture(this.upTexture);
 
         // Height
-        this.btnHeightShrink = this.createAndAddButton(adjustedX + 270, adjustedY + 30, 25, 20, "▼", null);
-        this.btnHeightGrow = this.createAndAddButton(adjustedX + 297, adjustedY + 30, 25, 20, "▲", null);
+        this.btnHeightShrink = this.createAndAddTextureButton(adjustedX + 270, adjustedY + 30, 25, 20, 10, 10);
+        this.btnHeightShrink.setDefaultTexture(this.downTexture);
+
+        this.btnHeightGrow = this.createAndAddTextureButton(adjustedX + 297, adjustedY + 30, 25, 20, 10, 10);
+        this.btnHeightGrow.setDefaultTexture(this.upTexture);
 
         // Zip Text Field
-        this.txtZipName = new GuiTextBox(this.getMinecraft().font, adjustedX + 120, adjustedY + 75, 150, 20, new TextComponent(""));
+        this.txtZipName = new GuiTextBox(this.getMinecraft().font, adjustedX + 120, adjustedY + 110, 150, 20, new TextComponent(""));
 
         if (this.config.structureZipName == null || this.config.structureZipName.trim().equals("")) {
-            this.txtZipName.setValue("Structure Name Here");
+            this.txtZipName.setValue(GuiLangKeys.translateString(GuiLangKeys.STRUCTURE_NAME_HERE));
         } else {
             this.txtZipName.setValue(this.config.structureZipName);
         }
@@ -97,8 +121,12 @@ public class GuiStructureScanner extends GuiBase {
         this.txtZipName.drawsTextShadow = false;
         this.addRenderableWidget(this.txtZipName);
 
-        this.btnSet = this.createAndAddButton(adjustedX + 25, adjustedY + 140, 90, 20, "Set And Close", null);
-        this.btnScan = this.createAndAddCustomButton(adjustedX + 200, adjustedY + 140, 90, 20, "Scan");
+        this.hasBedColorOptions = this.createAndAddCheckBox(adjustedX + 120, adjustedY + 65, "Has Bed Color Options", false, null);
+        this.hasGlassColorOptions = this.createAndAddCheckBox(adjustedX + 220, adjustedY + 65, "Has Glass Color Options", false, null);
+
+        this.btnSet = this.createAndAddButton(adjustedX + 20, adjustedY + 150, 90, 20, GuiLangKeys.translateString(GuiLangKeys.SET_AND_CLOSE), null);
+        this.btnReSet = this.createAndAddButton(adjustedX + 125, adjustedY + 150, 90, 20, GuiLangKeys.translateString(GuiLangKeys.RESET), null);
+        this.btnScan = this.createAndAddCustomButton(adjustedX + 230, adjustedY + 150, 90, 20, GuiLangKeys.translateString(GuiLangKeys.SCAN));
     }
 
     @Override
@@ -108,31 +136,29 @@ public class GuiStructureScanner extends GuiBase {
 
     @Override
     protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        this.drawString(matrixStack, "Starting Position", x + 15, y + 20, this.textColor);
-        this.drawString(matrixStack, "Left: " + this.config.blocksToTheLeft + " Down: " + -this.config.blocksDown, x + 15, y + 35, this.textColor);
-        this.drawString(matrixStack, "Length: " + this.config.blocksLong, x + 120, y + 20, this.textColor);
-        this.drawString(matrixStack, "Width: " + this.config.blocksWide, x + 200, y + 20, this.textColor);
-        this.drawString(matrixStack, "Height: " + this.config.blocksTall, x + 270, y + 20, this.textColor);
+        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.STARTING_POSITION), x + 15, y + 20, this.textColor);
+        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.LEFT) + " " + this.config.blocksToTheLeft + " " + GuiLangKeys.translateString(GuiLangKeys.DOWN) + " " + -this.config.blocksDown, x + 15, y + 35, this.textColor);
+        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.DEPTH) + " " + this.config.blocksLong, x + 120, y + 20, this.textColor);
+        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.WIDTH)+ " " + this.config.blocksWide, x + 200, y + 20, this.textColor);
+        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.HEIGHT) + " " + this.config.blocksTall, x + 270, y + 20, this.textColor);
 
-        this.drawString(matrixStack, "Name", x + 120, y + 60, this.textColor);
+        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.NAME), x + 120, y + 100, this.textColor);
     }
 
     @Override
     public void buttonClicked(AbstractButton button) {
         this.config.structureZipName = this.txtZipName.getValue();
 
-        if (this.config.structureZipName.trim().equals("")) {
-            this.config.structureZipName = "Structure Name Here";
-        }
+        this.btnScan.active = !this.config.structureZipName.trim().equals("");
 
         this.config.structureZipName = this.config.structureZipName.toLowerCase().trim().replace(' ', '_');
 
-        if (button == this.btnScan) {
+        if (button == this.btnScan && this.btnScan.active) {
             this.sendScanPacket();
             this.closeScreen();
         } else if (button == this.btnSet) {
             // Look through the list of scanners to see if it's already there, if so don't do anything.
-            // Otherwise add it to the list of scanners.
+            // Otherwise, add it to the list of scanners.
             boolean foundExistingConfig = false;
 
             for (StructureScannerConfig config : ClientModRegistry.structureScanners) {
@@ -148,7 +174,22 @@ public class GuiStructureScanner extends GuiBase {
                 ClientModRegistry.structureScanners.add(this.config);
             }
 
+            // Always make sure to send the update packet when setting.
+            // This way the block configuration is saved even when just typing in the structure name.
+            this.sendUpdatePacket();
+
             this.closeScreen();
+        } else if(button == this.btnReSet) {
+            this.config.blocksDown = 0;
+            this.config.blocksLong = 0;
+            this.config.blocksTall = 0;
+            this.config.blocksWide = 0;
+            this.config.blocksParallel = 0;
+            this.config.blocksToTheLeft = 0;
+            this.txtZipName.setValue(GuiLangKeys.translateString(GuiLangKeys.STRUCTURE_NAME_HERE));
+            this.config.structureZipName = GuiLangKeys.translateString(GuiLangKeys.STRUCTURE_NAME_HERE);
+
+            this.sendUpdatePacket();
         } else {
             if (button == this.btnStartingPositionMoveLeft) {
                 this.config.blocksToTheLeft = this.config.blocksToTheLeft + 1;
@@ -174,11 +215,11 @@ public class GuiStructureScanner extends GuiBase {
                 this.config.blocksWide -= 1;
             }
 
-            if (button == this.btnLengthGrow) {
+            if (button == this.btnDepthGrow) {
                 this.config.blocksLong += 1;
             }
 
-            if (button == this.btnLengthShrink) {
+            if (button == this.btnDepthShrink) {
                 this.config.blocksLong -= 1;
             }
 

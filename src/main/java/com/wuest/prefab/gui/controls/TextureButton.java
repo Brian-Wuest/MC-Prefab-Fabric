@@ -16,16 +16,27 @@ public class TextureButton extends ExtendedButton {
     private boolean isToggleButton;
     private boolean isSelected;
 
-    public TextureButton(int xPos, int yPos, OnPress handler) {
-        super(xPos, yPos, 200, 90, new TextComponent(""), handler, null);
+    private final boolean renderDefaultButtonBackground;
+
+    private final int textureHeight;
+    private final int textureWidth;
+
+    public TextureButton(int xPos, int yPos, int width, int height, int textureWidth, int textureHeight, OnPress handler) {
+        super(xPos, yPos, width, height, new TextComponent(""), handler, null);
         this.isToggleButton = false;
         this.isSelected = false;
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
+        this.renderDefaultButtonBackground = true;
     }
 
     public TextureButton(int xPos, int yPos, int width, int height, OnPress handler) {
         super(xPos, yPos, width, height, new TextComponent(""), handler, null);
         this.isToggleButton = false;
         this.isSelected = false;
+        this.renderDefaultButtonBackground = false;
+        this.textureHeight = height;
+        this.textureWidth = width;
     }
 
     public TextureButton setDefaultTexture(ResourceLocation value) {
@@ -80,23 +91,49 @@ public class TextureButton extends ExtendedButton {
         if (this.visible) {
             Minecraft mc = Minecraft.getInstance();
             this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+
+            int xPosition = this.x;
+            int yPosition = this.y;
+
+            if (this.renderDefaultButtonBackground) {
+                this.renderStandardBackground(mStack, mouseX, mouseY, mc);
+                xPosition = this.x + (this.width / 2) - (this.textureWidth / 2);
+                yPosition = this.y + (this.height / 2) - (this.textureHeight / 2);
+            }
+
             ResourceLocation buttonTexture = this.getButtonTexture();
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, buttonTexture);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
-            GuiUtils.bindAndDrawScaledTexture(mStack, this.x, this.y, this.width, this.height, this.width, this.height, this.width, this.height);
+            GuiUtils.bindAndDrawScaledTexture(mStack, xPosition, yPosition, this.textureWidth, this.textureHeight, this.textureWidth, this.textureHeight, this.textureWidth, this.textureHeight);
         }
     }
 
+    private void renderStandardBackground(PoseStack poseStack, int mouseX, int mouseY, Minecraft mc) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+
+        int i = this.getYImage(this.isHoveredOrFocused());
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        this.blit(poseStack, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
+        this.blit(poseStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+
+        this.renderBg(poseStack, mc, mouseX, mouseY);
+    }
+
     private ResourceLocation getButtonTexture() {
-        if (this.isSelected) {
-            if (this.isHovered) {
+        if (this.isSelected && this.selectedTexture != null) {
+            if (this.isHovered && this.selectedHoverTexture != null) {
                 return this.selectedHoverTexture;
             }
 
             return this.selectedTexture;
-        } else if (this.isHovered) {
+        } else if (this.isHovered && this.hoverTexture != null) {
             return this.hoverTexture;
         }
 

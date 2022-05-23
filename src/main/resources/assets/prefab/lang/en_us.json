@@ -282,6 +282,8 @@
   "prefab.gui.structure.block.clicked": "The yellow outline is the block you clicked on.",
   "prefab.gui.structure.nobuild": "Cannot build structure due to protected blocks/area or unbreakable blocks are in the area. Block Name: %1$s Block Position: x=%2$s, y=%3$s, z=%4$s",
 
+  "prefab.gui.available_structures": "Available Structures",
+
   "prefab.gui.button.build": "Build!",
   "prefab.gui.button.cancel": "Cancel",
   "prefab.gui.button.preview": "Preview!",
@@ -345,6 +347,15 @@
   "prefab.gui.part_style.floor": "Floor",
   "prefab.gui.part_style.roof": "Roof",
 
+  "prefab.gui.set_and_close": "Set And Close",
+  "prefab.gui.scan": "Scan",
+  "prefab.gui.reset": "Reset",
+  "prefab.gui.structure_name_here": "Structure Name Here",
+  "prefab.gui.name": "Name",
+  "prefab.gui.depth": "Depth",
+  "prefab.gui.left": "Left",
+  "prefab.gui.down": "Down",
+  "prefab.gui.starting_position": "Starting Position",
   "prefab.gui.style": "Style",
   "prefab.gui.material": "Material",
   "prefab.gui.height": "Height",

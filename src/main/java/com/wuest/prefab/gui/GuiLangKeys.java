@@ -411,6 +411,36 @@ public class GuiLangKeys {
     @Unlocalized(name = "Instant Bridge")
     public static final String TITLE_INSTANT_BRIDGE = "item.prefab.item_instant_bridge";
 
+    @Unlocalized(name = "Available Structures")
+    public static final String AVAILABLE_STRUCTURES = "prefab.gui.available_structures";
+
+    @Unlocalized(name = "Name")
+    public static final String NAME = "prefab.gui.name";
+
+    @Unlocalized(name = "Depth")
+    public static final String DEPTH = "prefab.gui.depth";
+
+    @Unlocalized(name = "Left")
+    public static final String LEFT = "prefab.gui.left";
+
+    @Unlocalized(name = "Down")
+    public static final String DOWN = "prefab.gui.down";
+
+    @Unlocalized(name = "Starting Position")
+    public static final String STARTING_POSITION = "prefab.gui.starting_position";
+
+    @Unlocalized(name = "Structure Name Here")
+    public static final String STRUCTURE_NAME_HERE = "prefab.gui.structure_name_here";
+
+    @Unlocalized(name = "Set And Close")
+    public static final String SET_AND_CLOSE = "prefab.gui.set_and_close";
+
+    @Unlocalized(name = "Scan")
+    public static final String SCAN = "prefab.gui.scan";
+
+    @Unlocalized(name = "Reset")
+    public static final String RESET = "prefab.gui.reset";
+
     /**
      * Translates the specified language key for the current language.
      *

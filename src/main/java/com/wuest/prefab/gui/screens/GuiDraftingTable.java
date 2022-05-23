@@ -3,6 +3,7 @@ package com.wuest.prefab.gui.screens;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Tuple;
+import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.gui.GuiUtils;
 import com.wuest.prefab.gui.controls.GuiItemList;
 import com.wuest.prefab.gui.controls.GuiListBox;
@@ -163,7 +164,7 @@ public class GuiDraftingTable extends AbstractContainerScreen<DraftingTableMenu>
 
     private void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         // Draw Text here.
-        GuiUtils.drawString(matrixStack, "Available Structures", x + 10, y + 10, this.textColor);
+        GuiUtils.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.AVAILABLE_STRUCTURES), x + 10, y + 10, this.textColor);
     }
 
     private void buttonClicked(AbstractButton button) {

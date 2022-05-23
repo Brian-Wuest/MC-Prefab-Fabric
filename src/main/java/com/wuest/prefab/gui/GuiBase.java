@@ -4,10 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.blocks.FullDyeColor;
-import com.wuest.prefab.gui.controls.CustomButton;
-import com.wuest.prefab.gui.controls.ExtendedButton;
-import com.wuest.prefab.gui.controls.GuiCheckBox;
-import com.wuest.prefab.gui.controls.GuiSlider;
+import com.wuest.prefab.gui.controls.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -162,6 +159,38 @@ public abstract class GuiBase extends Screen {
 
     public CustomButton createAndAddCustomButton(int x, int y, int width, int height, String text, boolean translate) {
         CustomButton returnValue = new CustomButton(x, y, width, height, translate ? GuiLangKeys.translateToComponent(text) : Utils.createTextComponent(text), this::buttonClicked);
+
+        return this.addRenderableWidget(returnValue);
+    }
+
+    /**
+     * Creates a button using the button clicked event as the handler. Then adds it to the buttons list and returns the created object.
+     *
+     * @param x      The x-axis position.
+     * @param y      The y-axis position.
+     * @param width  The width of the button.
+     * @param height The height of the button.
+     * @return A new button.
+     */
+    public TextureButton createAndAddTextureButton(int x, int y, int width, int height) {
+        TextureButton returnValue = new TextureButton(x, y, width, height, this::buttonClicked);
+
+        return this.addRenderableWidget(returnValue);
+    }
+
+    /**
+     * Creates a button using the button clicked event as the handler. Then adds it to the buttons list and returns the created object.
+     *
+     * @param x      The x-axis position.
+     * @param y      The y-axis position.
+     * @param width  The width of the button.
+     * @param height The height of the button.
+     * @param textureWidth The width of the texture.
+     * @param textureHeight The height of the texture.
+     * @return A new button.
+     */
+    public TextureButton createAndAddTextureButton(int x, int y, int width, int height, int textureWidth, int textureHeight) {
+        TextureButton returnValue = new TextureButton(x, y, width, height, textureWidth, textureHeight, this::buttonClicked);
 
         return this.addRenderableWidget(returnValue);
     }
