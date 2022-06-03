@@ -29,6 +29,8 @@ public class GuiStructureScanner extends GuiBase {
     private final ResourceLocation leftTexture = new ResourceLocation("prefab", "textures/gui/left.png");
     private final ResourceLocation rightTexture = new ResourceLocation("prefab", "textures/gui/right.png");
     private final ResourceLocation upTexture = new ResourceLocation("prefab", "textures/gui/up.png");
+    private final ResourceLocation minusTexture = new ResourceLocation("prefab", "textures/gui/minus.png");
+    private final ResourceLocation plusTexture = new ResourceLocation("prefab", "textures/gui/plus.png");
     private final BlockPos blockPos;
     private final Level world;
     private StructureScannerConfig config;
@@ -85,25 +87,25 @@ public class GuiStructureScanner extends GuiBase {
         this.btnStartingPositionMoveUp.setDefaultTexture(this.upTexture);
 
         // Depth
-        this.btnDepthShrink = this.createAndAddTextureButton(adjustedX + 120, adjustedY + 30, 25, 20, 10, 10);
-        this.btnDepthShrink.setDefaultTexture(this.downTexture);
+        this.btnDepthShrink = this.createAndAddTextureButton(adjustedX + 120, adjustedY + 30, 25, 20, 10, 5);
+        this.btnDepthShrink.setDefaultTexture(this.minusTexture);
 
         this.btnDepthGrow = this.createAndAddTextureButton(adjustedX + 147, adjustedY + 30, 25, 20, 10, 10);
-        this.btnDepthGrow.setDefaultTexture(this.upTexture);
+        this.btnDepthGrow.setDefaultTexture(this.plusTexture);
 
         // Width
-        this.btnWidthShrink = this.createAndAddTextureButton(adjustedX + 200, adjustedY + 30, 25, 20, 10, 10);
-        this.btnWidthShrink.setDefaultTexture(this.downTexture);
+        this.btnWidthShrink = this.createAndAddTextureButton(adjustedX + 200, adjustedY + 30, 25, 20, 10, 5);
+        this.btnWidthShrink.setDefaultTexture(this.minusTexture);
 
         this.btnWidthGrow = this.createAndAddTextureButton(adjustedX + 227, adjustedY + 30, 25, 20, 10, 10);
-        this.btnWidthGrow.setDefaultTexture(this.upTexture);
+        this.btnWidthGrow.setDefaultTexture(this.plusTexture);
 
         // Height
-        this.btnHeightShrink = this.createAndAddTextureButton(adjustedX + 270, adjustedY + 30, 25, 20, 10, 10);
-        this.btnHeightShrink.setDefaultTexture(this.downTexture);
+        this.btnHeightShrink = this.createAndAddTextureButton(adjustedX + 270, adjustedY + 30, 25, 20, 10, 5);
+        this.btnHeightShrink.setDefaultTexture(this.minusTexture);
 
         this.btnHeightGrow = this.createAndAddTextureButton(adjustedX + 297, adjustedY + 30, 25, 20, 10, 10);
-        this.btnHeightGrow.setDefaultTexture(this.upTexture);
+        this.btnHeightGrow.setDefaultTexture(this.plusTexture);
 
         // Zip Text Field
         this.txtZipName = new GuiTextBox(this.getMinecraft().font, adjustedX + 120, adjustedY + 110, 150, 20, new TextComponent(""));
@@ -121,8 +123,8 @@ public class GuiStructureScanner extends GuiBase {
         this.txtZipName.drawsTextShadow = false;
         this.addRenderableWidget(this.txtZipName);
 
-        this.hasBedColorOptions = this.createAndAddCheckBox(adjustedX + 120, adjustedY + 65, "Has Bed Color Options", false, null);
-        this.hasGlassColorOptions = this.createAndAddCheckBox(adjustedX + 220, adjustedY + 65, "Has Glass Color Options", false, null);
+        this.hasBedColorOptions = this.createAndAddCheckBox(adjustedX + 120, adjustedY + 65, "Has Bed Color Options", this.config.hasBedColorOptions, this::buttonClicked);
+        this.hasGlassColorOptions = this.createAndAddCheckBox(adjustedX + 220, adjustedY + 65, "Has Glass Color Options", this.config.hasGlassColorOptions, this::buttonClicked);
 
         this.btnSet = this.createAndAddButton(adjustedX + 20, adjustedY + 150, 90, 20, GuiLangKeys.translateString(GuiLangKeys.SET_AND_CLOSE), null);
         this.btnReSet = this.createAndAddButton(adjustedX + 125, adjustedY + 150, 90, 20, GuiLangKeys.translateString(GuiLangKeys.RESET), null);
@@ -152,6 +154,8 @@ public class GuiStructureScanner extends GuiBase {
         this.btnScan.active = !this.config.structureZipName.trim().equals("");
 
         this.config.structureZipName = this.config.structureZipName.toLowerCase().trim().replace(' ', '_');
+        this.config.hasGlassColorOptions = this.hasGlassColorOptions.isChecked();
+        this.config.hasBedColorOptions = this.hasBedColorOptions.isChecked();
 
         if (button == this.btnScan && this.btnScan.active) {
             this.sendScanPacket();
@@ -181,11 +185,15 @@ public class GuiStructureScanner extends GuiBase {
             this.closeScreen();
         } else if(button == this.btnReSet) {
             this.config.blocksDown = 0;
-            this.config.blocksLong = 0;
-            this.config.blocksTall = 0;
-            this.config.blocksWide = 0;
-            this.config.blocksParallel = 0;
+            this.config.blocksLong = 1;
+            this.config.blocksTall = 1;
+            this.config.blocksWide = 1;
+            this.config.blocksParallel = 1;
             this.config.blocksToTheLeft = 0;
+            this.config.hasBedColorOptions = false;
+            this.config.hasGlassColorOptions = false;
+            this.hasGlassColorOptions.setIsChecked(false);
+            this.hasBedColorOptions.setIsChecked(false);
             this.txtZipName.setValue(GuiLangKeys.translateString(GuiLangKeys.STRUCTURE_NAME_HERE));
             this.config.structureZipName = GuiLangKeys.translateString(GuiLangKeys.STRUCTURE_NAME_HERE);
 
