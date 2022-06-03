@@ -15,8 +15,9 @@ public class StructureScannerConfig extends BaseConfig {
     public int blocksTall = 1;
     public String structureZipName = "";
     public Direction direction;
-
     public BlockPos blockPos = null;
+    public boolean hasBedColorOptions = false;
+    public boolean hasGlassColorOptions = false;
 
     public StructureScannerConfig() {
         this.direction = Direction.NORTH;
@@ -33,6 +34,8 @@ public class StructureScannerConfig extends BaseConfig {
         compound.putString("structureZipName", this.structureZipName);
         compound.putInt("direction", this.direction.get3DDataValue());
         compound.putInt("blocksParallel", this.blocksParallel);
+        compound.putBoolean("hasBedColorOptions", this.hasBedColorOptions);
+        compound.putBoolean("hasGlassColorOptions", this.hasGlassColorOptions);
 
         if (this.blockPos != null) {
             compound.put("pos", NbtUtils.writeBlockPos(this.blockPos));
@@ -49,6 +52,8 @@ public class StructureScannerConfig extends BaseConfig {
         this.structureZipName = compound.getString("structureZipName");
         this.direction = Direction.from3DDataValue(compound.getInt("direction"));
         this.blocksParallel = compound.getInt("blocksParallel");
+        this.hasBedColorOptions = compound.getBoolean("hasBedColorOptions");
+        this.hasGlassColorOptions = compound.getBoolean("hasGlassColorOptions");
 
         if (compound.contains("pos")) {
             this.blockPos = NbtUtils.readBlockPos(compound.getCompound("pos"));
