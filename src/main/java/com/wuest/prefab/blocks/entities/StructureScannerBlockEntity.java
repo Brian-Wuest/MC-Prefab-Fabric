@@ -1,6 +1,7 @@
 package com.wuest.prefab.blocks.entities;
 
 import com.wuest.prefab.ModRegistry;
+import com.wuest.prefab.Prefab;
 import com.wuest.prefab.base.TileEntityBase;
 import com.wuest.prefab.config.block_entities.StructureScannerConfig;
 import com.wuest.prefab.structures.base.BuildClear;
@@ -38,32 +39,43 @@ public class StructureScannerBlockEntity extends TileEntityBase<StructureScanner
         clearedSpace.getShape().setWidth(clearedSpace.getShape().getWidth());
         clearedSpace.getShape().setLength(clearedSpace.getShape().getLength());
 
-        int downOffset = Math.max(config.blocksDown, 0);
-
         // Down is inverse on the GUI so make sure that it's negative when saving to the file.
-        clearedSpace.getStartingPosition().setHeightOffset(-downOffset);
+        clearedSpace.getStartingPosition().setHeightOffset(config.blocksDown);
         clearedSpace.getStartingPosition().setHorizontalOffset(playerFacing, config.blocksParallel);
         clearedSpace.getStartingPosition().setHorizontalOffset(playerFacing.getCounterClockWise(), config.blocksToTheLeft);
 
         BlockPos cornerPos = config.blockPos
                 .relative(playerFacing.getCounterClockWise(), config.blocksToTheLeft)
                 .relative(playerFacing, config.blocksParallel)
-                .below(downOffset);
+                .below(config.blocksDown);
 
         BlockPos otherCorner = cornerPos
                 .relative(playerFacing, buildShape.getLength())
                 .relative(playerFacing.getClockWise(), buildShape.getWidth())
                 .above(buildShape.getHeight());
 
+        String fileLocation = "";
+
+        if (Prefab.isDebug) {
+            fileLocation = "..\\src\\main\\resources\\assets\\prefab\\structures\\" + config.structureZipName + ".zip";
+        } else {
+            fileLocation = Prefab.customStructuresFolder.resolve(config.structureZipName + ".zip").toString();
+        }
+
         Structure.ScanStructure(
                 serverWorld,
                 config.blockPos,
                 cornerPos,
                 otherCorner,
-                "..\\src\\main\\resources\\assets\\prefab\\structures\\" + config.structureZipName + ".zip",
+                fileLocation,
                 clearedSpace,
                 playerFacing,
                 false,
                 false);
+
+        if (!Prefab.isDebug) {
+            // At this point the structure file is created.
+            // Create the structure meta-data file so this item can be created.
+        }
     }
 }

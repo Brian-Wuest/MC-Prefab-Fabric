@@ -346,7 +346,7 @@ public class StructureRenderHandler {
 
             BlockPos startingPosition = config.blockPos
                     .relative(leftDirection, config.blocksToTheLeft)
-                    .relative(Direction.DOWN, config.blocksDown)
+                    .relative(Direction.DOWN, config.blocksDown * -1)
                     .relative(config.direction, config.blocksParallel);
 
             int xLength = config.blocksWide;
