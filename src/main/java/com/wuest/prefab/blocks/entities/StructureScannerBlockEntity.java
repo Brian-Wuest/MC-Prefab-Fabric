@@ -1,17 +1,32 @@
 package com.wuest.prefab.blocks.entities;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.base.TileEntityBase;
 import com.wuest.prefab.config.block_entities.StructureScannerConfig;
+import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.base.BuildClear;
 import com.wuest.prefab.structures.base.BuildShape;
 import com.wuest.prefab.structures.base.Structure;
+import com.wuest.prefab.structures.custom.base.CustomStructureInfo;
+import com.wuest.prefab.structures.custom.base.ItemInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.util.Optional;
 
 public class StructureScannerBlockEntity extends TileEntityBase<StructureScannerConfig> {
     public StructureScannerBlockEntity(BlockPos pos, BlockState state) {
@@ -54,12 +69,35 @@ public class StructureScannerBlockEntity extends TileEntityBase<StructureScanner
                 .relative(playerFacing.getClockWise(), buildShape.getWidth())
                 .above(buildShape.getHeight());
 
-        String fileLocation = "";
+        String fileLocation;
 
         if (Prefab.isDebug) {
             fileLocation = "..\\src\\main\\resources\\assets\\prefab\\structures\\" + config.structureZipName + ".zip";
         } else {
-            fileLocation = Prefab.customStructuresFolder.resolve(config.structureZipName + ".zip").toString();
+            // Since this is a custom structure. Make sure this name doesn't already exist.
+            Optional<CustomStructureInfo> existingInfo = ModRegistry.CustomStructures.stream().filter(x ->
+                    x.displayName.equalsIgnoreCase(config.structureZipName) || x.structureFileName.equalsIgnoreCase(config.structureZipName + ".zip")).findAny();
+
+            if (existingInfo.isPresent()) {
+                // Found an existing custom structure with this display name or structure file name. Do not scan this structure.
+                Prefab.logger.warn("Found duplicate custom structure with name: [" + config.structureZipName + "]");
+
+                TranslatableComponent message = new TranslatableComponent(GuiLangKeys.DUPLICATE_STRUCTURE_SCAN);
+                TextComponent textMessage = new TextComponent(message.getString() + config.structureZipName);
+                playerEntity.sendMessage(textMessage, playerEntity.getUUID());
+
+                return;
+            }
+
+            try {
+                fileLocation = Prefab.customStructuresFolder.resolve(config.structureZipName + ".zip").toString();
+            } catch (InvalidPathException exception) {
+                Prefab.logger.error("The structure file name is invalid for the current operating system. The name: ["
+                        + config.structureZipName + "] is invalid. See below for OS error message");
+
+                Prefab.logger.error(exception);
+                return;
+            }
         }
 
         Structure.ScanStructure(
@@ -76,6 +114,34 @@ public class StructureScannerBlockEntity extends TileEntityBase<StructureScanner
         if (!Prefab.isDebug) {
             // At this point the structure file is created.
             // Create the structure meta-data file so this item can be created.
+            CustomStructureInfo customStructureInfo = new CustomStructureInfo();
+            customStructureInfo.displayName = config.structureZipName;
+            customStructureInfo.structureFileName = config.structureZipName + ".zip";
+            customStructureInfo.hasBedColorOptions = config.hasBedColorOptions;
+
+            customStructureInfo.hasGlassColorOptions = config.hasGlassColorOptions;
+
+            ItemInfo baseItem = new ItemInfo();
+            baseItem.item = Registry.BLOCK.getKey(Blocks.DIRT);
+            baseItem.count = 1;
+            customStructureInfo.requiredItems.add(baseItem);
+
+            Path filePath = Prefab.configFolder.resolve(config.structureZipName + ".zip");
+
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            String textToWrite = gson.toJson(customStructureInfo);
+
+            try {
+                Files.writeString(filePath, textToWrite);
+            } catch (IOException e) {
+                Prefab.logger.error("There was an error writing the custom structure information file: ["
+                        + config.structureZipName + ".zip]. See below for OS error");
+                Prefab.logger.error(e);
+                return;
+            }
+
+            // File wrote successfully. Add to the list of custom structures!
+            ModRegistry.CustomStructures.add(customStructureInfo);
         }
     }
 }

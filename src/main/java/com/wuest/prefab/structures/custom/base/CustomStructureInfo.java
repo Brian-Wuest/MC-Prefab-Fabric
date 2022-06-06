@@ -47,6 +47,10 @@ public class CustomStructureInfo {
      */
     public String infoFileName;
 
+    public CustomStructureInfo() {
+        this.requiredItems = new ArrayList<>();
+    }
+
     public void writeToTag(CompoundTag tag) {
         tag.putString("displayName", this.displayName);
         tag.putString("structureFileName", this.structureFileName);

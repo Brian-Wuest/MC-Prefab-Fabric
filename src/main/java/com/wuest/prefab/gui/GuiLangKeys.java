@@ -441,6 +441,9 @@ public class GuiLangKeys {
     @Unlocalized(name = "Reset")
     public static final String RESET = "prefab.gui.reset";
 
+    @Unlocalized(name = "Unable to scan structure as there is already a custom structure with a name of ")
+    public static final String DUPLICATE_STRUCTURE_SCAN = "prefab.duplicate_structure_scan";
+
     /**
      * Translates the specified language key for the current language.
      *

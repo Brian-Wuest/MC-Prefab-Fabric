@@ -352,5 +352,16 @@
   "prefab.gui.length": "Длина",
   "prefab.gui.stairs_height": "Высота Ступенек",
   "prefab.gui.stairs_width": "Ширина Ступенек",
-  "prefab.gui.building_options": "Вариант Постройки"
+  "prefab.gui.building_options": "Вариант Постройки",
+  "prefab.duplicate_structure_scan": "Unable to scan structure as there is already a custom structure with a name of ",
+  "prefab.gui.available_structures": "Available Structures",
+  "prefab.gui.set_and_close": "Set And Close",
+  "prefab.gui.scan": "Scan",
+  "prefab.gui.reset": "Reset",
+  "prefab.gui.structure_name_here": "Structure Name Here",
+  "prefab.gui.name": "Name",
+  "prefab.gui.depth": "Depth",
+  "prefab.gui.left": "Left",
+  "prefab.gui.down": "Down",
+  "prefab.gui.starting_position": "Starting Position"
 }
