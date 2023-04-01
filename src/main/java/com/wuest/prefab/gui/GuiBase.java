@@ -328,7 +328,7 @@ public abstract class GuiBase extends Screen {
         for (GuiEventListener button : this.children()) {
             if (button instanceof AbstractWidget currentButton) {
                 if (currentButton.visible) {
-                    currentButton.renderButton(matrixStack, mouseX, mouseY, this.getMinecraft().getFrameTime());
+                    currentButton.render(matrixStack, mouseX, mouseY, this.getMinecraft().getFrameTime());
                 }
             }
         }
@@ -365,8 +365,8 @@ public abstract class GuiBase extends Screen {
      * @param wrapWidth The maximum width before wrapping begins.
      * @param textColor The color of the text.
      */
-    public void drawSplitString(String str, int x, int y, int wrapWidth, int textColor) {
-        this.getFontRenderer().drawWordWrap(Utils.createTextComponent(str), x, y, wrapWidth, textColor);
+    public void drawSplitString(PoseStack poseStack, String str, int x, int y, int wrapWidth, int textColor) {
+        this.getFontRenderer().drawWordWrap(poseStack, Utils.createTextComponent(str), x, y, wrapWidth, textColor);
     }
 
     public List<FormattedCharSequence> getSplitString(String str, int wrapWidth) {

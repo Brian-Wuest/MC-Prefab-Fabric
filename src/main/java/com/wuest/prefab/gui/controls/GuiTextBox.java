@@ -95,6 +95,9 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
         return Component.translatable("gui.narrate.editBox", new Object[]{component, this.value});
     }
 
+    @Override
+    public void renderWidget(PoseStack poseStack, int i, int j, float f) { }
+
     public String getValue() {
         return this.value;
     }
@@ -488,7 +491,6 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
         BufferBuilder bufferBuilder = tesselator.getBuilder();
         RenderSystem.setShader(GameRenderer::getPositionShader);
         RenderSystem.setShaderColor(0.0F, 0.0F, 1.0F, 1.0F);
-        RenderSystem.disableTexture();
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
@@ -499,7 +501,6 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
         tesselator.end();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableColorLogicOp();
-        RenderSystem.enableTexture();
     }
 
     private int getMaxLength() {
@@ -539,9 +540,9 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
         this.textColorUneditable = color;
     }
 
-    public boolean changeFocus(boolean focus) {
+    /*public boolean changeFocus(boolean focus) {
         return this.visible && this.isEditable ? super.changeFocus(focus) : false;
-    }
+    }*/
 
     public boolean isMouseOver(double mouseX, double mouseY) {
         return this.visible && mouseX >= (double) this.getX() && mouseX < (double) (this.getX() + this.width) && mouseY >= (double) this.getY() && mouseY < (double) (this.getY() + this.height);

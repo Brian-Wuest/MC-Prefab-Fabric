@@ -10,6 +10,7 @@ import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Tuple;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -226,7 +227,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
         return this.output;
     }
 
@@ -265,8 +266,8 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer craftingInventory) {
-        return this.getResultItem().copy();
+    public ItemStack assemble(CraftingContainer craftingContainer, RegistryAccess registryAccess) {
+        return this.getResultItem(registryAccess).copy();
     }
 
     @Override

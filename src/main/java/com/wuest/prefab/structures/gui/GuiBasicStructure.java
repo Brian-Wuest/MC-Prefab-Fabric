@@ -211,7 +211,7 @@ public class GuiBasicStructure extends GuiStructure {
     @Override
     protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
         if (this.showConfigurationOptions) {
-            this.drawSplitString(GuiLangKeys.translateString(this.specificConfiguration.basicStructureName.getItemTranslationString()), x + 8, y + 17, 128, this.textColor);
+            this.drawSplitString(matrixStack, GuiLangKeys.translateString(this.specificConfiguration.basicStructureName.getItemTranslationString()), x + 8, y + 17, 128, this.textColor);
 
             int yValue = y + 35;
 

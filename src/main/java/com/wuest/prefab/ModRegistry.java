@@ -238,7 +238,7 @@ public class ModRegistry {
     /* *********************************** Item Group *********************************** */
     private static final CreativeModeTab ITEM_GROUP = FabricItemGroup.builder(new ResourceLocation(Prefab.MODID, "logo"))
             .icon(() -> new ItemStack(ModRegistry.LogoItem))
-            .displayItems((enabledFeatures, entries, operatorEnabled) -> {
+            .displayItems((context, entries) -> {
                 entries.accept(ModRegistry.CompressedStoneItem);
                 entries.accept(ModRegistry.DoubleCompressedStoneItem);
                 entries.accept(ModRegistry.TripleCompressedStoneItem);
