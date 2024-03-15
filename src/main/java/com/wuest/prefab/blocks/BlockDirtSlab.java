@@ -1,23 +1,22 @@
 package com.wuest.prefab.blocks;
 
 import com.wuest.prefab.ModRegistry;
-
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
-
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.MapColor;
 
-import java.util.Random;
+
 
 public class BlockDirtSlab extends SlabBlock implements IGrassSpreadable {
     public BlockDirtSlab() {
-        super(BlockBehaviour.Properties.of(Material.DIRT, MaterialColor.DIRT).sound(SoundType.GRAVEL)
+        super(FabricBlockSettings.ofFullCopy(Blocks.DIRT).mapColor(MapColor.DIRT).sound(SoundType.GRAVEL)
                 .strength(0.5f, 0.5f));
     }
 

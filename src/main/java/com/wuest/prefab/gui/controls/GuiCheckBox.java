@@ -2,12 +2,12 @@ package com.wuest.prefab.gui.controls;
 
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.gui.GuiUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -113,7 +113,7 @@ public class GuiCheckBox extends AbstractButton {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partial) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
         if (this.visible) {
             ResourceLocation resourceLocation = GuiCheckBox.buttonTexture;
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -131,14 +131,14 @@ public class GuiCheckBox extends AbstractButton {
 
             GuiUtils.bindTexture(resourceLocation);
 
-            GuiUtils.drawTexture(matrixStack, this.getX(), this.getY(), 1, 11, 11, 11, 11);
+            GuiUtils.drawTexture(resourceLocation, guiGraphics, this.getX(), this.getY(), 1, 11, 11, 11, 11);
 
             int color = this.stringColor;
 
             if (this.withShadow) {
-                this.drawString(matrixStack, this.mineCraft.font, displayString, this.getX() + this.boxWidth + 2, this.getY() + 4, color);
+                guiGraphics.drawString(this.mineCraft.font, displayString, this.getX() + this.boxWidth + 2, this.getY() + 4, color);
             } else {
-                this.mineCraft.font.drawWordWrap(matrixStack, Utils.createTextComponent(displayString), this.getX() + this.boxWidth + 2, this.getY() + 2, this.labelWidth, color);
+                guiGraphics.drawWordWrap(this.mineCraft.font, Utils.createTextComponent(displayString), this.getX() + this.boxWidth + 2, this.getY() + 2, this.labelWidth, color);
             }
         }
     }

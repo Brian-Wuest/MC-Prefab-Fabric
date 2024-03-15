@@ -1,9 +1,6 @@
 package com.wuest.prefab.gui.controls;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.Utils;
-import com.wuest.prefab.gui.GuiUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 

@@ -13,7 +13,6 @@ import com.wuest.prefab.structures.config.enums.FarmAdvancedOptions;
 import com.wuest.prefab.structures.config.enums.BaseOption;
 import com.wuest.prefab.structures.config.enums.FarmImprovedOptions;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Chicken;
@@ -21,10 +20,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 
 import java.util.ArrayList;
 
@@ -89,7 +86,7 @@ public class StructureBasic extends Structure {
                 || config.basicStructureName.getName().equals(EnumBasicStructureName.AquaBaseImproved.getName())) {
             BlockState blockState = world.getBlockState(blockPos);
             // Don't clear water blocks for this building.
-            return blockState.getMaterial() != Material.WATER;
+            return blockState.getBlock() != Blocks.WATER;
         }
 
         return true;

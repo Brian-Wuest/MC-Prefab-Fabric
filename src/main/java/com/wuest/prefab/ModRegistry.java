@@ -32,15 +32,13 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static net.minecraft.world.level.block.Blocks.CHISELED_QUARTZ_BLOCK;
-import static net.minecraft.world.level.block.Blocks.QUARTZ_PILLAR;
+import static net.minecraft.world.item.Tiers.WOOD;
 
 /**
  * This is the mod registry so there is a way to get to all instances of the blocks/items created by this mod.
@@ -65,8 +63,8 @@ public class ModRegistry {
 
     public static final BlockCompressedObsidian CompressedObsidian = new BlockCompressedObsidian(BlockCompressedObsidian.EnumType.COMPRESSED_OBSIDIAN);
     public static final BlockCompressedObsidian DoubleCompressedObsidian = new BlockCompressedObsidian(BlockCompressedObsidian.EnumType.DOUBLE_COMPRESSED_OBSIDIAN);
-    public static final BlockGlassSlab GlassSlab = new BlockGlassSlab(Block.Properties.copy(Blocks.GLASS));
-    public static final BlockGlassStairs GlassStairs = new BlockGlassStairs(Blocks.GLASS.defaultBlockState(), Block.Properties.copy(Blocks.GLASS));
+    public static final BlockGlassSlab GlassSlab = new BlockGlassSlab(Block.Properties.ofFullCopy(Blocks.GLASS));
+    public static final BlockGlassStairs GlassStairs = new BlockGlassStairs(Blocks.GLASS.defaultBlockState(), Block.Properties.ofFullCopy(Blocks.GLASS));
     public static final BlockPaperLantern PaperLantern = new BlockPaperLantern();
     public static final BlockPhasic Phasic = new BlockPhasic();
     public static final BlockBoundary Boundary = new BlockBoundary();
@@ -79,27 +77,27 @@ public class ModRegistry {
     public static BlockStructureScanner StructureScanner = null;
     public static BlockLightSwitch LightSwitch = new BlockLightSwitch();
     public static BlockDarkLamp DarkLamp = new BlockDarkLamp();
-    public static final BlockRotatableHorizontalShaped PileOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PileOfBricks, Block.Properties.of(Material.CLAY, MaterialColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped PalletOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PalletOfBricks, Block.Properties.of(Material.CLAY, MaterialColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped BundleOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.BundleOfTimber, Block.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped HeapOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.HeapOfTimber, Block.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped TonOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.TonOfTimber, Block.Properties.of(Material.WOOD, MaterialColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatable EmptyCrate = new BlockRotatable(Block.Properties.of(Material.WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CartonOfEggs = new BlockRotatable(Block.Properties.of(Material.WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CrateOfPotatoes = new BlockRotatable(Block.Properties.of(Material.WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CrateOfCarrots = new BlockRotatable(Block.Properties.of(Material.WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CrateOfBeets = new BlockRotatable(Block.Properties.of(Material.WOOD).sound(SoundType.WOOD));
-    public static final Block QuartzCrete = new Block(Block.Properties.copy(Blocks.QUARTZ_BLOCK));
-    public static final WallBlock QuartzCreteWall = new WallBlock(Block.Properties.copy(ModRegistry.QuartzCrete));
-    public static final Block QuartzCreteBricks = new Block(Block.Properties.copy(ModRegistry.QuartzCrete));
-    public static final Block ChiseledQuartzCrete = new Block(Block.Properties.copy(CHISELED_QUARTZ_BLOCK));
-    public static final RotatedPillarBlock QuartzCretePillar = new RotatedPillarBlock(Block.Properties.copy(QUARTZ_PILLAR));
-    public static final BlockCustomStairs QuartzCreteStairs = new BlockCustomStairs(ModRegistry.QuartzCrete.defaultBlockState(), Block.Properties.copy(ModRegistry.QuartzCrete));
-    public static final SlabBlock QuartzCreteSlab = new SlabBlock(Block.Properties.copy(ModRegistry.QuartzCrete));
-    public static final Block SmoothQuartzCrete = new Block(Block.Properties.copy(ModRegistry.QuartzCrete));
-    public static final WallBlock SmoothQuartzCreteWall = new WallBlock(Block.Properties.copy(ModRegistry.SmoothQuartzCrete));
-    public static final BlockCustomStairs SmoothQuartzCreteStairs = new BlockCustomStairs(ModRegistry.SmoothQuartzCrete.defaultBlockState(), Block.Properties.copy(ModRegistry.SmoothQuartzCrete));
-    public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(Block.Properties.copy(SmoothQuartzCrete));
+    public static final BlockRotatableHorizontalShaped PileOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PileOfBricks, Block.Properties.ofFullCopy(Blocks.CYAN_WOOL).mapColor(MapColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped PalletOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PalletOfBricks, Block.Properties.ofFullCopy(Blocks.CYAN_WOOL).mapColor(MapColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped BundleOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.BundleOfTimber, Block.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped HeapOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.HeapOfTimber, Block.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped TonOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.TonOfTimber, Block.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatable EmptyCrate = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CartonOfEggs = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CrateOfPotatoes = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CrateOfCarrots = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CrateOfBeets = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final Block QuartzCrete = new Block(Block.Properties.ofFullCopy(Blocks.QUARTZ_BLOCK));
+    public static final WallBlock QuartzCreteWall = new WallBlock(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
+    public static final Block QuartzCreteBricks = new Block(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
+    public static final Block ChiseledQuartzCrete = new Block(Block.Properties.ofFullCopy(Blocks.CHISELED_QUARTZ_BLOCK));
+    public static final RotatedPillarBlock QuartzCretePillar = new RotatedPillarBlock(Block.Properties.ofFullCopy(Blocks.QUARTZ_PILLAR));
+    public static final BlockCustomStairs QuartzCreteStairs = new BlockCustomStairs(ModRegistry.QuartzCrete.defaultBlockState(), Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
+    public static final SlabBlock QuartzCreteSlab = new SlabBlock(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
+    public static final Block SmoothQuartzCrete = new Block(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
+    public static final WallBlock SmoothQuartzCreteWall = new WallBlock(Block.Properties.ofFullCopy(ModRegistry.SmoothQuartzCrete));
+    public static final BlockCustomStairs SmoothQuartzCreteStairs = new BlockCustomStairs(ModRegistry.SmoothQuartzCrete.defaultBlockState(), Block.Properties.ofFullCopy(ModRegistry.SmoothQuartzCrete));
+    public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(Block.Properties.ofFullCopy(SmoothQuartzCrete));
 
     /* *********************************** Messages *********************************** */
     public static final ResourceLocation ConfigSync = new ResourceLocation(Prefab.MODID, "config_sync");
@@ -158,7 +156,7 @@ public class ModRegistry {
     public static final Item StringOfLanterns = new Item(new Item.Properties());
     public static final Item CoilOfLanterns = new Item(new Item.Properties());
     public static final Item Upgrade = new Item(new Item.Properties());
-    public static final Item SwiftBladeWood = new ItemSwiftBlade(Tiers.WOOD, 2, .5f);
+    public static final Item SwiftBladeWood = new ItemSwiftBlade(WOOD, 2, .5f);
     public static final Item SwiftBladeStone = new ItemSwiftBlade(Tiers.STONE, 2, .5f);
     public static final Item SwiftBladeIron = new ItemSwiftBlade(Tiers.IRON, 2, .5f);
     public static final Item SwiftBladeDiamond = new ItemSwiftBlade(Tiers.DIAMOND, 2, .5f);
@@ -169,7 +167,7 @@ public class ModRegistry {
     public static final Item SwiftBladeSteel = new ItemSwiftBlade(CustomItemTier.STEEL, 2, .5f);
     public static final Item SwiftBladeObsidian = new ItemSwiftBlade(CustomItemTier.OBSIDIAN, 2, .5f);
     public static final Item SwiftBladeNetherite = new ItemSwiftBlade(Tiers.NETHERITE, 2, .5f);
-    public static final ItemSickle SickleWood = new ItemSickle(Tiers.WOOD);
+    public static final ItemSickle SickleWood = new ItemSickle(WOOD);
     public static final ItemSickle SickleStone = new ItemSickle(Tiers.STONE);
     public static final ItemSickle SickleGold = new ItemSickle(Tiers.GOLD);
     public static final ItemSickle SickleIron = new ItemSickle(Tiers.IRON);
@@ -236,7 +234,7 @@ public class ModRegistry {
     public static StructureScannerBlockEntity StructureScannerEntity;
 
     /* *********************************** Item Group *********************************** */
-    private static final CreativeModeTab ITEM_GROUP = FabricItemGroup.builder(new ResourceLocation(Prefab.MODID, "logo"))
+    private static final CreativeModeTab ITEM_GROUP = FabricItemGroup.builder()
             .icon(() -> new ItemStack(ModRegistry.LogoItem))
             .displayItems((context, entries) -> {
                 entries.accept(ModRegistry.CompressedStoneItem);
@@ -347,7 +345,11 @@ public class ModRegistry {
                     entries.accept(ModRegistry.StructureScannerItem);
                 }
             })
+            .title(Utils.createTextComponent("perfab"))
             .build();
+
+    public static final CreativeModeTab creativeModeTab = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(Prefab.MODID, "logo"), ITEM_GROUP);
+
 
     public static void registerModComponents() {
         ModRegistry.registerSounds();
@@ -605,7 +607,7 @@ public class ModRegistry {
                         // This is now on the "main" server thread and things can be done in the world!
                         StructureConfiguration configuration = structureConfig.structureConfig.ReadFromCompoundTag(message.getMessageTag());
 
-                        configuration.BuildStructure(player, player.getLevel());
+                        configuration.BuildStructure(player, player.serverLevel());
                     });
                 }
         );
@@ -617,7 +619,7 @@ public class ModRegistry {
             StructureScannerConfig config = (new StructureScannerConfig()).ReadFromCompoundNBT(compound);
 
             server.execute(() -> {
-                BlockEntity blockEntity = player.getLevel().getBlockEntity(config.blockPos);
+                BlockEntity blockEntity = player.level().getBlockEntity(config.blockPos);
 
                 if (blockEntity instanceof StructureScannerBlockEntity) {
                     StructureScannerBlockEntity actualEntity = (StructureScannerBlockEntity) blockEntity;
@@ -633,7 +635,7 @@ public class ModRegistry {
             StructureScannerConfig config = (new StructureScannerConfig()).ReadFromCompoundNBT(compound);
 
             server.execute(() -> {
-                StructureScannerBlockEntity.ScanShape(config, player, player.getLevel());
+                StructureScannerBlockEntity.ScanShape(config, player, player.serverLevel());
             });
         });
     }

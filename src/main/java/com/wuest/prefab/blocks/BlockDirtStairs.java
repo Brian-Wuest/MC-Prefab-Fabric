@@ -1,6 +1,7 @@
 package com.wuest.prefab.blocks;
 
 import com.wuest.prefab.ModRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -8,8 +9,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.Random;
 
 /**
  * This class is used to define a set of dirt stairs.
@@ -21,7 +20,7 @@ public class BlockDirtStairs extends StairBlock implements IGrassSpreadable {
      * Initializes a new instance of the BlockDirtStairs class.
      */
     public BlockDirtStairs() {
-        super(Blocks.DIRT.defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.DIRT));
+        super(Blocks.DIRT.defaultBlockState(), FabricBlockSettings.ofFullCopy(Blocks.DIRT));
     }
 
     /**

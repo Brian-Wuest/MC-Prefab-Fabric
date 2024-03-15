@@ -1,5 +1,6 @@
 package com.wuest.prefab.blocks;
 
+import com.mojang.serialization.MapCodec;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.base.TileBlockBase;
 import com.wuest.prefab.blocks.entities.LightSwitchBlockEntity;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
@@ -27,7 +29,8 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -46,6 +49,10 @@ public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
     public static final EnumProperty<AttachFace> FACE;
 
     public static final BooleanProperty POWERED;
+//    public static final MapCodec<BlockLightSwitch> CODEC = ()->{
+//        return RecordCodecBuilder.mapCodec((instance -> instance.group(propertiesCodec()).apply(instance,BlockLightSwitch::new)));
+//    };
+    public static final MapCodec<BlockLightSwitch> CODEC = simpleCodec(BlockLightSwitch::new);
 
     static {
         FACING = HorizontalDirectionalBlock.FACING;
@@ -85,7 +92,20 @@ public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
      * Initializes a new instance of the TileBlockBase class.
      */
     public BlockLightSwitch() {
-        super(Properties.of(Material.DECORATION).noCollission().strength(0.5F).sound(SoundType.WOOD));
+        super(BlockBehaviour.Properties.of()
+                .mapColor(MapColor.TERRACOTTA_RED)
+                .pushReaction(PushReaction.DESTROY)
+                .noOcclusion()
+                .strength(1.5F, 10.0F).noCollission().strength(0.5F).sound(SoundType.WOOD));
+
+        this.registerDefaultState(this.defaultBlockState()
+                .setValue(BlockLightSwitch.FACING, Direction.NORTH)
+                .setValue(BlockLightSwitch.FACE, AttachFace.FLOOR)
+                .setValue(BlockLightSwitch.POWERED, false));
+    }
+
+    public BlockLightSwitch(Properties properties){
+        super(properties);
 
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(BlockLightSwitch.FACING, Direction.NORTH)
@@ -215,5 +235,10 @@ public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new LightSwitchBlockEntity(blockPos, blockState);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 }

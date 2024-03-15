@@ -8,8 +8,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
-import java.util.Random;
-
 public interface IGrassSpreadable {
 
     /**

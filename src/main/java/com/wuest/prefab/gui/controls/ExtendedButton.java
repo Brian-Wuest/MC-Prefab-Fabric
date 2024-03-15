@@ -4,16 +4,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.Utils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
-
 public class ExtendedButton extends Button {
+    private static final ResourceLocation WIDGETS_LOCATION =  new ResourceLocation("textures/gui/widgets.png");
     private final String label;
     public float fontScale = 1;
 
@@ -26,7 +25,7 @@ public class ExtendedButton extends Button {
      * Draws this button to the screen.
      */
     @Override
-    public void render(PoseStack mStack, int mouseX, int mouseY, float partial) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
         if (this.visible) {
             Minecraft mc = Minecraft.getInstance();
             this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
@@ -40,8 +39,8 @@ public class ExtendedButton extends Button {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
-            this.blit(mStack, this.getX(), this.getY(), 0, 46 + i * 20, this.width / 2, this.height);
-            this.blit(mStack, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+//            this.blit(mStack, this.getX(), this.getY(), 0, 46 + i * 20, this.width / 2, this.height);
+//            this.blit(mStack, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
 
             Component buttonText = this.getMessage();
             int strWidth = mc.font.width(buttonText);
@@ -59,7 +58,7 @@ public class ExtendedButton extends Button {
             int xPosition = (int) ((this.getX() + this.width / 2) / this.fontScale);
             int yPosition = (int) ((this.getY() + (this.height - (8 * this.fontScale)) / 2) / this.fontScale);
 
-            GuiComponent.drawCenteredString(originalStack, mc.font, buttonText, xPosition, yPosition, this.getFGColor());
+            guiGraphics.drawCenteredString(mc.font,buttonText,xPosition,yPosition,this.getFGColor());
             originalStack.popPose();
         }
     }

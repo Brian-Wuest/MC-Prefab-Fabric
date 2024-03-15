@@ -1,6 +1,5 @@
 package com.wuest.prefab.items;
 
-import com.wuest.prefab.ModRegistry;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;

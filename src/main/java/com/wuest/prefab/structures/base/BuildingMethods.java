@@ -58,7 +58,7 @@ public class BuildingMethods {
 			boolean foundStack = false;
 
 			for (ItemStack existingStack : originalStacks) {
-				if (ItemStack.isSame(existingStack, stack)) {
+				if (ItemStack.isSameItem(existingStack, stack)) {
 					// Make sure that this combined stack is at or smaller than
 					// the max.
 					if (existingStack.getCount() + stack.getCount() <= stack.getMaxStackSize()) {
@@ -387,10 +387,9 @@ public class BuildingMethods {
 		// Add each stone tool to the chest and leather armor.
 		BlockEntity tileEntity = world.getBlockEntity(itemPosition);
 
-		if (tileEntity instanceof RandomizableContainerBlockEntity) {
-			RandomizableContainerBlockEntity chestTile = (RandomizableContainerBlockEntity) tileEntity;
+		if (tileEntity instanceof RandomizableContainerBlockEntity chestTile) {
 
-			int itemSlot = 0;
+            int itemSlot = 0;
 
 			// Add the tools.
 			if (Prefab.serverConfiguration.chestOptions.addAxe) {
@@ -590,7 +589,7 @@ public class BuildingMethods {
 			boolean foundStack = false;
 
 			for (ItemStack existingStack : stacks) {
-				if (ItemStack.isSame(existingStack, tempStack)) {
+				if (ItemStack.isSameItem(existingStack, tempStack)) {
 					// Make sure that this combined stack is at or smaller than
 					// the max.
 					if (existingStack.getCount() + tempStack.getCount() <= tempStack.getMaxStackSize()) {

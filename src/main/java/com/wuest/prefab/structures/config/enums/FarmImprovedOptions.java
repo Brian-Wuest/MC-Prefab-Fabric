@@ -1,9 +1,5 @@
 package com.wuest.prefab.structures.config.enums;
 
-import com.wuest.prefab.Prefab;
-
-import java.util.ArrayList;
-
 @SuppressWarnings({"unchecked", "unused"})
 public class FarmImprovedOptions extends BaseOption{
     public static FarmImprovedOptions AutomatedChickenCoop = new FarmImprovedOptions(

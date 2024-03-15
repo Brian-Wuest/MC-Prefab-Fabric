@@ -1,11 +1,11 @@
 package com.wuest.prefab.structures.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.config.BulldozerConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;
 
@@ -51,9 +51,9 @@ public class GuiBulldozer extends GuiStructure {
     }
 
     @Override
-    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
         String strToDraw = GuiLangKeys.translateString(GuiLangKeys.GUI_BULLDOZER_DESCRIPTION) + "\n \n" + GuiLangKeys.translateString(GuiLangKeys.GUI_CLEARED_AREA);
-        this.drawSplitString(matrixStack, strToDraw, x + 10, y + 10, 230, this.textColor);
+        this.drawSplitString(guiGraphics, strToDraw, x + 10, y + 10, 230, this.textColor);
     }
 
     /**

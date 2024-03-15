@@ -6,7 +6,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.internal.StringUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;

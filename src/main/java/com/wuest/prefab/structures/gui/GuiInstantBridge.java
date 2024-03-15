@@ -1,6 +1,5 @@
 package com.wuest.prefab.structures.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.gui.GuiLangKeys;
@@ -12,6 +11,7 @@ import com.wuest.prefab.structures.base.EnumStructureMaterial;
 import com.wuest.prefab.structures.config.InstantBridgeConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.predefined.StructureInstantBridge;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -70,22 +70,22 @@ public class GuiInstantBridge extends GuiStructure {
     }
 
     @Override
-    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void preButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
         int imagePanelUpperLeft = x + 132;
         int imagePanelWidth = 285;
         int imagePanelMiddle = imagePanelWidth / 2;
 
-        this.renderBackground(matrixStack);
+        this.renderBackground(guiGraphics,0,0,0);
 
-        this.drawControlLeftPanel(matrixStack, x + 10, y + 10, 125, 190);
-        this.drawControlRightPanel(matrixStack, imagePanelUpperLeft, y + 10, imagePanelWidth, 190);
+        this.drawControlLeftPanel(guiGraphics, x + 10, y + 10, 125, 190);
+        this.drawControlRightPanel(guiGraphics, imagePanelUpperLeft, y + 10, imagePanelWidth, 190);
 
         int middleOfImage = this.shownImageWidth / 2;
         int imageLocation = imagePanelUpperLeft + (imagePanelMiddle - middleOfImage);
 
         GuiUtils.bindAndDrawScaledTexture(
                 this.structureImageLocation,
-                matrixStack,
+                guiGraphics,
                 imageLocation,
                 y + 15,
                 this.shownImageWidth,
@@ -97,15 +97,15 @@ public class GuiInstantBridge extends GuiStructure {
     }
 
     @Override
-    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        this.drawSplitString(matrixStack, GuiLangKeys.translateString("item.prefab.item_instant_bridge"), x + 15, y + 17, 100, this.textColor);
+    protected void postButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
+        this.drawSplitString(guiGraphics, GuiLangKeys.translateString("item.prefab.item_instant_bridge"), x + 15, y + 17, 100, this.textColor);
 
-        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.BRIDGE_MATERIAL), x + 15, y + 35, this.textColor);
+        this.drawString(guiGraphics, GuiLangKeys.translateString(GuiLangKeys.BRIDGE_MATERIAL), x + 15, y + 35, this.textColor);
 
-        this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.BRIDGE_LENGTH), x + 15, y + 75, this.textColor);
+        this.drawString(guiGraphics, GuiLangKeys.translateString(GuiLangKeys.BRIDGE_LENGTH), x + 15, y + 75, this.textColor);
 
         if (this.chckIncludeRoof.isChecked()) {
-            this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.INTERIOR_HEIGHT), x + 15, y + 130, this.textColor);
+            this.drawString(guiGraphics, GuiLangKeys.translateString(GuiLangKeys.INTERIOR_HEIGHT), x + 15, y + 130, this.textColor);
         }
     }
 
