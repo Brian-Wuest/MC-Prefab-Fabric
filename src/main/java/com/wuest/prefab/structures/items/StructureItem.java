@@ -1,7 +1,6 @@
 package com.wuest.prefab.structures.items;
 
 import com.wuest.prefab.ClientModRegistry;
-import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.structures.gui.GuiStructure;
 import net.minecraft.core.Direction;

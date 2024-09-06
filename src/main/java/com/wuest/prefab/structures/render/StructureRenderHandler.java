@@ -12,7 +12,6 @@ import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -31,9 +30,9 @@ import net.minecraft.network.chat.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -80,7 +79,7 @@ public class StructureRenderHandler {
      */
     public static void renderPlayerLook(Player player, HitResult src, PoseStack matrixStack, CallbackInfo callbackInfo) {
         if (StructureRenderHandler.currentStructure != null
-                && StructureRenderHandler.dimension == player.level.dimensionType().logicalHeight()
+                && StructureRenderHandler.dimension == player.level().dimensionType().logicalHeight()
                 && StructureRenderHandler.currentConfiguration != null
                 && Prefab.serverConfiguration.enableStructurePreview) {
             rendering = true;
@@ -112,14 +111,14 @@ public class StructureRenderHandler {
                     BlockState blockState = foundBlock.defaultBlockState();
                     buildBlock = BuildBlock.SetBlockState(
                             StructureRenderHandler.currentConfiguration,
-                            player.level,
+                            player.level(),
                             StructureRenderHandler.currentConfiguration.pos,
                             buildBlock,
                             foundBlock,
                             blockState,
                             StructureRenderHandler.currentStructure);
 
-                    StructureRenderHandler.renderComponentInWorld(player.level, buildBlock, entityVertexConsumer, matrixStack, pos);
+                    StructureRenderHandler.renderComponentInWorld(player.level(), buildBlock, entityVertexConsumer, matrixStack, pos);
                 }
             }
 
@@ -156,7 +155,8 @@ public class StructureRenderHandler {
     private static boolean renderComponentInWorld(Level world, BuildBlock buildBlock, MultiBufferSource.BufferSource entityVertexConsumer, PoseStack matrixStack, BlockPos pos) {
         // Don't render this block if it's going to overlay a non-air/water block.
         BlockState targetBlock = world.getBlockState(pos);
-        if (targetBlock.getMaterial() != Material.AIR && targetBlock.getMaterial() != Material.WATER) {
+
+        if (targetBlock.getBlock() != Blocks.AIR && targetBlock.getBlock() != Blocks.WATER) {
             return false;
         }
 
@@ -223,7 +223,7 @@ public class StructureRenderHandler {
 
     public static void RenderTest(Level worldIn, PoseStack matrixStack, double cameraX, double cameraY, double cameraZ) {
         if (StructureRenderHandler.currentStructure != null
-                && StructureRenderHandler.dimension == Minecraft.getInstance().player.level.dimensionType().logicalHeight()
+                && StructureRenderHandler.dimension == Minecraft.getInstance().player.level().dimensionType().logicalHeight()
                 && StructureRenderHandler.currentConfiguration != null
                 && Prefab.serverConfiguration.enableStructurePreview) {
             BlockPos originalPos = StructureRenderHandler.currentConfiguration.pos.above();

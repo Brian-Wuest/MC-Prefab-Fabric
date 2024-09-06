@@ -1,6 +1,5 @@
 package com.wuest.prefab.items;
 
-import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.gui.GuiLangKeys;
 import net.fabricmc.api.EnvType;
@@ -19,7 +18,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -45,7 +43,7 @@ public class ItemSickle extends TieredItem {
         effectiveBlocks.add(Blocks.DEAD_BUSH);
         effectiveBlocks.add(Blocks.ROSE_BUSH);
         effectiveBlocks.add(Blocks.PEONY);
-        effectiveBlocks.add(Blocks.GRASS);
+        effectiveBlocks.add(Blocks.GRASS_BLOCK);
         effectiveBlocks.add(Blocks.SEAGRASS);
         effectiveBlocks.add(Blocks.TALL_SEAGRASS);
     }
@@ -54,7 +52,7 @@ public class ItemSickle extends TieredItem {
     public float getDestroySpeed(ItemStack stack, BlockState state) {
         Block block = state.getBlock();
 
-        if (!ItemSickle.effectiveBlocks.contains(block) && block != Blocks.COBWEB && state.getMaterial() != Material.LEAVES) {
+        if (!ItemSickle.effectiveBlocks.contains(block) && block != Blocks.COBWEB && state.getTags().noneMatch(blockTagKey -> blockTagKey.equals(BlockTags.LEAVES))) {
             return super.getDestroySpeed(stack, state);
         } else {
             return 15.0F;

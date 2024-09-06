@@ -2,6 +2,7 @@ package com.wuest.prefab.blocks;
 
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -33,7 +34,7 @@ public class BlockDarkLamp extends Block {
     }
 
     public BlockDarkLamp() {
-        super(BlockBehaviour.Properties.of(Prefab.SeeThroughImmovable)
+        super(Prefab.SeeThroughImmovable.get()
                 .lightLevel(BlockDarkLamp.litBlockEmission(8))
                 .strength(0.3F)
                 .sound(SoundType.GLASS)

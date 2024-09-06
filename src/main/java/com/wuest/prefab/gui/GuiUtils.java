@@ -4,12 +4,22 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.gui.controls.ExtendedButton;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 public class GuiUtils {
+    private static final RenderBuffers renderBuffers = initRenderBuffers();
+    private static RenderBuffers initRenderBuffers() {
+        int i = Runtime.getRuntime().availableProcessors();
+        int j = Math.min(i, 4);
+        return new RenderBuffers(j);
+    }
+    public static RenderBuffers renderBuffers(){
+        return renderBuffers;
+    }
 
     /**
      * Binds a texture to the texture manager for rendering.
@@ -25,16 +35,17 @@ public class GuiUtils {
     /**
      * Draws a textured rectangle Args: x, y, z, width, height, textureWidth, textureHeight
      *
-     * @param x             The X-Axis screen coordinate.
-     * @param y             The Y-Axis screen coordinate.
-     * @param z             The Z-Axis screen coordinate.
-     * @param width         The width of the rectangle.
-     * @param height        The height of the rectangle.
-     * @param textureWidth  The width of the texture.
-     * @param textureHeight The height of the texture.
+     * @param resourceLocation
+     * @param x                The X-Axis screen coordinate.
+     * @param y                The Y-Axis screen coordinate.
+     * @param z                The Z-Axis screen coordinate.
+     * @param width            The width of the rectangle.
+     * @param height           The height of the rectangle.
+     * @param textureWidth     The width of the texture.
+     * @param textureHeight    The height of the texture.
      */
-    public static void drawTexture(PoseStack matrixStack, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
-        GuiComponent.blit(matrixStack, x, y, z, 0, 0, width, height, textureWidth, textureHeight);
+    public static void drawTexture(ResourceLocation resourceLocation, GuiGraphics guiGraphics, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
+        guiGraphics.blit(resourceLocation,x,y,z,0,0,width,height,textureWidth,textureHeight);
     }
 
     /**
@@ -146,19 +157,23 @@ public class GuiUtils {
         tessellator.end();
     }
 
-    public static void bindAndDrawTexture(ResourceLocation resourceLocation, PoseStack matrixStack, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
+    public static void bindAndDrawTexture(ResourceLocation resourceLocation, GuiGraphics guiGraphics, int x, int y, int z, int width, int height, int textureWidth, int textureHeight) {
         GuiUtils.bindTexture(resourceLocation);
-        GuiUtils.drawTexture(matrixStack, x, y, z, width, height, textureWidth, textureHeight);
+        GuiUtils.drawTexture(resourceLocation,guiGraphics, x, y, z, width, height, textureWidth, textureHeight);
     }
 
-    public static void bindAndDrawScaledTexture(ResourceLocation resourceLocation, PoseStack matrixStack, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    public static void bindAndDrawScaledTexture(ResourceLocation resourceLocation, GuiGraphics guiGraphics, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         GuiUtils.bindTexture(resourceLocation);
-        GuiUtils.bindAndDrawScaledTexture(matrixStack, x, y, width, height, regionWidth, regionHeight, textureWidth, textureHeight);
+//        GuiUtils.bindAndDrawScaledTexture(guiGraphics, x, y, width, height, regionWidth, regionHeight, textureWidth, textureHeight);
+        guiGraphics.blit(resourceLocation,x,y,width,height,0,0,regionWidth,regionHeight,textureWidth,textureHeight);
     }
 
-    public static void bindAndDrawScaledTexture(PoseStack matrixStack, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        GuiComponent.blit(matrixStack, x, y, width, height, 0, 0, regionWidth, regionHeight, textureWidth, textureHeight);
-    }
+//    public static void bindAndDrawScaledTexture(GuiGraphics guiGraphics, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+////        GuiGraphics guiGraphics = new GuiGraphics(Minecraft.getInstance(), renderBuffers().bufferSource());
+////        guiGraphics.blit(x,y,width,height,0, new TextureAtlasSprite());
+////        guiGraphics.flush();
+////        GuiComponent.blit(matrixStack, x, y, width, height, 0, 0, regionWidth, regionHeight, textureWidth, textureHeight);
+//    }
 
     public static void setButtonText(ExtendedButton button, String message) {
         button.setMessage(Utils.createTextComponent(message));

@@ -6,7 +6,6 @@ import com.wuest.prefab.Tuple;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
 import com.wuest.prefab.config.ModConfiguration;
-import com.wuest.prefab.network.message.PlayerEntityTagMessage;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.BuildEntity;
 import com.wuest.prefab.structures.base.BuildingMethods;
@@ -37,7 +36,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 
@@ -227,7 +225,7 @@ public final class StructureEventHandler {
             // If this block is not specifically air then set it to air.
             // This will also break other mod's logic blocks but they would probably be broken due to structure
             // generation anyways.
-            if (clearBlockState.getMaterial() != Material.AIR) {
+            if (clearBlockState.getBlock() != Blocks.AIR) {
                 structure.BeforeClearSpaceBlockReplaced(currentPos);
 
                 for (Direction adjacentBlock : Direction.values()) {
@@ -403,7 +401,7 @@ public final class StructureEventHandler {
                     // This is a water loggable block and there were air blocks, make sure that it's no longer water logged.
                     currentState = currentState.setValue((BlockStateProperties.WATERLOGGED), false);
                     structure.world.setBlock(currentPos, currentState, 3);
-                } else if (currentState.getMaterial() == Material.WATER) {
+                } else if (currentState.getBlock() == Blocks.WATER) {
                     structure.world.setBlock(currentPos, Blocks.AIR.defaultBlockState(), 3);
                 }
             }

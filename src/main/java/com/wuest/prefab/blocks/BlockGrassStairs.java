@@ -1,5 +1,6 @@
 package com.wuest.prefab.blocks;
 
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -12,6 +13,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 public class BlockGrassStairs extends StairBlock {
 
     public BlockGrassStairs() {
-        super(Blocks.GRASS_BLOCK.defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.GRASS_BLOCK));
+        super(Blocks.GRASS_BLOCK.defaultBlockState(), FabricBlockSettings.ofFullCopy(Blocks.GRASS_BLOCK));
     }
 }

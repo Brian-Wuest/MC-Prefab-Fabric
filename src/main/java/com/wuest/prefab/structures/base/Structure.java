@@ -10,17 +10,13 @@ import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.events.StructureEventHandler;
 
-import net.fabricmc.fabric.impl.biome.modification.BuiltInRegistryKeys;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
@@ -42,8 +38,8 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -123,7 +119,7 @@ public class Structure {
             BlockState currentState = world.getBlockState(currentPos);
             Block currentBlock = currentState.getBlock();
 
-            if (currentState.getMaterial() == Material.WATER && excludeWater) {
+            if (currentState.getBlock() == Blocks.WATER && excludeWater) {
                 continue;
             }
 
@@ -211,7 +207,10 @@ public class Structure {
         int z_radiusRangeBegin = Math.min(cornerPos1.getZ(), cornerPos2.getZ());
         int z_radiusRangeEnd = Math.max(cornerPos1.getZ(), cornerPos2.getZ());
 
-        AABB axis = new AABB(cornerPos1, cornerPos2);
+        var pos1 = new Vec3(cornerPos1.getX(),cornerPos1.getY(),cornerPos1.getZ());
+        var pos2 = new Vec3(cornerPos2.getX(),cornerPos2.getY(),cornerPos2.getZ());
+
+        AABB axis = new AABB(pos1, pos2);
 
         for (Entity entity : world.getEntities(null, axis)) {
             BlockPos entityPos = entity.blockPosition();
@@ -579,7 +578,7 @@ public class Structure {
 
         if (world.dimensionType().ultraWarm()
                 || (!isOverworld && Prefab.serverConfiguration.allowWaterInNonOverworldDimensions)) {
-            boolean foundWaterLikeBlock = (foundBlock instanceof LiquidBlock && blockState.getMaterial() == Material.WATER)
+            boolean foundWaterLikeBlock = (foundBlock instanceof LiquidBlock && blockState.getBlock() == Blocks.WATER)
                     || foundBlock instanceof SeagrassBlock;
 
             if (!foundWaterLikeBlock) {

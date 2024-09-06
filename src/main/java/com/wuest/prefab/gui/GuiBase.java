@@ -1,6 +1,5 @@
 package com.wuest.prefab.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.blocks.FullDyeColor;
@@ -10,6 +9,7 @@ import com.wuest.prefab.gui.controls.GuiCheckBox;
 import com.wuest.prefab.gui.controls.GuiSlider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -81,14 +81,14 @@ public abstract class GuiBase extends Screen {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int x, int y, float f) {
+    public void render(GuiGraphics guiGraphics, int x, int y, float f) {
         Tuple<Integer, Integer> adjustedXYValue = this.getAdjustedXYValue();
 
-        this.preButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
+        this.preButtonRender(guiGraphics, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
 
-        this.renderButtons(matrixStack, x, y);
+        this.renderButtons(guiGraphics, x, y);
 
-        this.postButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
+        this.postButtonRender(guiGraphics, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
     }
 
     /**
@@ -215,7 +215,7 @@ public abstract class GuiBase extends Screen {
         return this.addRenderableWidget(slider);
     }
 
-    protected void drawControlPanel(PoseStack matrixStack, int grayBoxX, int grayBoxY, int width, int height) {
+    protected void drawControlPanel(GuiGraphics guiGraphics, int grayBoxX, int grayBoxY, int width, int height) {
         GuiUtils.drawContinuousTexturedBox(
                 this.narrowPanelTexture,
                 grayBoxX,
@@ -233,10 +233,10 @@ public abstract class GuiBase extends Screen {
                 0);
     }
 
-    protected void drawControlBackground(PoseStack matrixStack, int grayBoxX, int grayBoxY, int width, int height) {
+    protected void drawControlBackground(GuiGraphics guiGraphics, int grayBoxX, int grayBoxY, int width, int height) {
         GuiUtils.bindAndDrawScaledTexture(
                 this.backgroundTextures,
-                matrixStack,
+                guiGraphics,
                 grayBoxX,
                 grayBoxY,
                 width,
@@ -247,7 +247,7 @@ public abstract class GuiBase extends Screen {
                 height);
     }
 
-    protected void drawControlLeftPanel(PoseStack matrixStack, int grayBoxX, int grayBoxY, int width, int height) {
+    protected void drawControlLeftPanel(GuiGraphics guiGraphics, int grayBoxX, int grayBoxY, int width, int height) {
         GuiUtils.drawContinuousTexturedBox(
                 this.leftPanelTexture,
                 grayBoxX,
@@ -265,7 +265,7 @@ public abstract class GuiBase extends Screen {
                 0);
     }
 
-    protected void drawControlMiddlePanel(PoseStack matrixStack, int grayBoxX, int grayBoxY, int width, int height) {
+    protected void drawControlMiddlePanel(GuiGraphics guiGraphics, int grayBoxX, int grayBoxY, int width, int height) {
         GuiUtils.drawContinuousTexturedBox(
                 this.middlePanelTexture,
                 grayBoxX,
@@ -283,7 +283,7 @@ public abstract class GuiBase extends Screen {
                 0);
     }
 
-    protected void drawControlRightPanel(PoseStack matrixStack, int grayBoxX, int grayBoxY, int width, int height) {
+    protected void drawControlRightPanel(GuiGraphics guiGraphics, int grayBoxX, int grayBoxY, int width, int height) {
         GuiUtils.drawContinuousTexturedBox(
                 this.rightPanelTexture,
                 grayBoxX,
@@ -301,9 +301,9 @@ public abstract class GuiBase extends Screen {
                 0);
     }
 
-    protected void drawStandardControlBoxAndImage(PoseStack matrixStack, ResourceLocation imageLocation, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(matrixStack);
-        this.drawControlBackground(matrixStack, x, y, this.imagePanelWidth, this.imagePanelHeight);
+    protected void drawStandardControlBoxAndImage(GuiGraphics guiGraphics, ResourceLocation imageLocation, int x, int y, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(guiGraphics, x, y, 0);
+        this.drawControlBackground(guiGraphics, x, y, this.imagePanelWidth, this.imagePanelHeight);
 
         if (imageLocation != null) {
             int imagePanelMiddle = this.imagePanelWidth / 2;
@@ -313,7 +313,7 @@ public abstract class GuiBase extends Screen {
 
             GuiUtils.bindAndDrawTexture(
                     imageLocation,
-                    matrixStack,
+                    guiGraphics,
                     imagePos,
                     y + 10,
                     1,
@@ -324,11 +324,13 @@ public abstract class GuiBase extends Screen {
         }
     }
 
-    protected void renderButtons(PoseStack matrixStack, int mouseX, int mouseY) {
+    protected void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         for (GuiEventListener button : this.children()) {
             if (button instanceof AbstractWidget currentButton) {
                 if (currentButton.visible) {
-                    currentButton.render(matrixStack, mouseX, mouseY, this.getMinecraft().getFrameTime());
+                    if (this.getMinecraft() != null) {
+                        currentButton.render(guiGraphics, mouseX, mouseY, this.getMinecraft().getFrameTime());
+                    }
                 }
             }
         }
@@ -352,8 +354,10 @@ public abstract class GuiBase extends Screen {
      * @param color The color of the text.
      * @return Some integer value.
      */
-    public int drawString(PoseStack matrixStack, String text, float x, float y, int color) {
-        return this.getFontRenderer().draw(matrixStack, text, x, y, color);
+    public int drawString(GuiGraphics guiGraphics, String text, float x, float y, int color) {
+//        return this.getFontRenderer().wordWrapHeight(text,Integer.parseInt(String.valueOf(y)));
+        guiGraphics.drawWordWrap(font, Utils.createTextComponent(text), (int) x, (int) y, 0, color);
+        return 0;
     }
 
     /**
@@ -365,8 +369,8 @@ public abstract class GuiBase extends Screen {
      * @param wrapWidth The maximum width before wrapping begins.
      * @param textColor The color of the text.
      */
-    public void drawSplitString(PoseStack poseStack, String str, int x, int y, int wrapWidth, int textColor) {
-        this.getFontRenderer().drawWordWrap(poseStack, Utils.createTextComponent(str), x, y, wrapWidth, textColor);
+    public void drawSplitString(GuiGraphics guiGraphics, String str, int x, int y, int wrapWidth, int textColor) {
+        guiGraphics.drawWordWrap(font,Utils.createTextComponent(str),x,y,wrapWidth,textColor);
     }
 
     public List<FormattedCharSequence> getSplitString(String str, int wrapWidth) {
@@ -399,7 +403,7 @@ public abstract class GuiBase extends Screen {
      */
     public abstract void buttonClicked(AbstractButton button);
 
-    protected abstract void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks);
+    protected abstract void preButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks);
 
-    protected abstract void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks);
+    protected abstract void postButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks);
 }

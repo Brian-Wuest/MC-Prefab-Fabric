@@ -2,22 +2,22 @@ package com.wuest.prefab.blocks;
 
 
 import com.wuest.prefab.ModRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
-
-import java.util.Random;
 
 public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
     public EnumType BlockVariant;
 
     public BlockCustomWall(Block modelBlock, EnumType variant) {
-        super(Properties.of(variant.getMaterial())
+        super(FabricBlockSettings.ofFullCopy(variant.getBlockBehaviour())
                 .strength(modelBlock.defaultDestroyTime(),
                         modelBlock.getExplosionResistance() * 5.0F / 3.0F)
                 .sound(modelBlock.defaultBlockState().getSoundType()));
@@ -52,8 +52,8 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
     }
 
     public enum EnumType implements StringRepresentable {
-        DIRT(0, "block_dirt_wall", "block_dirt_wall", Material.DIRT),
-        GRASS(1, "block_grass_wall", "block_grass_wall", Material.DIRT);
+        DIRT(0, "block_dirt_wall", "block_dirt_wall", Blocks.DIRT),
+        GRASS(1, "block_grass_wall", "block_grass_wall", Blocks.DIRT);
 
         private static final EnumType[] META_LOOKUP = new EnumType[values().length];
 
@@ -66,13 +66,13 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
         private final int meta;
         private final String name;
         private String unlocalizedName;
-        private Material material;
+        private BlockBehaviour blockBehaviour;
 
-        EnumType(int meta, String name, String unlocalizedName, Material blockMaterial) {
+        EnumType(int meta, String name, String unlocalizedName, BlockBehaviour blockBehaviour) {
             this.meta = meta;
             this.name = name;
             this.unlocalizedName = unlocalizedName;
-            this.material = blockMaterial;
+            this.blockBehaviour = blockBehaviour;
         }
 
         public static EnumType byMetadata(int meta) {
@@ -96,8 +96,13 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
             return this.name;
         }
 
-        public Material getMaterial() {
-            return this.material;
+//        public Material getMaterial() {
+//            return this.material;
+//        }
+
+
+        public BlockBehaviour getBlockBehaviour() {
+            return blockBehaviour;
         }
 
         public String getUnlocalizedName() {

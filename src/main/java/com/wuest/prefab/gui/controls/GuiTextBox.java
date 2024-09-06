@@ -1,13 +1,10 @@
 package com.wuest.prefab.gui.controls;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -15,7 +12,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -96,7 +92,9 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
     }
 
     @Override
-    public void renderWidget(PoseStack poseStack, int i, int j, float f) { }
+    protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
+
+    }
 
     public String getValue() {
         return this.value;
@@ -377,131 +375,131 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
         this.setFocused(isFocused);
     }
 
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        if (this.isVisible()) {
-            int j;
-            if (this.isBordered()) {
-                j = this.isFocused() ? -1 : -6250336;
-                fill(poseStack, this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, j);
-                fill(poseStack, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.backgroundColor);
-            }
+//    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+//        if (this.isVisible()) {
+//            int j;
+//            if (this.isBordered()) {
+//                j = this.isFocused() ? -1 : -6250336;
+//                fill(poseStack, this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, j);
+//                fill(poseStack, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.backgroundColor);
+//            }
+//
+//            j = this.isEditable ? this.textColor : this.textColorUneditable;
+//            int k = this.cursorPos - this.displayPos;
+//            int l = this.highlightPos - this.displayPos;
+//            String string = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
+//            boolean bl = k >= 0 && k <= string.length();
+//            boolean bl2 = this.isFocused() && this.frame / 6 % 2 == 0 && bl;
+//            int m = this.bordered ? this.getX() + 4 : this.getX();
+//            int n = this.bordered ? this.getY() + (this.height - 8) / 2 : this.getY();
+//            int o = m;
+//            if (l > string.length()) {
+//                l = string.length();
+//            }
+//
+//            if (!string.isEmpty()) {
+//                String string2 = bl ? string.substring(0, k) : string;
+//
+//                if (!this.drawsTextShadow) {
+//                    o = this.font.draw(poseStack, this.formatter.apply(string2, this.displayPos), (float) m, (float) n, j);
+//                } else {
+//                    o = this.font.drawShadow(poseStack, this.formatter.apply(string2, this.displayPos), (float) m, (float) n, j);
+//                }
+//            }
+//
+//            boolean bl3 = this.cursorPos < this.value.length() || this.value.length() >= this.getMaxLength();
+//            int p = o;
+//            if (!bl) {
+//                p = k > 0 ? m + this.width : m;
+//            } else if (bl3) {
+//                p = o - 1;
+//                --o;
+//            }
+//
+//            if (!string.isEmpty() && bl && k < string.length()) {
+//                if (!this.drawsTextShadow) {
+//                    this.font.draw(poseStack, this.formatter.apply(string.substring(k), this.cursorPos), (float) o, (float) n, j);
+//                } else {
+//                    this.font.drawShadow(poseStack, this.formatter.apply(string.substring(k), this.cursorPos), (float) o, (float) n, j);
+//                }
+//            }
+//
+//            if (!bl3 && this.suggestion != null) {
+//                if (!this.drawsTextShadow) {
+//                    this.font.draw(poseStack, this.suggestion, (float) (p - 1), (float) n, -8355712);
+//                } else {
+//                    this.font.drawShadow(poseStack, this.suggestion, (float) (p - 1), (float) n, -8355712);
+//                }
+//            }
+//
+//            int var10002;
+//            int var10003;
+//            int var10004;
+//            if (bl2) {
+//                if (bl3) {
+//                    var10002 = n - 1;
+//                    var10003 = p + 1;
+//                    var10004 = n + 1;
+//                    Objects.requireNonNull(this.font);
+//                    GuiComponent.fill(poseStack, p, var10002, var10003, var10004 + 9, -3092272);
+//                } else {
+//                    if (!this.drawsTextShadow) {
+//                        this.font.draw(poseStack, "_", (float) p, (float) n, j);
+//                    } else {
+//                        this.font.drawShadow(poseStack, "_", (float) p, (float) n, j);
+//                    }
+//                }
+//            }
+//
+//            if (l != k) {
+//                int q = m + this.font.width(string.substring(0, l));
+//                var10002 = n - 1;
+//                var10003 = q - 1;
+//                var10004 = n + 1;
+//                Objects.requireNonNull(this.font);
+//                this.renderHighlight(p, var10002, var10003, var10004 + 9);
+//            }
+//
+//        }
+//    }
 
-            j = this.isEditable ? this.textColor : this.textColorUneditable;
-            int k = this.cursorPos - this.displayPos;
-            int l = this.highlightPos - this.displayPos;
-            String string = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
-            boolean bl = k >= 0 && k <= string.length();
-            boolean bl2 = this.isFocused() && this.frame / 6 % 2 == 0 && bl;
-            int m = this.bordered ? this.getX() + 4 : this.getX();
-            int n = this.bordered ? this.getY() + (this.height - 8) / 2 : this.getY();
-            int o = m;
-            if (l > string.length()) {
-                l = string.length();
-            }
-
-            if (!string.isEmpty()) {
-                String string2 = bl ? string.substring(0, k) : string;
-
-                if (!this.drawsTextShadow) {
-                    o = this.font.draw(poseStack, this.formatter.apply(string2, this.displayPos), (float) m, (float) n, j);
-                } else {
-                    o = this.font.drawShadow(poseStack, this.formatter.apply(string2, this.displayPos), (float) m, (float) n, j);
-                }
-            }
-
-            boolean bl3 = this.cursorPos < this.value.length() || this.value.length() >= this.getMaxLength();
-            int p = o;
-            if (!bl) {
-                p = k > 0 ? m + this.width : m;
-            } else if (bl3) {
-                p = o - 1;
-                --o;
-            }
-
-            if (!string.isEmpty() && bl && k < string.length()) {
-                if (!this.drawsTextShadow) {
-                    this.font.draw(poseStack, this.formatter.apply(string.substring(k), this.cursorPos), (float) o, (float) n, j);
-                } else {
-                    this.font.drawShadow(poseStack, this.formatter.apply(string.substring(k), this.cursorPos), (float) o, (float) n, j);
-                }
-            }
-
-            if (!bl3 && this.suggestion != null) {
-                if (!this.drawsTextShadow) {
-                    this.font.draw(poseStack, this.suggestion, (float) (p - 1), (float) n, -8355712);
-                } else {
-                    this.font.drawShadow(poseStack, this.suggestion, (float) (p - 1), (float) n, -8355712);
-                }
-            }
-
-            int var10002;
-            int var10003;
-            int var10004;
-            if (bl2) {
-                if (bl3) {
-                    var10002 = n - 1;
-                    var10003 = p + 1;
-                    var10004 = n + 1;
-                    Objects.requireNonNull(this.font);
-                    GuiComponent.fill(poseStack, p, var10002, var10003, var10004 + 9, -3092272);
-                } else {
-                    if (!this.drawsTextShadow) {
-                        this.font.draw(poseStack, "_", (float) p, (float) n, j);
-                    } else {
-                        this.font.drawShadow(poseStack, "_", (float) p, (float) n, j);
-                    }
-                }
-            }
-
-            if (l != k) {
-                int q = m + this.font.width(string.substring(0, l));
-                var10002 = n - 1;
-                var10003 = q - 1;
-                var10004 = n + 1;
-                Objects.requireNonNull(this.font);
-                this.renderHighlight(p, var10002, var10003, var10004 + 9);
-            }
-
-        }
-    }
-
-    private void renderHighlight(int startX, int startY, int endX, int endY) {
-        int j;
-        if (startX < endX) {
-            j = startX;
-            startX = endX;
-            endX = j;
-        }
-
-        if (startY < endY) {
-            j = startY;
-            startY = endY;
-            endY = j;
-        }
-
-        if (endX > this.getX() + this.width) {
-            endX = this.getX() + this.width;
-        }
-
-        if (startX > this.getX() + this.width) {
-            startX = this.getX() + this.width;
-        }
-
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tesselator.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 1.0F, 1.0F);
-        RenderSystem.enableColorLogicOp();
-        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferBuilder.vertex((double) startX, (double) endY, 0.0D).endVertex();
-        bufferBuilder.vertex((double) endX, (double) endY, 0.0D).endVertex();
-        bufferBuilder.vertex((double) endX, (double) startY, 0.0D).endVertex();
-        bufferBuilder.vertex((double) startX, (double) startY, 0.0D).endVertex();
-        tesselator.end();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableColorLogicOp();
-    }
+//    private void renderHighlight(int startX, int startY, int endX, int endY) {
+//        int j;
+//        if (startX < endX) {
+//            j = startX;
+//            startX = endX;
+//            endX = j;
+//        }
+//
+//        if (startY < endY) {
+//            j = startY;
+//            startY = endY;
+//            endY = j;
+//        }
+//
+//        if (endX > this.getX() + this.width) {
+//            endX = this.getX() + this.width;
+//        }
+//
+//        if (startX > this.getX() + this.width) {
+//            startX = this.getX() + this.width;
+//        }
+//
+//        Tesselator tesselator = Tesselator.getInstance();
+//        BufferBuilder bufferBuilder = tesselator.getBuilder();
+//        RenderSystem.setShader(GameRenderer::getPositionShader);
+//        RenderSystem.setShaderColor(0.0F, 0.0F, 1.0F, 1.0F);
+//        RenderSystem.enableColorLogicOp();
+//        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
+//        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+//        bufferBuilder.vertex((double) startX, (double) endY, 0.0D).endVertex();
+//        bufferBuilder.vertex((double) endX, (double) endY, 0.0D).endVertex();
+//        bufferBuilder.vertex((double) endX, (double) startY, 0.0D).endVertex();
+//        bufferBuilder.vertex((double) startX, (double) startY, 0.0D).endVertex();
+//        tesselator.end();
+//        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+//        RenderSystem.disableColorLogicOp();
+//    }
 
     private int getMaxLength() {
         return this.maxLength;

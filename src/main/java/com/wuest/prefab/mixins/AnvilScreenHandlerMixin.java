@@ -2,13 +2,12 @@ package com.wuest.prefab.mixins;
 
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.items.ItemBulldozer;
-import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.block.state.properties.Property;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,6 +19,7 @@ import java.util.Map;
 
 @Mixin(AnvilMenu.class)
 public class AnvilScreenHandlerMixin {
+//    @Final
     @Shadow
     private DataSlot cost;
 

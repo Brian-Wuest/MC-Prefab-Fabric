@@ -1,6 +1,5 @@
 package com.wuest.prefab.structures.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Tuple;
@@ -14,6 +13,7 @@ import com.wuest.prefab.structures.config.enums.BaseOption;
 import com.wuest.prefab.structures.items.ItemBasicStructure;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.predefined.StructureBasic;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.world.item.DyeColor;
@@ -151,18 +151,18 @@ public class GuiBasicStructure extends GuiStructure {
     }
 
     @Override
-    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void preButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
         if (!this.showConfigurationOptions) {
-            super.preButtonRender(matrixStack, x, y, mouseX, mouseY, partialTicks);
+            super.preButtonRender(guiGraphics, x, y, mouseX, mouseY, partialTicks);
         } else {
             // Draw the control background.
             int imagePanelUpperLeft = x + 136;
             int imagePanelMiddle = this.imagePanelWidth / 2;
 
-            this.renderBackground(matrixStack);
+            this.renderBackground(guiGraphics,0,0,0);
 
-            this.drawControlLeftPanel(matrixStack, x + 2, y + 10, 185, 190);
-            this.drawControlRightPanel(matrixStack, imagePanelUpperLeft, y + 10, this.imagePanelWidth, 190);
+            this.drawControlLeftPanel(guiGraphics, x + 2, y + 10, 185, 190);
+            this.drawControlRightPanel(guiGraphics, imagePanelUpperLeft, y + 10, this.imagePanelWidth, 190);
 
             int middleOfImage = this.shownImageWidth / 2;
             int imageLocation = imagePanelUpperLeft + (imagePanelMiddle - middleOfImage);
@@ -170,7 +170,7 @@ public class GuiBasicStructure extends GuiStructure {
             // Draw the picture.
             GuiUtils.bindAndDrawScaledTexture(
                     this.structureImageLocation,
-                    matrixStack,
+                    guiGraphics,
                     imageLocation,
                     y + 15,
                     this.shownImageWidth,
@@ -209,25 +209,25 @@ public class GuiBasicStructure extends GuiStructure {
     }
 
     @Override
-    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
         if (this.showConfigurationOptions) {
-            this.drawSplitString(matrixStack, GuiLangKeys.translateString(this.specificConfiguration.basicStructureName.getItemTranslationString()), x + 8, y + 17, 128, this.textColor);
+            this.drawSplitString(guiGraphics, GuiLangKeys.translateString(this.specificConfiguration.basicStructureName.getItemTranslationString()), x + 8, y + 17, 128, this.textColor);
 
             int yValue = y + 35;
 
             if (this.availableOptions.size() > 1) {
-                this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.BUILDING_OPTIONS), x + 8, yValue, this.textColor);
+                this.drawString(guiGraphics, GuiLangKeys.translateString(GuiLangKeys.BUILDING_OPTIONS), x + 8, yValue, this.textColor);
                 yValue += 45;
             }
 
             // Draw the text here.
             if (this.specificConfiguration.chosenOption.getHasBedColor()) {
-                this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR), x + 8, yValue, this.textColor);
+                this.drawString(guiGraphics, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_BED_COLOR), x + 8, yValue, this.textColor);
                 yValue += 45;
             }
 
             if (this.specificConfiguration.chosenOption.getHasGlassColor()) {
-                this.drawString(matrixStack, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_GLASS), x + 8, yValue, this.textColor);
+                this.drawString(guiGraphics, GuiLangKeys.translateString(GuiLangKeys.GUI_STRUCTURE_GLASS), x + 8, yValue, this.textColor);
                 yValue += 45;
             }
         }

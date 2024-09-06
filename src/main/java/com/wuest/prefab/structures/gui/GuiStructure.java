@@ -1,6 +1,5 @@
 package com.wuest.prefab.structures.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Tuple;
@@ -12,6 +11,7 @@ import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.render.StructureRenderHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
@@ -75,14 +75,14 @@ public abstract class GuiStructure extends GuiBase {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int x, int y, float f) {
+    public void render(GuiGraphics guiGraphics, int x, int y, float f) {
         Tuple<Integer, Integer> adjustedXYValue = this.getAdjustedXYValue();
 
-        this.preButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
+        this.preButtonRender(guiGraphics, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
 
-        this.renderButtons(matrixStack, x, y);
+        this.renderButtons(guiGraphics, x, y);
 
-        this.postButtonRender(matrixStack, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
+        this.postButtonRender(guiGraphics, adjustedXYValue.getFirst(), adjustedXYValue.getSecond(), x, y, f);
 
         if (this.btnVisualize != null) {
             this.checkVisualizationSetting();
@@ -90,12 +90,12 @@ public abstract class GuiStructure extends GuiBase {
     }
 
     @Override
-    protected void preButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        this.drawStandardControlBoxAndImage(matrixStack, this.structureImageLocation, x, y, mouseX, mouseY, partialTicks);
+    protected void preButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
+        this.drawStandardControlBoxAndImage(guiGraphics, this.structureImageLocation, x, y, mouseX, mouseY, partialTicks);
     }
 
     @Override
-    protected void postButtonRender(PoseStack matrixStack, int x, int y, int mouseX, int mouseY, float partialTicks) {
+    protected void postButtonRender(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
     }
 
     /**

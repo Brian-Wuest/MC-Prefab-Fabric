@@ -11,8 +11,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.core.BlockPos;
 
-import java.util.Random;
-
 /**
  * This block is used as an alternate light source to be used in the structures created in this mod.
  *
@@ -26,7 +24,7 @@ public class BlockPaperLantern extends Block {
 	 */
 	public BlockPaperLantern() {
 		// The "func_226896_b_" function causes the "isSolid" field on the block to be set to false.
-		super(Properties.of(Prefab.SeeThroughImmovable)
+		super(Prefab.SeeThroughImmovable.get()
 				.sound(SoundType.SNOW)
 				.strength(0.6f)
 				.lightLevel(value -> 14)

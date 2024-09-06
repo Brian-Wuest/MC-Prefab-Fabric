@@ -5,11 +5,15 @@ import com.wuest.prefab.events.ServerEvents;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.PushReaction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.function.Supplier;
 
 public class Prefab implements ModInitializer {
     /**
@@ -19,15 +23,17 @@ public class Prefab implements ModInitializer {
     /**
      * Simulates an air block that blocks movement and cannot be moved.
      */
-    public static final Material SeeThroughImmovable = new Material(
-            MaterialColor.NONE,
-            false,
-            true,
-            true,
-            false,
-            false,
-            false,
-            PushReaction.IGNORE);
+//    public static final Material SeeThroughImmovable = new Material(
+//            MaterialColor.NONE,
+//            false,
+//            true,
+//            true,
+//            false,
+//            false,
+//            false,
+//            PushReaction.IGNORE);
+
+    public static final Supplier<BlockBehaviour.Properties> SeeThroughImmovable = ()->FabricBlockSettings.copyOf(Blocks.AIR).pushReaction(PushReaction.IGNORE);
     public static Logger logger;
     /**
      * This is used to determine if the mod is currently being debugged.

@@ -4,6 +4,7 @@ import com.wuest.prefab.Prefab;
 import com.wuest.prefab.events.ServerEvents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -29,7 +30,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * This is a phasing block.
@@ -57,7 +57,7 @@ public class BlockPhasic extends Block {
      * Initializes a new instance of the BlockPhasing class.
      */
     public BlockPhasic() {
-        super(Properties.of(Prefab.SeeThroughImmovable)
+        super(Prefab.SeeThroughImmovable.get()
                 .sound(SoundType.STONE)
                 .strength(0.6f)
                 .noOcclusion());
@@ -109,7 +109,7 @@ public class BlockPhasic extends Block {
      * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
      */
     @Override
-    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         EnumPhasingProgress currentState = state.getValue(Phasing_Progress);
 
         super.playerWillDestroy(world, pos, state, player);
@@ -122,6 +122,7 @@ public class BlockPhasic extends Block {
             // Set this block and all neighbor Phasic Blocks to base. This will cascade to tall touching Phasic blocks.
             this.updateNeighborPhasicBlocks(false, world, pos, state, false, false);
         }
+        return state;
     }
 
     /**

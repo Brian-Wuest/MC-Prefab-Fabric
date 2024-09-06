@@ -1,9 +1,11 @@
 package com.wuest.prefab.blocks;
 
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 
 /**
  * Provides a way to store large amounts of stone.
@@ -17,11 +19,13 @@ public class BlockCompressedStone extends Block {
 	 * Initializes a new instance of the CompressedStone class.
 	 */
 	public BlockCompressedStone(EnumType typeOfStone) {
-		super(Properties.of(Material.DECORATION)
+		super(BlockBehaviour.Properties.of()
+				.mapColor(MapColor.TERRACOTTA_RED)
+				.pushReaction(PushReaction.DESTROY)
+				.noOcclusion()
 				.strength(1.5F, 10.0F)
 				.sound(typeOfStone.getSoundType())
 				.lightLevel(value -> typeOfStone == EnumType.COMPRESSED_GLOWSTONE || typeOfStone == EnumType.DOUBLE_COMPRESSED_GLOWSTONE ? 15 : 0));
-
 		this.typeofStone = typeOfStone;
 	}
 

@@ -11,7 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -45,10 +45,12 @@ public class BlockBoundary extends Block {
      * Initializes a new instance of the BlockBoundary class.
      */
     public BlockBoundary() {
-        super(Block.Properties.of(Prefab.SeeThroughImmovable)
+        super(
+                Prefab.SeeThroughImmovable.get()
                 .sound(SoundType.STONE)
                 .strength(0.6F)
-                .noOcclusion());
+                .noOcclusion()
+        );
 
         this.registerDefaultState(this.getStateDefinition().any().setValue(Powered, false));
     }
@@ -98,9 +100,10 @@ public class BlockBoundary extends Block {
      * @param world  The current world
      * @param player The player damaging the block, may be null
      * @param pos    Block position in world
+     * @return
      */
     @Override
-    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         super.playerWillDestroy(world, pos, state, player);
 
         ServerEvents.RedstoneAffectedBlockPositions.remove(pos);
@@ -110,6 +113,7 @@ public class BlockBoundary extends Block {
         if (poweredSide) {
             this.setNeighborGlassBlocksPoweredStatus(world, pos, false, 0, new ArrayList<>(), false);
         }
+        return state;
     }
 
     /**
