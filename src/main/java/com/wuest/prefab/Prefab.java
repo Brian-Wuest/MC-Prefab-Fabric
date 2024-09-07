@@ -8,6 +8,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.PushReaction;
 import org.apache.logging.log4j.LogManager;
@@ -22,18 +23,10 @@ public class Prefab implements ModInitializer {
     public static final String MODID = "prefab";
     /**
      * Simulates an air block that blocks movement and cannot be moved.
+     * Basically a GLASS block, but NOT glass.
      */
-//    public static final Material SeeThroughImmovable = new Material(
-//            MaterialColor.NONE,
-//            false,
-//            true,
-//            true,
-//            false,
-//            false,
-//            false,
-//            PushReaction.IGNORE);
+    public static final Supplier<BlockBehaviour.Properties> SeeThroughImmovable = ()->FabricBlockSettings.copyOf(Blocks.GLASS).pushReaction(PushReaction.IGNORE).sound(SoundType.STONE);
 
-    public static final Supplier<BlockBehaviour.Properties> SeeThroughImmovable = ()->FabricBlockSettings.copyOf(Blocks.AIR).pushReaction(PushReaction.IGNORE);
     public static Logger logger;
     /**
      * This is used to determine if the mod is currently being debugged.

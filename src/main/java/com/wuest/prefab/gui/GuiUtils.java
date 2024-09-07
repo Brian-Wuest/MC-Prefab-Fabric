@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.gui.controls.ExtendedButton;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
@@ -164,16 +165,8 @@ public class GuiUtils {
 
     public static void bindAndDrawScaledTexture(ResourceLocation resourceLocation, GuiGraphics guiGraphics, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         GuiUtils.bindTexture(resourceLocation);
-//        GuiUtils.bindAndDrawScaledTexture(guiGraphics, x, y, width, height, regionWidth, regionHeight, textureWidth, textureHeight);
         guiGraphics.blit(resourceLocation,x,y,width,height,0,0,regionWidth,regionHeight,textureWidth,textureHeight);
     }
-
-//    public static void bindAndDrawScaledTexture(GuiGraphics guiGraphics, int x, int y, int width, int height, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-////        GuiGraphics guiGraphics = new GuiGraphics(Minecraft.getInstance(), renderBuffers().bufferSource());
-////        guiGraphics.blit(x,y,width,height,0, new TextureAtlasSprite());
-////        guiGraphics.flush();
-////        GuiComponent.blit(matrixStack, x, y, width, height, 0, 0, regionWidth, regionHeight, textureWidth, textureHeight);
-//    }
 
     public static void setButtonText(ExtendedButton button, String message) {
         button.setMessage(Utils.createTextComponent(message));

@@ -2,6 +2,7 @@ package com.wuest.prefab.gui.controls;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wuest.prefab.Utils;
+import com.wuest.prefab.gui.GuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -35,7 +36,7 @@ public class CustomButton extends ExtendedButton {
             RenderSystem.setShaderTexture(0, buttonTexture);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
-//            GuiUtils.bindAndDrawScaledTexture(mStack, this.getX(), this.getY(), this.width, this.height, 90, 20, 90, 20);
+            GuiUtils.bindAndDrawScaledTexture(buttonTexture, guiGraphics, this.getX(), this.getY(), this.width, this.height, 90, 20, 90, 20);
             int color = 14737632;
 
             Component buttonText = this.getMessage();
