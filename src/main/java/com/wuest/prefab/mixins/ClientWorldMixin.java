@@ -13,10 +13,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientWorldMixin {
 	@Inject(method = "renderLevel", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;renderHand:Z"))
 	public void renderWorldLast(float tickDelta, long limitTime, PoseStack matrix, CallbackInfo ci) {
-		Minecraft mc = Minecraft.getInstance();
+		Minecraft prefabMinecraft = Minecraft.getInstance();
 
-		if (mc.player != null && (!mc.player.isCrouching())) {
-			StructureRenderHandler.renderPlayerLook(mc.player, mc.hitResult, matrix, ci);
+		if (prefabMinecraft.player != null && (!prefabMinecraft.player.isCrouching())) {
+			StructureRenderHandler.renderPlayerLook(prefabMinecraft.player, prefabMinecraft.hitResult, matrix, ci);
 		}
 	}
 }

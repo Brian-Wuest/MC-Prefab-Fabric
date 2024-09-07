@@ -15,15 +15,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class RenderIndicatorMixin {
     @Inject(method = "render", at = @At(value = "TAIL"))
     public void renderWorldLast(PoseStack matrices, MultiBufferSource.BufferSource vertexConsumers, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
-        Minecraft mc = Minecraft.getInstance();
+        Minecraft prefabMinecraft = Minecraft.getInstance();
 
-        if (mc.player != null && (!mc.player.isCrouching())) {
-            StructureRenderHandler.RenderTest(mc.level, matrices, vertexConsumers, (float)cameraX, (float)cameraY, (float)cameraZ);
+        if (prefabMinecraft.player != null && (!prefabMinecraft.player.isCrouching())) {
+            StructureRenderHandler.RenderTest(prefabMinecraft.level, matrices, vertexConsumers, (float)cameraX, (float)cameraY, (float)cameraZ);
         }
 
         // It there are structure scanners; run the rendering for them now.
-        if (ClientModRegistry.structureScanners != null && ClientModRegistry.structureScanners.size() != 0) {
-            StructureRenderHandler.renderScanningBoxes(matrices, cameraX, cameraY, cameraZ);
+        if (ClientModRegistry.structureScanners != null && !ClientModRegistry.structureScanners.isEmpty()) {
+            StructureRenderHandler.renderScanningBoxes(matrices, vertexConsumers, (float)cameraX, (float)cameraY, (float)cameraZ);
         }
     }
 }

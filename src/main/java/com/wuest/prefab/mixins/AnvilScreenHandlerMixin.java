@@ -26,20 +26,20 @@ public class AnvilScreenHandlerMixin {
     @Inject(method = "createResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isDamageableItem()Z", ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     public void AnvilUpdate(CallbackInfo ci, ItemStack itemStack, int i, int j, int k, ItemStack itemStack2, ItemStack itemStack3, Map<Enchantment, Integer> map, boolean bl) {
         // Because this gets injected into the actual class; we can use "this" to represent the AnvilScreenHandler correctly.
-        AnvilMenu handler = (AnvilMenu) (Object) this;
-        Item tripleCompressedStone = ModRegistry.TripleCompressedStoneItem;
-        ItemBulldozer bulldozer = ModRegistry.Bulldozer;
+        AnvilMenu prefabHandler = (AnvilMenu) (Object) this;
+        Item prefabTripleCompressedStone = ModRegistry.TripleCompressedStoneItem;
+        ItemBulldozer prefabBulldozer = ModRegistry.Bulldozer;
 
-        if (itemStack2.getItem() == tripleCompressedStone || itemStack3.getItem() == tripleCompressedStone) {
-            if (itemStack2.getItem() == bulldozer || itemStack3.getItem() == bulldozer) {
+        if (itemStack2.getItem() == prefabTripleCompressedStone || itemStack3.getItem() == prefabTripleCompressedStone) {
+            if (itemStack2.getItem() == prefabBulldozer || itemStack3.getItem() == prefabBulldozer) {
                 this.cost.set(4);
 
-                itemStack3 = new ItemStack(bulldozer);
-                bulldozer.setPoweredValue(itemStack3, true);
+                itemStack3 = new ItemStack(prefabBulldozer);
+                prefabBulldozer.setPoweredValue(itemStack3, true);
                 itemStack3.setDamageValue(0);
 
                 // In order to get this to work an "accessWidener" is necessary.
-                handler.resultSlots.setItem(0, itemStack3);
+                prefabHandler.resultSlots.setItem(0, itemStack3);
 
                 ci.cancel();
             }
