@@ -16,6 +16,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -221,19 +223,20 @@ public class StructureRenderHandler {
         }
     }
 
-    public static void RenderTest(Level worldIn, PoseStack matrixStack, double cameraX, double cameraY, double cameraZ) {
+    public static void RenderTest(Level worldIn, PoseStack matrixStack, MultiBufferSource multiBufferSource, float cameraX, float cameraY, float cameraZ) {
         if (StructureRenderHandler.currentStructure != null
                 && StructureRenderHandler.dimension == Minecraft.getInstance().player.level().dimensionType().logicalHeight()
                 && StructureRenderHandler.currentConfiguration != null
                 && Prefab.serverConfiguration.enableStructurePreview) {
             BlockPos originalPos = StructureRenderHandler.currentConfiguration.pos.above();
 
-            double blockXOffset = originalPos.getX();
-            double blockZOffset = originalPos.getZ();
-            double blockStartYOffset = originalPos.getY();
+            float blockXOffset = originalPos.getX();
+            float blockZOffset = originalPos.getZ();
+            float blockStartYOffset = originalPos.getY();
 
             StructureRenderHandler.drawBox(
                     matrixStack,
+                    multiBufferSource,
                     blockXOffset,
                     blockZOffset,
                     blockStartYOffset,
@@ -247,6 +250,75 @@ public class StructureRenderHandler {
     }
 
     public static void drawBox(
+            PoseStack matrixStack,
+            MultiBufferSource multiBufferSource,
+            float blockXOffset,
+            float blockZOffset,
+            float blockStartYOffset,
+            float cameraX,
+            float cameraY,
+            float cameraZ,
+            int xLength,
+            int zLength,
+            int height) {
+        VertexConsumer bufferBuilder = multiBufferSource.getBuffer(RenderType.debugLineStrip(2.0));
+        Matrix4f matrix4f = matrixStack.last().pose();
+
+        float translatedX = blockXOffset - cameraX;
+        float translatedY = (float) (blockStartYOffset - cameraY + .02);
+        float translatedYEnd = (float) (translatedY + height - .02);
+        float translatedZ = blockZOffset - cameraZ;
+
+        // Draw the verticals of the box.
+        bufferBuilder = multiBufferSource.getBuffer(RenderType.debugLineStrip(2.0));
+        bufferBuilder.vertex(matrix4f, translatedX, translatedY, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX, translatedYEnd, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder = multiBufferSource.getBuffer(RenderType.debugLineStrip(2.0));
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedY, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedYEnd, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder = multiBufferSource.getBuffer(RenderType.debugLineStrip(2.0));
+        bufferBuilder.vertex(matrix4f, translatedX, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX, translatedYEnd, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder = multiBufferSource.getBuffer(RenderType.debugLineStrip(2.0));
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedYEnd, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        // Draw bottom horizontals.
+        bufferBuilder = multiBufferSource.getBuffer(RenderType.debugLineStrip(2.0));
+
+        bufferBuilder.vertex(matrix4f, translatedX, translatedY, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedY, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder.vertex(matrix4f, translatedX, translatedY, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedY, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        // Draw top horizontals
+        bufferBuilder = multiBufferSource.getBuffer(RenderType.debugLineStrip(2.0));
+
+        bufferBuilder.vertex(matrix4f, translatedX, translatedYEnd, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX, translatedYEnd, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedYEnd, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedYEnd, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder.vertex(matrix4f, translatedX, translatedYEnd, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedYEnd, translatedZ).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
+        bufferBuilder.vertex(matrix4f, translatedX + xLength, translatedYEnd, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(matrix4f, translatedX, translatedYEnd, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+    }
+
+    // TODO: Remove
+    public static void drawBoxOld(
             PoseStack matrixStack,
             double blockXOffset,
             double blockZOffset,
@@ -306,6 +378,7 @@ public class StructureRenderHandler {
 
         bufferBuilder.vertex(translatedX + xLength, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
         bufferBuilder.vertex(translatedX, translatedY, translatedZ + zLength).color(1.0F, 1.0F, 0.0F, 1.0F).endVertex();
+
         tessellator.end();
 
         // Draw top horizontals
@@ -393,7 +466,7 @@ public class StructureRenderHandler {
                 }
             }
 
-            StructureRenderHandler.drawBox(
+            StructureRenderHandler.drawBoxOld(
                     matrixStack,
                     startingPosition.getX(),
                     startingPosition.getZ(),

@@ -18,7 +18,7 @@ public class RenderIndicatorMixin {
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.player != null && (!mc.player.isCrouching())) {
-            StructureRenderHandler.RenderTest(mc.level, matrices, cameraX, cameraY, cameraZ);
+            StructureRenderHandler.RenderTest(mc.level, matrices, vertexConsumers, (float)cameraX, (float)cameraY, (float)cameraZ);
         }
 
         // It there are structure scanners; run the rendering for them now.
