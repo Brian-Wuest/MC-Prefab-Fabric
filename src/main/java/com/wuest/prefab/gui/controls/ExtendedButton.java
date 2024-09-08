@@ -30,8 +30,8 @@ public class ExtendedButton extends Button {
         originalStack.pushPose();
         originalStack.scale(this.fontScale, this.fontScale, this.fontScale);
 
-        int xPosition = (int) ((this.getX() + this.width / 2) / this.fontScale);
-        int yPosition = (int) ((this.getY() + (this.height - (8 * this.fontScale)) / 2) / this.fontScale);
+        int xPosition = (int) ((this.getX() + this.width / 2));
+        int yPosition = (int) ((this.getY() + (this.height - 8) / 2));
 
         guiGraphics.drawCenteredString(font, buttonText, xPosition, yPosition, this.getFGColor());
         originalStack.popPose();
