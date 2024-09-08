@@ -6,7 +6,7 @@ import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.items.*;
 import com.wuest.prefab.recipe.ConditionedShapedRecipe;
-import com.wuest.prefab.recipe.ConditionedShaplessRecipe;
+import com.wuest.prefab.recipe.ConditionedShapelessRecipe;
 import com.wuest.prefab.recipe.ConditionedSmeltingRecipe;
 import com.wuest.prefab.registries.ModRegistries;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration;
@@ -220,7 +220,7 @@ public class ModRegistry {
 
     /* *********************************** Recipe Serializers *********************************** */
     public static final RecipeSerializer<ConditionedShapedRecipe> ConditionedShapedRecipeSeriaizer = new ConditionedShapedRecipe.Serializer();
-    public static final RecipeSerializer<ConditionedShaplessRecipe> ConditionedShapelessRecipeSeriaizer = new ConditionedShaplessRecipe.Serializer();
+    public static final RecipeSerializer<ConditionedShapelessRecipe> ConditionedShapelessRecipeSeriaizer = new ConditionedShapelessRecipe.Serializer();
     public static final RecipeSerializer<ConditionedSmeltingRecipe> ConditionedSmeltingRecipeSeriaizer = new ConditionedSmeltingRecipe.Serializer();
 
     /* *********************************** Sounds *********************************** */
