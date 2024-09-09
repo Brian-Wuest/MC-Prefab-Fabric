@@ -58,9 +58,9 @@ public class GuiInstantBridge extends GuiStructure {
 
         // Create the buttons.
         this.btnMaterialType = this.createAndAddButton(grayBoxX + 15, grayBoxY + 45, 90, 20, this.specificConfiguration.bridgeMaterial.getName());
-        this.sldrBridgeLength = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 85, 90, 20, "", "", 25, 75, this.specificConfiguration.bridgeLength, false, true, this::buttonClicked);
+        this.sldrBridgeLength = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 85, 90, 20, 25, 75, this.specificConfiguration.bridgeLength);
         this.chckIncludeRoof = this.createAndAddCheckBox(grayBoxX + 15, grayBoxY + 112, GuiLangKeys.INCLUDE_ROOF, this.specificConfiguration.includeRoof, this::buttonClicked);
-        this.sldrInteriorHeight = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 140, 90, 20, "", "", 3, 8, this.specificConfiguration.interiorHeight, false, true, this::buttonClicked);
+        this.sldrInteriorHeight = this.createAndAddSlider(grayBoxX + 15, grayBoxY + 140, 90, 20, 3, 8, this.specificConfiguration.interiorHeight);
         this.sldrInteriorHeight.visible = this.chckIncludeRoof.isChecked();
 
         // Create the standard buttons.
@@ -114,7 +114,7 @@ public class GuiInstantBridge extends GuiStructure {
      */
     @Override
     public void buttonClicked(AbstractButton button) {
-        int sliderValue = this.sldrBridgeLength.getValueInt();
+        int sliderValue = this.sldrBridgeLength.getIntValue();
 
         if (sliderValue > 75) {
             sliderValue = 75;
@@ -122,9 +122,9 @@ public class GuiInstantBridge extends GuiStructure {
             sliderValue = 25;
         }
 
-        this.specificConfiguration.bridgeLength = sliderValue;
+        this.specificConfiguration.bridgeLength =sliderValue;
 
-        sliderValue = this.sldrInteriorHeight.getValueInt();
+        sliderValue = this.sldrInteriorHeight.getIntValue();
 
         if (sliderValue > 8) {
             sliderValue = 8;

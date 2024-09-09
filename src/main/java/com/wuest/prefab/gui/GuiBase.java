@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -206,11 +207,9 @@ public abstract class GuiBase extends Screen {
         return this.addRenderableWidget(checkBox);
     }
 
-    public GuiSlider createAndAddSlider(int xPos, int yPos, int width, int height, String prefix, String suf,
-                                        double minVal, double maxVal, double currentVal, boolean showDec, boolean drawStr,
-                                        Button.OnPress handler) {
-        GuiSlider slider = new GuiSlider(xPos, yPos, width, height, Utils.createTextComponent(prefix), Utils.createTextComponent(suf), minVal, maxVal, currentVal, showDec,
-                drawStr, handler);
+    public GuiSlider createAndAddSlider(int xPos, int yPos, int width, int height,
+                                        double minVal, double maxVal, double currentVal) {
+        GuiSlider slider = new GuiSlider(xPos, yPos, width, height, CommonComponents.EMPTY, minVal, maxVal, currentVal);
 
         return this.addRenderableWidget(slider);
     }
