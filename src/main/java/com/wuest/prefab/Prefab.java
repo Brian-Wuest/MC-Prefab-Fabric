@@ -25,7 +25,7 @@ public class Prefab implements ModInitializer {
      * Simulates an air block that blocks movement and cannot be moved.
      * Basically a GLASS block, but NOT glass.
      */
-    public static final Supplier<BlockBehaviour.Properties> SeeThroughImmovable = ()->FabricBlockSettings.copyOf(Blocks.GLASS).pushReaction(PushReaction.IGNORE).sound(SoundType.STONE);
+    public static final Supplier<BlockBehaviour.Properties> SeeThroughImmovable = ()->FabricBlockSettings.of().noOcclusion().isViewBlocking(Blocks::never).pushReaction(PushReaction.IGNORE).sound(SoundType.STONE);
 
     public static Logger logger;
     /**

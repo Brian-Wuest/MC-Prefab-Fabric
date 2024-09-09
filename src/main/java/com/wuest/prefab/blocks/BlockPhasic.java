@@ -59,8 +59,7 @@ public class BlockPhasic extends Block {
     public BlockPhasic() {
         super(Prefab.SeeThroughImmovable.get()
                 .sound(SoundType.STONE)
-                .strength(0.6f)
-                .noOcclusion());
+                .strength(0.6f));
 
         this.registerDefaultState(this.getStateDefinition().any().setValue(Phasing_Out, false).setValue(Phasing_Progress, EnumPhasingProgress.base));
     }
@@ -251,6 +250,17 @@ public class BlockPhasic extends Block {
         VoxelShape aabb = super.getInteractionShape(state, worldIn, pos);
 
         return aabb;
+    }
+
+    @Override
+    public float getShadeBrightness(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
+        EnumPhasingProgress progress = blockState.getValue(Phasing_Progress);
+
+        if (progress == EnumPhasingProgress.transparent) {
+            return 1.0F;
+        } else {
+            return 0.2F;
+        }
     }
 
     @Environment(EnvType.CLIENT)

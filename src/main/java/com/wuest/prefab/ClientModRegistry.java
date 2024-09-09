@@ -117,8 +117,8 @@ public class ClientModRegistry {
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.GlassStairs, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.GlassSlab, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.PaperLantern, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Boundary, RenderType.translucent());
-        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Phasic, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Boundary, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.Phasic, RenderType.cutout());
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.GrassStairs, RenderType.cutoutMipped());
         BlockRenderLayerMap.INSTANCE.putBlock(ModRegistry.DirtStairs, RenderType.cutoutMipped());

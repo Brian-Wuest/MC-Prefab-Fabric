@@ -49,7 +49,6 @@ public class BlockBoundary extends Block {
                 Prefab.SeeThroughImmovable.get()
                 .sound(SoundType.STONE)
                 .strength(0.6F)
-                .noOcclusion()
         );
 
         this.registerDefaultState(this.getStateDefinition().any().setValue(Powered, false));
@@ -210,6 +209,15 @@ public class BlockBoundary extends Block {
             return Shapes.empty();
         } else {
             return Shapes.block();
+        }
+    }
+
+    @Override
+    public float getShadeBrightness(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
+        if (!blockState.getValue(Powered)) {
+            return 1.0F;
+        } else {
+            return 0.2F;
         }
     }
 
