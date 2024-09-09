@@ -45,6 +45,11 @@ public class BlockDarkLamp extends Block {
     }
 
     @Override
+    public float getShadeBrightness(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
+        return 1.0F;
+    }
+
+    @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
         if (!blockPlaceContext.getLevel().isClientSide) {
