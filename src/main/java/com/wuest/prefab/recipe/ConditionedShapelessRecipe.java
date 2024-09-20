@@ -95,8 +95,9 @@ public class ConditionedShapelessRecipe extends ShapelessRecipe {
     public static class Serializer implements RecipeSerializer<ConditionedShapelessRecipe> {
         private static final Codec<ConditionedShapelessRecipe> CODEC = RecordCodecBuilder.create((instance) -> {
             return instance.group(
-                    ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter((shapelessRecipe) -> shapelessRecipe.group),
-                    CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter((shapelessRecipe) -> {
+                    ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter((shapelessRecipe) -> {
+                        return shapelessRecipe.group;
+                    }), CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter((shapelessRecipe) -> {
                         return shapelessRecipe.category;
                     }), ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter((shapelessRecipe) -> {
                         return shapelessRecipe.output;
