@@ -3,7 +3,7 @@
     "Ton of timber to heap of timber"
   ],
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Ton of Timber",
+  "configName": "Ton of Timber",
   "group": "Ton of Timber",
   "ingredients": [
     {

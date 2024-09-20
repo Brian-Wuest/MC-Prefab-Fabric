@@ -1,7 +1,7 @@
 {
   "type": "prefab:condition_smelting",
   "group": "Quartz-Crete",
-  "config": "Quartz-Crete",
+  "configName": "Quartz-Crete",
   "category": "blocks",
   "ingredient": {
     "item": "prefab:block_quartz_crete"

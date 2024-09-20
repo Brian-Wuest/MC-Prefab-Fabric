@@ -3,7 +3,7 @@
     "Compressed Stone to normal stone"
   ],
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Compressed Stone",
+  "configName": "Compressed Stone",
   "group": "Compressed Stone",
   "ingredients": [
     {

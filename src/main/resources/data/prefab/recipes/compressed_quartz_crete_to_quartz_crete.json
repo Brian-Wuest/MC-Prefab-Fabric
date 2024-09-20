@@ -3,7 +3,7 @@
     "Compressed dirt to normal dirt"
   ],
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Quartz-Crete",
+  "configName": "Quartz-Crete",
   "group": "Quartz-Crete",
   "ingredients": [
     {

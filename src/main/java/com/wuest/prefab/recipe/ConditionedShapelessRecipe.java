@@ -116,8 +116,8 @@ public class ConditionedShapelessRecipe extends ShapelessRecipe {
                         }
                     }, DataResult::success).forGetter((shapelessRecipe) -> {
                         return shapelessRecipe.ingredients;
-                    }), ExtraCodecs.strictOptionalField(Codec.STRING, "config", "").forGetter((shapelessRecipe) -> {
-                        return shapelessRecipe.group;
+                    }), ExtraCodecs.strictOptionalField(Codec.STRING, "configName", "").forGetter((shapelessRecipe) -> {
+                        return shapelessRecipe.configName;
                     })).apply(instance, ConditionedShapelessRecipe::new);
         });
 

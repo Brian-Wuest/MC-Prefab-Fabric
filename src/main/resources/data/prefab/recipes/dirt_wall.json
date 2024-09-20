@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shaped",
-  "config": "Dirt Recipes",
+  "configName": "Dirt Recipes",
   "group": "Dirt Recipes",
   "pattern": [
     "###",

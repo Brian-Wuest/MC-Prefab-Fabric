@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Advanced House",
+  "configName": "Advanced House",
   "group": "Advanced House",
   "ingredients": [
     {

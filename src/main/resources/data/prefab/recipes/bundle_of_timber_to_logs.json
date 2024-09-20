@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Bundle of Timber",
+  "configName": "Bundle of Timber",
   "group": "Bundle of Timber",
   "ingredients": [
     {

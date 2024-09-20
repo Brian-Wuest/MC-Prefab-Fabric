@@ -3,7 +3,7 @@
     "Compressed dirt to normal dirt"
   ],
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Compressed Dirt",
+  "configName": "Compressed Dirt",
   "group": "Compressed Dirt",
   "ingredients": [
     {

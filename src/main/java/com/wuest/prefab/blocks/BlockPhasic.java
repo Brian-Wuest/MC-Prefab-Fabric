@@ -121,6 +121,7 @@ public class BlockPhasic extends Block {
             // Set this block and all neighbor Phasic Blocks to base. This will cascade to tall touching Phasic blocks.
             this.updateNeighborPhasicBlocks(false, world, pos, state, false, false);
         }
+
         return state;
     }
 

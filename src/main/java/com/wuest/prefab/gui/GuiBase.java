@@ -354,7 +354,6 @@ public abstract class GuiBase extends Screen {
      * @return Some integer value.
      */
     public int drawString(GuiGraphics guiGraphics, String text, float x, float y, int color) {
-//        return this.getFontRenderer().wordWrapHeight(text,Integer.parseInt(String.valueOf(y)));
         guiGraphics.drawWordWrap(font, Utils.createTextComponent(text), (int) x, (int) y, 9999, color);
         return 0;
     }

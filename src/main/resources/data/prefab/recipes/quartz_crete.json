@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shaped",
-  "config": "Quartz-Crete",
+  "configName": "Quartz-Crete",
   "group": "Quartz-Crete",
   "pattern": [
     "aaa",

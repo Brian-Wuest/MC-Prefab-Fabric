@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Compressed Obsidian",
+  "configName": "Compressed Obsidian",
   "group": "Compressed Obsidian",
   "ingredients": [
     {

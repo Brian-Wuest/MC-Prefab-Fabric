@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Pile of Bricks",
+  "configName": "Pile of Bricks",
   "group": "Pile of Bricks",
   "ingredients": [
     {

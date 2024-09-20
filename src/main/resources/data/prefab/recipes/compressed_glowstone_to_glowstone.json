@@ -3,7 +3,7 @@
     "Compressed Glowstone to glowstone"
   ],
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Compressed Glowstone",
+  "configName": "Compressed Glowstone",
   "group": "Compressed Glowstone",
   "ingredients": [
     {

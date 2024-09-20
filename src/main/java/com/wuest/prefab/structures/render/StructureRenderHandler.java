@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -88,10 +89,16 @@ public class StructureRenderHandler {
 
             MultiBufferSource.BufferSource entityVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource();
 
-            Frustum frustum = new Frustum(matrixStack.last().pose(), RenderSystem.getProjectionMatrix());
+            // Preparing cull frustum
+            Vec3 playerEyePosition = player.getEyePosition(1.0F);
+            Matrix4f matrix4f = matrixStack.last().pose();
+            Frustum frustum = new Frustum(matrix4f, RenderSystem.getProjectionMatrix());
+            frustum.prepare(playerEyePosition.x, playerEyePosition.y, playerEyePosition.z);
+
+            /*Frustum frustum = new Frustum(matrixStack.last().pose(), RenderSystem.getProjectionMatrix());
             Vec3i vec = new Vec3i((int) player.getEyePosition(1.0F).x, (int) player.getEyePosition(1.0F).y, (int) player.getEyePosition(1.0F).z);
             BlockPos cameraPos = new BlockPos(vec);
-            frustum.prepare(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());
+            frustum.prepare(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ());*/
 
             for (BuildBlock buildBlock : StructureRenderHandler.currentStructure.getBlocks()) {
                 Block foundBlock = BuiltInRegistries.BLOCK.get(buildBlock.getResourceLocation());

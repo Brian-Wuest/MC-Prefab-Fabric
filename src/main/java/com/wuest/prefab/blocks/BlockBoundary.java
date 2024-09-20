@@ -54,17 +54,6 @@ public class BlockBoundary extends Block {
         this.registerDefaultState(this.getStateDefinition().any().setValue(Powered, false));
     }
 
-    /**
-     * Queries if this block should render in a given layer.
-     */
-    public static boolean canRenderInLayer(RenderType layer) {
-        // NOTE: This code is in a partial state. Need to find out how to get block state to determine if the block should be rendered this pass.
-        boolean powered = false;// state.get(Powered);
-
-        // first part is translucent, second is for solid.
-        return (layer == RenderType.translucent() && !powered) || (layer == RenderType.solid() && powered);
-    }
-
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(BlockBoundary.Powered);

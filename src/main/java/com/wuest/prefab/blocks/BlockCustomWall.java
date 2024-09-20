@@ -96,11 +96,6 @@ public class BlockCustomWall extends WallBlock implements IGrassSpreadable {
             return this.name;
         }
 
-//        public Material getMaterial() {
-//            return this.material;
-//        }
-
-
         public BlockBehaviour getBlockBehaviour() {
             return blockBehaviour;
         }

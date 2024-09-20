@@ -3,7 +3,7 @@
     "Double compressed Stone to compressed stone"
   ],
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Compressed Stone",
+  "configName": "Compressed Stone",
   "group": "Compressed Stone",
   "ingredients": [
     {

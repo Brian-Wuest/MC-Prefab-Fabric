@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Paper Lantern",
+  "configName": "Paper Lantern",
   "group": "Paper Lantern",
   "ingredients": [
     {

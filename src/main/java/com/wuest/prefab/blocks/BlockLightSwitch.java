@@ -49,9 +49,7 @@ public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
     public static final EnumProperty<AttachFace> FACE;
 
     public static final BooleanProperty POWERED;
-//    public static final MapCodec<BlockLightSwitch> CODEC = ()->{
-//        return RecordCodecBuilder.mapCodec((instance -> instance.group(propertiesCodec()).apply(instance,BlockLightSwitch::new)));
-//    };
+
     public static final MapCodec<BlockLightSwitch> CODEC = simpleCodec(BlockLightSwitch::new);
 
     static {
@@ -96,7 +94,10 @@ public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
                 .mapColor(MapColor.TERRACOTTA_RED)
                 .pushReaction(PushReaction.DESTROY)
                 .noOcclusion()
-                .strength(1.5F, 10.0F).noCollission().strength(0.5F).sound(SoundType.WOOD));
+                .strength(1.5F, 10.0F)
+                .noCollission()
+                .strength(0.5F).
+                sound(SoundType.WOOD));
 
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(BlockLightSwitch.FACING, Direction.NORTH)

@@ -3,7 +3,7 @@
     "Heap of timber to bundle of timber"
   ],
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Heap of Timber",
+  "configName": "Heap of Timber",
   "group": "Heap of Timber",
   "ingredients": [
     {

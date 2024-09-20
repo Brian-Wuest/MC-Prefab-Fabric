@@ -1,6 +1,6 @@
 {
   "type": "prefab:condition_crafting_shapeless",
-  "config": "Improved House",
+  "configName": "Improved House",
   "group": "Improved House",
   "ingredients": [
     {
