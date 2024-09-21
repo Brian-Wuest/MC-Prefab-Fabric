@@ -5,6 +5,8 @@ import com.wuest.prefab.blocks.entities.LightSwitchBlockEntity;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.items.*;
+import com.wuest.prefab.network.message.ScanShapePayload;
+import com.wuest.prefab.network.message.ScannerConfigPayload;
 import com.wuest.prefab.recipe.ConditionedShapedRecipe;
 import com.wuest.prefab.recipe.ConditionedShapelessRecipe;
 import com.wuest.prefab.recipe.ConditionedSmeltingRecipe;
@@ -12,17 +14,19 @@ import com.wuest.prefab.registries.ModRegistries;
 import com.wuest.prefab.structures.config.BasicStructureConfiguration;
 import com.wuest.prefab.structures.config.StructureConfiguration;
 import com.wuest.prefab.structures.items.*;
+import com.wuest.prefab.structures.messages.StructurePayload;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -597,29 +601,32 @@ public class ModRegistry {
     }
 
     private static void registerStructureBuilderMessageHandler() {
-        ServerPlayNetworking.registerGlobalReceiver(ModRegistry.StructureBuild,
-                (server, player, handler, buf, responseSender) -> {
-                    // Can only access the "attachedData" on the "network thread" which is here.
-                    StructureTagMessage message = StructureTagMessage.decode(buf);
-                    StructureTagMessage.EnumStructureConfiguration structureConfig = message.getStructureConfig();
+        PayloadTypeRegistry.playC2S().register(StructurePayload.PACKET_TYPE, StructurePayload.STREAM_CODEC);
 
-                    server.execute(() -> {
-                        // This is now on the "main" server thread and things can be done in the world!
-                        StructureConfiguration configuration = structureConfig.structureConfig.ReadFromCompoundTag(message.getMessageTag());
+        ServerPlayNetworking.registerGlobalReceiver(StructurePayload.PACKET_TYPE, (payLoad, context) -> {
+            // Packet processor, data will already have been de-serialized.
+            // Can only access the "attachedData" on the "network thread" which is here.
+            StructureTagMessage.EnumStructureConfiguration structureConfig = payLoad.structureTagMessage().getStructureConfig();
 
-                        configuration.BuildStructure(player, player.serverLevel());
-                    });
-                }
-        );
+            context.player().getServer().execute(() -> {
+                // This is now on the "main" server thread and things can be done in the world!
+                StructureConfiguration configuration = structureConfig.structureConfig.ReadFromCompoundTag(payLoad.structureTagMessage().getMessageTag());
+
+                configuration.BuildStructure(context.player(), context.player().serverLevel());
+            });
+        });
     }
 
     private static void registerStructureScannerMessageHandler() {
-        ServerPlayNetworking.registerGlobalReceiver(ModRegistry.StructureScannerSync, (server, player, handler, buf, responseSender) -> {
-            CompoundTag compound = buf.readNbt();
-            StructureScannerConfig config = (new StructureScannerConfig()).ReadFromCompoundNBT(compound);
+        // Register the serialization packet type and server-side handler.
+        PayloadTypeRegistry.playC2S().register(ScannerConfigPayload.PACKET_TYPE, ScannerConfigPayload.STREAM_CODEC);
 
-            server.execute(() -> {
-                BlockEntity blockEntity = player.level().getBlockEntity(config.blockPos);
+        ServerPlayNetworking.registerGlobalReceiver(ScannerConfigPayload.PACKET_TYPE, (payLoad, context) -> {
+            // Packet processor, data will already have been de-serialized.
+            context.player().getServer().execute(() -> {
+                StructureScannerConfig config = payLoad.scannerInfo().ToConfig();
+
+                BlockEntity blockEntity = context.player().level().getBlockEntity(config.blockPos);
 
                 if (blockEntity instanceof StructureScannerBlockEntity) {
                     StructureScannerBlockEntity actualEntity = (StructureScannerBlockEntity) blockEntity;
@@ -630,12 +637,15 @@ public class ModRegistry {
     }
 
     private static void registerStructureScannerActionMessageHandler() {
-        ServerPlayNetworking.registerGlobalReceiver(ModRegistry.StructureScannerAction, (server, player, handler, buf, responseSender) -> {
-            CompoundTag compound = buf.readNbt();
-            StructureScannerConfig config = (new StructureScannerConfig()).ReadFromCompoundNBT(compound);
+        // Register the serialization packet type and server-side handler.
+        PayloadTypeRegistry.playC2S().register(ScanShapePayload.PACKET_TYPE, ScanShapePayload.STREAM_CODEC);
 
-            server.execute(() -> {
-                StructureScannerBlockEntity.ScanShape(config, player, player.serverLevel());
+        ServerPlayNetworking.registerGlobalReceiver(ScannerConfigPayload.PACKET_TYPE, (payLoad, context) -> {
+            // Packet processor, data will already have been de-serialized.
+            context.player().getServer().execute(() -> {
+                StructureScannerConfig config = payLoad.scannerInfo().ToConfig();
+
+                StructureScannerBlockEntity.ScanShape(config, context.player(), context.player().serverLevel());
             });
         });
     }
@@ -649,32 +659,32 @@ public class ModRegistry {
     }
 
     public enum CustomItemTier implements Tier {
-        COPPER("Copper", Tiers.STONE.getLevel(), Tiers.STONE.getUses(), Tiers.STONE.getSpeed(),
+        COPPER("Copper", (int)Tiers.STONE.getAttackDamageBonus(), Tiers.STONE.getUses(), Tiers.STONE.getSpeed(),
                 Tiers.STONE.getAttackDamageBonus(), Tiers.STONE.getEnchantmentValue(), () -> {
             return Ingredient
                     .of(Utils.getItemStacksWithTag(new ResourceLocation("c", "copper_ingots")).stream());
-        }),
-        OSMIUM("Osmium", Tiers.IRON.getLevel(), 500, Tiers.IRON.getSpeed(),
+        }, BlockTags.INCORRECT_FOR_STONE_TOOL),
+        OSMIUM("Osmium", (int)Tiers.IRON.getAttackDamageBonus(), 500, Tiers.IRON.getSpeed(),
                 Tiers.IRON.getAttackDamageBonus() + .5f, Tiers.IRON.getEnchantmentValue(), () -> {
             return Ingredient
                     .of(Utils.getItemStacksWithTag(new ResourceLocation("c", "osmium_ingots")).stream());
-        }),
-        BRONZE("Bronze", Tiers.IRON.getLevel(), Tiers.IRON.getUses(), Tiers.IRON.getSpeed(),
+        }, BlockTags.INCORRECT_FOR_IRON_TOOL),
+        BRONZE("Bronze", (int)Tiers.IRON.getAttackDamageBonus(), Tiers.IRON.getUses(), Tiers.IRON.getSpeed(),
                 Tiers.IRON.getAttackDamageBonus(), Tiers.IRON.getEnchantmentValue(), () -> {
             return Ingredient
                     .of(Utils.getItemStacksWithTag(new ResourceLocation("c", "bronze_ingots")).stream());
-        }),
-        STEEL("Steel", Tiers.DIAMOND.getLevel(), (int) (Tiers.IRON.getUses() * 1.5),
+        }, BlockTags.INCORRECT_FOR_IRON_TOOL),
+        STEEL("Steel", (int)Tiers.DIAMOND.getAttackDamageBonus(), (int) (Tiers.IRON.getUses() * 1.5),
                 Tiers.DIAMOND.getSpeed(), Tiers.DIAMOND.getAttackDamageBonus(),
                 Tiers.DIAMOND.getEnchantmentValue(), () -> {
             return Ingredient
                     .of(Utils.getItemStacksWithTag(new ResourceLocation("c", "steel_ingots")).stream());
-        }),
-        OBSIDIAN("Obsidian", Tiers.DIAMOND.getLevel(), (int) (Tiers.DIAMOND.getUses() * 1.5),
+        }, BlockTags.INCORRECT_FOR_DIAMOND_TOOL),
+        OBSIDIAN("Obsidian", (int)Tiers.DIAMOND.getAttackDamageBonus(), (int) (Tiers.DIAMOND.getUses() * 1.5),
                 Tiers.DIAMOND.getSpeed(), Tiers.DIAMOND.getAttackDamageBonus(),
                 Tiers.DIAMOND.getEnchantmentValue(), () -> {
             return Ingredient.of(Item.byBlock(Blocks.OBSIDIAN));
-        });
+        }, BlockTags.INCORRECT_FOR_DIAMOND_TOOL);
 
         private final String name;
         private final int harvestLevel;
@@ -683,9 +693,10 @@ public class ModRegistry {
         private final float attackDamage;
         private final int enchantability;
         private final LazyLoadedValue<Ingredient> repairMaterial;
+        private final TagKey<Block> incorrectBlocksForDrops;
 
         CustomItemTier(String name, int harvestLevelIn, int maxUsesIn, float efficiencyIn, float attackDamageIn,
-                       int enchantability, Supplier<Ingredient> repairMaterialIn) {
+                       int enchantability, Supplier<Ingredient> repairMaterialIn, TagKey<Block> incorrectBlocksForDrops) {
             this.name = name;
             this.harvestLevel = harvestLevelIn;
             this.maxUses = maxUsesIn;
@@ -693,6 +704,7 @@ public class ModRegistry {
             this.attackDamage = attackDamageIn;
             this.enchantability = enchantability;
             this.repairMaterial = new LazyLoadedValue<>(repairMaterialIn);
+            this.incorrectBlocksForDrops = incorrectBlocksForDrops;
         }
 
         public static CustomItemTier getByName(String name) {
@@ -719,6 +731,11 @@ public class ModRegistry {
 
         public float getAttackDamageBonus() {
             return this.attackDamage;
+        }
+
+        @Override
+        public TagKey<Block> getIncorrectBlocksForDrops() {
+            return this.incorrectBlocksForDrops;
         }
 
         public int getLevel() {

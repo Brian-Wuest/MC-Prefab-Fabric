@@ -8,6 +8,7 @@ import com.wuest.prefab.structures.events.StructureClientEventHandler;
 import com.wuest.prefab.structures.gui.GuiStructure;
 import com.wuest.prefab.structures.items.ItemBasicStructure;
 import com.wuest.prefab.structures.items.StructureItem;
+import com.wuest.prefab.structures.messages.StructurePayload;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.render.StructureRenderHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -51,11 +52,10 @@ public class ClientEvents {
                     }
 
                     if (foundCorrectStructureItem) {
-                        FriendlyByteBuf messagePacket = Utils.createStructureMessageBuffer(
-                                StructureRenderHandler.currentConfiguration.WriteToCompoundTag(),
-                                StructureTagMessage.EnumStructureConfiguration.getByConfigurationInstance(StructureRenderHandler.currentConfiguration));
+                        StructurePayload payload = new StructurePayload(new StructureTagMessage(StructureRenderHandler.currentConfiguration.WriteToCompoundTag(),
+                                StructureTagMessage.EnumStructureConfiguration.getByConfigurationInstance(StructureRenderHandler.currentConfiguration)));
 
-                        ClientPlayNetworking.send(ModRegistry.StructureBuild, messagePacket);
+                        ClientPlayNetworking.send(payload);
                     }
 
                     StructureRenderHandler.currentStructure = null;

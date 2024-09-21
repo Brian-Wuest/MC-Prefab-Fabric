@@ -2,7 +2,6 @@ package com.wuest.prefab.structures.items;
 
 import com.wuest.prefab.ClientModRegistry;
 import com.wuest.prefab.ModRegistry;
-import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.gui.GuiBulldozer;
@@ -10,6 +9,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -18,10 +18,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -72,8 +71,8 @@ public class ItemBulldozer extends StructureItem {
      */
     @Environment(EnvType.CLIENT)
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level worldIn, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(@NotNull ItemStack stack, Item.TooltipContext tooltipContext, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
+        super.appendHoverText(stack, tooltipContext, tooltip, flagIn);
 
         boolean advancedKeyDown = Screen.hasShiftDown();
 
@@ -122,17 +121,26 @@ public class ItemBulldozer extends StructureItem {
         }
 
         if (stack.getItem() == ModRegistry.Bulldozer) {
-            if (stack.getTag() == null
-                    || stack.getTag().isEmpty()) {
-                stack.setTag(stack.save(new CompoundTag()));
+            if (stack.getComponents().isEmpty()) {
+                CompoundTag baseTag = new CompoundTag();
+                CompoundTag prefabTag = new CompoundTag();
+                baseTag.put("prefab", prefabTag);
+                prefabTag.putBoolean("powered", false);
+
+                CustomData customData = CustomData.of(baseTag);
+                stack.set(DataComponents.CUSTOM_DATA, customData);
             } else {
-                CompoundTag tag = stack.getTag();
+                CustomData customData = stack.getComponents().get(DataComponents.CUSTOM_DATA);
 
-                if (tag.contains(Prefab.MODID)) {
-                    CompoundTag prefabTag = tag.getCompound(Prefab.MODID);
+                if (customData != null) {
+                    CompoundTag tag = customData.copyTag();
 
-                    if (prefabTag.contains("powered")) {
-                        return prefabTag.getBoolean("powered");
+                    if (tag.contains("prefab")) {
+                        CompoundTag prefabTag = tag.getCompound("prefab");
+
+                        if (prefabTag.contains("powered")) {
+                            return prefabTag.getBoolean("powered");
+                        }
                     }
                 }
             }
@@ -142,13 +150,20 @@ public class ItemBulldozer extends StructureItem {
     }
 
     public void setPoweredValue(ItemStack stack, boolean value) {
-        if (stack.getTag() == null
-                || stack.getTag().isEmpty()) {
-            stack.setTag(stack.save(new CompoundTag()));
+        CompoundTag baseTag = null;
+        CompoundTag prefabTag = null;
+        CustomData customData = null;
+
+        if (stack.getComponents().isEmpty()) {
+            baseTag = new CompoundTag();
+            customData = CustomData.of(baseTag);
+        } else {
+            customData = stack.getComponents().get(DataComponents.CUSTOM_DATA);
         }
 
-        CompoundTag prefabTag = new CompoundTag();
+        prefabTag = new CompoundTag();
+        baseTag.put("prefab", prefabTag);
         prefabTag.putBoolean("powered", value);
-        stack.getTag().put(Prefab.MODID, prefabTag);
+        stack.set(DataComponents.CUSTOM_DATA, customData);
     }
 }

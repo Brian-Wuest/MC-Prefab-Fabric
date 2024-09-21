@@ -9,14 +9,15 @@ import com.wuest.prefab.config.EntityPlayerConfiguration;
 import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.screens.GuiStructureScanner;
-import com.wuest.prefab.network.message.ConfigSyncMessage;
-import com.wuest.prefab.network.message.PlayerEntityTagMessage;
+import com.wuest.prefab.network.message.PlayerConfigPayload;
+import com.wuest.prefab.network.message.ConfigSyncPayload;
 import com.wuest.prefab.structures.gui.GuiStructure;
 import com.wuest.prefab.structures.items.StructureItem;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -85,28 +86,25 @@ public class ClientModRegistry {
     }
 
     private static void registerServerToClientMessageHandlers() {
+        PayloadTypeRegistry.playS2C().register(ConfigSyncPayload.PACKET_TYPE, ConfigSyncPayload.STREAM_CODEC);
 
-        ClientPlayNetworking.registerGlobalReceiver(ModRegistry.ConfigSync,
-                (client, handler, buf, responseSender) -> {
-                    // Can only access the "attachedData" on the "network thread" which is here.
-                    ConfigSyncMessage syncMessage = ConfigSyncMessage.decode(buf);
-
-                    client.execute(() -> {
+        ClientPlayNetworking.registerGlobalReceiver(ConfigSyncPayload.PACKET_TYPE,
+                (payload, context) -> {
+                    context.client().execute(() -> {
                         // This is now on the "main" client thread and things can be done in the world!
-                        Prefab.serverConfiguration.readFromTag(syncMessage.getMessageTag());
+                        Prefab.serverConfiguration.readFromTag(payload.tagMessage().getMessageTag());
                     });
                 }
         );
 
-        ClientPlayNetworking.registerGlobalReceiver(ModRegistry.PlayerConfigSync, (client, handler, buf, responseSender) -> {
-            // Can only access the "attachedData" on the "network thread" which is here.
-            PlayerEntityTagMessage syncMessage = PlayerEntityTagMessage.decode(buf);
+        PayloadTypeRegistry.playS2C().register(PlayerConfigPayload.PACKET_TYPE, PlayerConfigPayload.STREAM_CODEC);
 
-            client.execute(() -> {
+        ClientPlayNetworking.registerGlobalReceiver(PlayerConfigPayload.PACKET_TYPE, (payload, context) -> {
+            context.client().execute(() -> {
                 // This is now on the "main" client thread and things can be done in the world!
                 UUID playerUUID = Minecraft.getInstance().player.getUUID();
 
-                EntityPlayerConfiguration playerConfiguration = EntityPlayerConfiguration.loadFromTag(playerUUID, syncMessage.getMessageTag());
+                EntityPlayerConfiguration playerConfiguration = EntityPlayerConfiguration.loadFromTag(playerUUID, payload.tagMessage().getMessageTag());
                 ClientModRegistry.playerConfig.builtStarterHouse = playerConfiguration.builtStarterHouse;
                 ClientModRegistry.playerConfig.givenHouseBuilder = playerConfiguration.givenHouseBuilder;
             });

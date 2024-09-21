@@ -179,9 +179,9 @@ public class BlockGlassSlab extends TransparentBlock implements SimpleWaterlogge
     }
 
     @Override
-    public boolean isPathfindable(BlockState state, BlockGetter worldIn, BlockPos pos, PathComputationType type) {
+    public boolean isPathfindable(BlockState state, PathComputationType type) {
         if (type == PathComputationType.WATER) {
-            return worldIn.getFluidState(pos).is(FluidTags.WATER);
+            return state.getFluidState().is(FluidTags.WATER);
         }
 
         return false;

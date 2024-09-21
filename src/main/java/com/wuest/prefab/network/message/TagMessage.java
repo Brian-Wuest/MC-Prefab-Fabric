@@ -10,7 +10,11 @@ import net.minecraft.network.FriendlyByteBuf;
 public class TagMessage {
     protected CompoundTag tagMessage;
 
-    protected TagMessage() {
+    public TagMessage() {
+    }
+
+    public TagMessage(FriendlyByteBuf friendlyByteBuf) {
+        this.tagMessage = friendlyByteBuf.readNbt();
     }
 
     public TagMessage(CompoundTag tagMessage) {
@@ -33,6 +37,10 @@ public class TagMessage {
 
     public static <T extends TagMessage> void encode(T message, FriendlyByteBuf buf) {
         buf.writeNbt(message.tagMessage);
+    }
+
+    public void write(FriendlyByteBuf friendlyByteBuf) {
+        friendlyByteBuf.writeNbt(this.tagMessage);
     }
 
     public CompoundTag getMessageTag() {

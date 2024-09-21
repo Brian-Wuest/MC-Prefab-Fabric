@@ -4,7 +4,9 @@ import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
 import com.wuest.prefab.gui.GuiLangKeys;
+import com.wuest.prefab.network.message.PlayerConfigPayload;
 import com.wuest.prefab.network.message.PlayerEntityTagMessage;
+import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.predefined.StructureHouse;
 import io.netty.buffer.Unpooled;
@@ -183,15 +185,13 @@ public class HouseConfiguration extends StructureConfiguration {
 
             this.RemoveStructureItemFromPlayer(player, ModRegistry.House);
 
-            PlayerEntityTagMessage message = new PlayerEntityTagMessage();
-            message.setMessageTag(playerConfig.createPlayerTag());
-            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-
-            PlayerEntityTagMessage.encode(message, byteBuf);
-
             // Make sure to send a message to the client to sync up the server player information and the client player
             // information.
-            ServerPlayNetworking.send((ServerPlayer) player, ModRegistry.PlayerConfigSync, byteBuf);
+            TagMessage tagMessage = new TagMessage();
+            tagMessage.setMessageTag(playerConfig.createPlayerTag());
+
+            PlayerConfigPayload playerConfigPayload = new PlayerConfigPayload(tagMessage);
+            ServerPlayNetworking.send((ServerPlayer) player, playerConfigPayload);
         }
     }
 

@@ -8,6 +8,7 @@ import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.GuiLangKeys;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.StructureConfiguration;
+import com.wuest.prefab.structures.messages.StructurePayload;
 import com.wuest.prefab.structures.messages.StructureTagMessage;
 import com.wuest.prefab.structures.render.StructureRenderHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -105,8 +106,9 @@ public abstract class GuiStructure extends GuiBase {
         if (button == this.btnCancel) {
             this.closeScreen();
         } else if (button == this.btnBuild) {
-            FriendlyByteBuf messagePacket = Utils.createStructureMessageBuffer(this.configuration.WriteToCompoundTag(), this.structureConfiguration);
-            ClientPlayNetworking.send(ModRegistry.StructureBuild, messagePacket);
+            StructurePayload payload = new StructurePayload(new StructureTagMessage(this.configuration.WriteToCompoundTag(), this.structureConfiguration));
+
+            ClientPlayNetworking.send(payload);
 
             this.closeScreen();
         }

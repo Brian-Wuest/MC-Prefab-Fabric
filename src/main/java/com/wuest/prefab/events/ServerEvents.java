@@ -5,6 +5,8 @@ import com.wuest.prefab.Prefab;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.config.ModConfiguration;
 import com.wuest.prefab.items.ItemSickle;
+import com.wuest.prefab.network.message.ConfigSyncPayload;
+import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.registries.ModRegistries;
 import com.wuest.prefab.structures.events.StructureEventHandler;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -59,8 +61,8 @@ public class ServerEvents {
         ServerEntityEvents.ENTITY_LOAD.register((entity, serverWorld) -> {
             if (entity instanceof ServerPlayer) {
                 // Send the message to the client.
-                FriendlyByteBuf messagePacket = Utils.createMessageBuffer(Prefab.serverConfiguration.writeCompoundTag());
-                ServerPlayNetworking.send((ServerPlayer) entity, ModRegistry.ConfigSync, messagePacket);
+                ConfigSyncPayload configSyncPayload = new ConfigSyncPayload(new TagMessage(Prefab.serverConfiguration.writeCompoundTag()));
+                ServerPlayNetworking.send((ServerPlayer) entity, configSyncPayload);
             }
         });
     }

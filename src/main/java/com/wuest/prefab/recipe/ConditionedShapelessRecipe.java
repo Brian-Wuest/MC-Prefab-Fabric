@@ -3,15 +3,16 @@ package com.wuest.prefab.recipe;
 import com.google.common.base.Strings;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -55,7 +56,7 @@ public class ConditionedShapelessRecipe extends ShapelessRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
+    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
         return this.output;
     }
 
@@ -82,7 +83,7 @@ public class ConditionedShapelessRecipe extends ShapelessRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer craftingContainer, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingContainer craftingContainer, HolderLookup.Provider registryAccess) {
         return this.output.copy();
     }
 
@@ -93,12 +94,13 @@ public class ConditionedShapelessRecipe extends ShapelessRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<ConditionedShapelessRecipe> {
-        private static final Codec<ConditionedShapelessRecipe> CODEC = RecordCodecBuilder.create((instance) -> {
+        private static final MapCodec<ConditionedShapelessRecipe> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
             return instance.group(
-                    ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter((shapelessRecipe) -> shapelessRecipe.group),
-                    CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter((shapelessRecipe) -> {
+                    Codec.STRING.optionalFieldOf("group", "").forGetter((shapelessRecipe) -> {
+                        return shapelessRecipe.group;
+                    }), CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter((shapelessRecipe) -> {
                         return shapelessRecipe.category;
-                    }), ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter((shapelessRecipe) -> {
+                    }), ItemStack.STRICT_CODEC.fieldOf("result").forGetter((shapelessRecipe) -> {
                         return shapelessRecipe.output;
                     }), Ingredient.CODEC_NONEMPTY.listOf().fieldOf("ingredients").flatXmap((list) -> {
                         Ingredient[] ingredients = list.stream().filter((ingredient) -> {
@@ -115,18 +117,25 @@ public class ConditionedShapelessRecipe extends ShapelessRecipe {
                         }
                     }, DataResult::success).forGetter((shapelessRecipe) -> {
                         return shapelessRecipe.ingredients;
-                    }), ExtraCodecs.strictOptionalField(Codec.STRING, "configName", "").forGetter((shapelessRecipe) -> {
+                    }), Codec.STRING.optionalFieldOf("configName", "").forGetter((shapelessRecipe) -> {
                         return shapelessRecipe.configName;
                     })).apply(instance, ConditionedShapelessRecipe::new);
         });
 
+        public static final StreamCodec<RegistryFriendlyByteBuf, ConditionedShapelessRecipe> STREAM_CODEC = StreamCodec.of(ConditionedShapelessRecipe.Serializer::toNetwork,
+                ConditionedShapelessRecipe.Serializer::fromNetwork);
+
         @Override
-        public Codec<ConditionedShapelessRecipe> codec() {
+        public MapCodec<ConditionedShapelessRecipe> codec() {
             return CODEC;
         }
 
         @Override
-        public ConditionedShapelessRecipe fromNetwork(FriendlyByteBuf friendlyByteBuf) {
+        public StreamCodec<RegistryFriendlyByteBuf, ConditionedShapelessRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
+
+        public static ConditionedShapelessRecipe fromNetwork(RegistryFriendlyByteBuf friendlyByteBuf) {
             String groupName = friendlyByteBuf.readUtf();
             String configName = friendlyByteBuf.readUtf();
             CraftingBookCategory craftingBookCategory = friendlyByteBuf.readEnum(CraftingBookCategory.class);
@@ -134,28 +143,27 @@ public class ConditionedShapelessRecipe extends ShapelessRecipe {
 
             NonNullList<Ingredient> nonNullList = NonNullList.withSize(i, Ingredient.EMPTY);
 
-            nonNullList.replaceAll(ignored -> Ingredient.fromNetwork(friendlyByteBuf));
+            nonNullList.replaceAll(ignored -> Ingredient.CONTENTS_STREAM_CODEC.decode(friendlyByteBuf));
 
-            ItemStack itemStack = this.validateRecipeOutput(friendlyByteBuf.readItem(), configName);
+            ItemStack itemStack = validateRecipeOutput(ItemStack.STREAM_CODEC.decode(friendlyByteBuf), configName);
 
             return new ConditionedShapelessRecipe(groupName, craftingBookCategory, itemStack, nonNullList, configName);
         }
 
-        @Override
-        public void toNetwork(FriendlyByteBuf friendlyByteBuf, ConditionedShapelessRecipe shapelessRecipe) {
+        public static void toNetwork(RegistryFriendlyByteBuf friendlyByteBuf, ConditionedShapelessRecipe shapelessRecipe) {
             friendlyByteBuf.writeUtf(shapelessRecipe.group);
             friendlyByteBuf.writeUtf(shapelessRecipe.configName);
             friendlyByteBuf.writeEnum(shapelessRecipe.category);
             friendlyByteBuf.writeVarInt(shapelessRecipe.ingredients.size());
 
             for (Ingredient ingredient : shapelessRecipe.ingredients) {
-                ingredient.toNetwork(friendlyByteBuf);
+                Ingredient.CONTENTS_STREAM_CODEC.encode(friendlyByteBuf, ingredient);
             }
 
-            friendlyByteBuf.writeItem(shapelessRecipe.output);
+            ItemStack.STREAM_CODEC.encode(friendlyByteBuf, shapelessRecipe.output);
         }
 
-        public ItemStack validateRecipeOutput(ItemStack originalOutput, String configName) {
+        public static ItemStack validateRecipeOutput(ItemStack originalOutput, String configName) {
             if (originalOutput == ItemStack.EMPTY) {
                 return ItemStack.EMPTY;
             }

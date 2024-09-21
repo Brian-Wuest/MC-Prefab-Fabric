@@ -14,17 +14,16 @@ import com.wuest.prefab.structures.config.StructureConfiguration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.*;
@@ -35,11 +34,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.HashMap;
 
 /**
  * @author WuestMan
@@ -402,6 +404,150 @@ public class StructureRenderHandler {
                     xLength,
                     zLength,
                     config.blocksTall);
+        }
+    }
+
+    public static void newRenderPlayerLook(Player player, PoseStack ms, VertexConsumer buffer, double cameraX, double cameraY, double cameraZ) {
+        if (StructureRenderHandler.currentStructure != null
+                && StructureRenderHandler.dimension == player.level().dimensionType().logicalHeight()
+                && StructureRenderHandler.currentConfiguration != null
+                && Prefab.serverConfiguration.enableStructurePreview) {
+
+            Level world = player.level();
+
+            Vec3 cameraPosition = new Vec3(cameraX, cameraY, cameraZ);
+            Direction playerViewDirection = player.getNearestViewDirection();
+            Vec3 playerViewVector = player.getViewVector(1.0F);
+            HashMap<Integer, BakedModel> modelMap = new HashMap<>();
+            HashMap<Integer, Integer> stateColor = new HashMap<>();
+
+            for (BuildBlock buildBlock : StructureRenderHandler.currentStructure.getBlocks()) {
+
+                Block foundBlock = buildBlock.getBlockState() != null ? buildBlock.getBlockState().getBlock() : BuiltInRegistries.BLOCK.get(buildBlock.getResourceLocation());
+
+                if (foundBlock != null) {
+                    // In order to get the proper relative position I also need the structure's original facing.
+                    if (buildBlock.blockPos == null) {
+                        buildBlock.blockPos = buildBlock.getStartingPosition().getRelativePosition(
+                                StructureRenderHandler.currentConfiguration.pos,
+                                StructureRenderHandler.currentStructure.getClearSpace().getShape().getDirection(),
+                                StructureRenderHandler.currentConfiguration.houseFacing);
+                    }
+
+                    BlockPos buildBlockPos = buildBlock.blockPos;
+
+                    // Don't render this block if it's going to overlay a non-air/water block.
+                    BlockState targetBlock = world.getBlockState(buildBlockPos);
+
+                    if (targetBlock.getBlock() != Blocks.AIR && targetBlock.getBlock() != Blocks.WATER) {
+                        continue;
+                    }
+
+                    if (buildBlock.centerOfBlock == null) {
+                        buildBlock.centerOfBlock = Vec3.atCenterOf(buildBlockPos);
+                    }
+
+                    Vec3 vectorBetweenPlayerAndBlock = new Vec3(
+                            buildBlockPos.getX() - player.getX(),
+                            buildBlockPos.getY() - player.getEyeY(),
+                            buildBlockPos.getZ() - player.getZ());
+
+                    vectorBetweenPlayerAndBlock.normalize();
+
+                    BlockHitResult hitResult = Shapes.block().clip(cameraPosition, buildBlock.centerOfBlock, buildBlockPos);
+
+                    // Note: The hit direction is in reference to the "Block"'s point of view, not the player.
+                    if (hitResult == null || (hitResult.getDirection() != Direction.UP && hitResult.getDirection() != Direction.DOWN
+                            && hitResult.getDirection() == playerViewDirection)) {
+                        // Never hit the block in the first place or it's behind them so continue.
+                        continue;
+                    }
+
+                    // Calculate the "line" between the block and the player's view.
+                    // This is the same way that Endermen determine if a player is looking at them.
+                    // This avoids using "Frustum" as it's finicky and prone to change with Minecraft's rendering changes.
+                    double lineBetweenPlayerViewBlock = playerViewVector.normalize().dot(vectorBetweenPlayerAndBlock);
+                    double result = 1.0 - 0.025 / vectorBetweenPlayerAndBlock.length();
+                    boolean boolCheck = lineBetweenPlayerViewBlock > result;
+
+                    if (!boolCheck) {
+                        continue;
+                    }
+
+                    if (buildBlock.getBlockState() == null) {
+                        // Get the unique block state for this block.
+                        BlockState blockState = foundBlock.defaultBlockState();
+                        buildBlock = BuildBlock.SetBlockState(
+                                StructureRenderHandler.currentConfiguration,
+                                player.level(),
+                                StructureRenderHandler.currentConfiguration.pos,
+                                buildBlock,
+                                foundBlock,
+                                blockState,
+                                StructureRenderHandler.currentStructure);
+                    }
+
+                    StructureRenderHandler.renderBlockAt(ms, buffer, buildBlock.getBlockState(), buildBlockPos, buildBlock.hashCode(), modelMap, stateColor);
+
+                    // Render the sub-block if there is any.
+                    if (buildBlock.getSubBlock() != null) {
+                        BuildBlock subBuildBlock = buildBlock.getSubBlock();
+
+                        Block foundSubBlock = subBuildBlock.getBlockState() != null ? subBuildBlock.getBlockState().getBlock() : BuiltInRegistries.BLOCK.get(subBuildBlock.getResourceLocation());
+
+                        if (subBuildBlock.getBlockState() == null) {
+                            BlockState subBlockState = foundSubBlock.defaultBlockState();
+
+                            subBuildBlock = BuildBlock.SetBlockState(
+                                    StructureRenderHandler.currentConfiguration,
+                                    player.level(),
+                                    StructureRenderHandler.currentConfiguration.pos,
+                                    buildBlock.getSubBlock(),
+                                    foundSubBlock,
+                                    subBlockState,
+                                    StructureRenderHandler.currentStructure);
+                        }
+
+                        if (subBuildBlock.blockPos == null) {
+                            subBuildBlock.blockPos = subBuildBlock.getStartingPosition().getRelativePosition(
+                                    StructureRenderHandler.currentConfiguration.pos,
+                                    StructureRenderHandler.currentStructure.getClearSpace().getShape().getDirection(),
+                                    StructureRenderHandler.currentConfiguration.houseFacing);
+                        }
+
+                        StructureRenderHandler.renderBlockAt(ms, buffer, subBuildBlock.getBlockState(), subBuildBlock.blockPos, subBuildBlock.hashCode(), modelMap, stateColor);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void renderBlockAt(PoseStack ms, VertexConsumer buffer, BlockState state, BlockPos pos, int buildBlockHash, HashMap<Integer, BakedModel> modelMap, HashMap<Integer, Integer> colorMap) {
+        if (state.getRenderShape() != RenderShape.INVISIBLE && state.getRenderShape() == RenderShape.MODEL) {
+            Minecraft minecraft = Minecraft.getInstance();
+            Camera camera = minecraft.getEntityRenderDispatcher().camera;
+            double renderPosX = camera.getPosition().x();
+            double renderPosY = camera.getPosition().y();
+            double renderPosZ = camera.getPosition().z();
+
+            ms.pushPose();
+            ms.translate(-renderPosX, -renderPosY, -renderPosZ);
+
+            BlockRenderDispatcher brd = minecraft.getBlockRenderer();
+            ms.translate(pos.getX(), pos.getY(), pos.getZ());
+
+            // Get these values out of the saved hashmaps if possible.
+            BakedModel model = modelMap.computeIfAbsent(buildBlockHash, x -> brd.getBlockModel(state));
+            int color = colorMap.computeIfAbsent(state.hashCode(), x -> minecraft.getBlockColors().getColor(state, null, null, 0));
+
+            float r = (float) (color >> 16 & 255) / 255.0F;
+            float g = (float) (color >> 8 & 255) / 255.0F;
+            float b = (float) (color & 255) / 255.0F;
+
+            // Always use entity translucent layer so blending is turned on
+            brd.getModelRenderer().renderModel(ms.last(), buffer, state, model, r, g, b, 0xF000F0, OverlayTexture.NO_OVERLAY);
+
+            ms.popPose();
         }
     }
 }

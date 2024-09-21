@@ -67,9 +67,9 @@ public class StructureBulldozer extends Structure {
         BlockState state = world.getBlockState(blockPos);
         BulldozerConfiguration specificConfiguration = (BulldozerConfiguration) configuration;
 
-        boolean pickAxeEffective = StructureBulldozer.diamondPickaxe.isCorrectToolForDrops(state);
-        boolean axeEffective = StructureBulldozer.diamondAxe.isCorrectToolForDrops(state);
-        boolean shovelEffective = StructureBulldozer.diamondShovel.isCorrectToolForDrops(state);
+        boolean pickAxeEffective = StructureBulldozer.diamondPickaxe.isCorrectToolForDrops(diamondPickaxeStack, state);
+        boolean axeEffective = StructureBulldozer.diamondAxe.isCorrectToolForDrops(diamondAxeStack, state);
+        boolean shovelEffective = StructureBulldozer.diamondShovel.isCorrectToolForDrops(diamondShovelStack, state);
 
         if (!specificConfiguration.creativeMode &&
                 Prefab.serverConfiguration.allowBulldozerToCreateDrops

@@ -3,7 +3,9 @@ package com.wuest.prefab.structures.predefined;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
+import com.wuest.prefab.network.message.PlayerConfigPayload;
 import com.wuest.prefab.network.message.PlayerEntityTagMessage;
+import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.BuildingMethods;
 import com.wuest.prefab.structures.base.Structure;
@@ -111,15 +113,13 @@ public class StructureHouseAdvanced extends Structure {
         // Make sure to set this value so the player cannot fill the chest a second time.
         playerConfig.builtStarterHouse = true;
 
-        PlayerEntityTagMessage message = new PlayerEntityTagMessage();
+        TagMessage message = new TagMessage();
         message.setMessageTag(playerConfig.createPlayerTag());
-        FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-
-        PlayerEntityTagMessage.encode(message, byteBuf);
 
         // Make sure to send a message to the client to sync up the server player information and the client player
         // information.
-        ServerPlayNetworking.send((ServerPlayer) player, ModRegistry.PlayerConfigSync, byteBuf);
+        PlayerConfigPayload playerConfigPayload = new PlayerConfigPayload(message);
+        ServerPlayNetworking.send((ServerPlayer) player, playerConfigPayload);
     }
 
 }

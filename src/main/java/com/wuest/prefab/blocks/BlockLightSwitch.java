@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
@@ -127,7 +129,7 @@ public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
     }
 
     @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+    public @NotNull ItemInteractionResult useItemOn(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
         if (!level.isClientSide) {
             BlockState updatedBlockState = this.cycleSwitch(blockState, level, blockPos);
             float f = updatedBlockState.getValue(POWERED) ? 0.6F : 0.5F;
@@ -136,10 +138,10 @@ public class BlockLightSwitch extends TileBlockBase<LightSwitchBlockEntity> {
             level.gameEvent(player, updatedBlockState.getValue(POWERED) ? GameEvent.BLOCK_ACTIVATE : GameEvent.BLOCK_DEACTIVATE, blockPos);
 
             // Tell registered lights that this switch is on/off.
-            return InteractionResult.CONSUME;
+            return ItemInteractionResult.CONSUME;
         }
 
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
 
     public BlockState cycleSwitch(BlockState blockState, Level level, BlockPos blockPos) {

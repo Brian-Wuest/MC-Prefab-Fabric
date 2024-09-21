@@ -2,13 +2,14 @@ package com.wuest.prefab.recipe;
 
 import com.google.common.base.Strings;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -69,7 +70,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
+    public ItemStack getResultItem(HolderLookup.Provider registryAccess) {
         return this.output;
     }
 
@@ -113,7 +114,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer craftingContainer, RegistryAccess registryAccess) {
+    public ItemStack assemble(CraftingContainer craftingContainer, HolderLookup.Provider registryAccess) {
         return this.getResultItem(registryAccess).copy();
     }
 
@@ -178,23 +179,23 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<ConditionedShapedRecipe> {
-        public static final Codec<ConditionedShapedRecipe> CODEC = RecordCodecBuilder.create((instance) -> {
+        public static final MapCodec<ConditionedShapedRecipe> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
             return instance.group(
-                    ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter((shapedRecipe) -> {
-                return shapedRecipe.group;
-            }), CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter((shapedRecipe) -> {
-                return shapedRecipe.craftingBookCategory;
-            }), ShapedRecipePattern.MAP_CODEC.forGetter((shapedRecipe) -> {
-                return shapedRecipe.pattern;
-            }), ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter((shapedRecipe) -> {
-                return shapedRecipe.output;
-            }), ExtraCodecs.strictOptionalField(Codec.STRING, "configName", "").forGetter((shapedRecipe) -> {
+                    Codec.STRING.optionalFieldOf("group", "").forGetter(shapedRecipe -> {
+                        return shapedRecipe.group;
+                    }), CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter((shapedRecipe) -> {
+                        return shapedRecipe.craftingBookCategory;
+                    }), ShapedRecipePattern.MAP_CODEC.forGetter((shapedRecipe) -> {
+                        return shapedRecipe.pattern;
+                    }), ItemStack.STRICT_CODEC.fieldOf("result").forGetter((shapedRecipe) -> {
+                        return shapedRecipe.output;
+                    }), Codec.STRING.optionalFieldOf("configName", "").forGetter((shapedRecipe) -> {
                         return shapedRecipe.configName;
-            }),  ExtraCodecs.strictOptionalField(Codec.BOOL, "recipe_has_tags", true).forGetter((shapedRecipe) -> {
-                return shapedRecipe.recipeHasTags;
-            }), ExtraCodecs.strictOptionalField(Codec.BOOL, "show_notification", true).forGetter((shapedRecipe) -> {
-                return shapedRecipe.showNotification;
-            })).apply(instance, ConditionedShapedRecipe::new);
+                    }), Codec.BOOL.optionalFieldOf("recipe_has_tags", true).forGetter((shapedRecipe) -> {
+                        return shapedRecipe.recipeHasTags;
+                    }), Codec.BOOL.optionalFieldOf("show_notification", true).forGetter((shapedRecipe) -> {
+                        return shapedRecipe.showNotification;
+                    })).apply(instance, ConditionedShapedRecipe::new);
         });
 
         public static ItemStack validateRecipeOutput(ItemStack originalOutput, String configName) {
@@ -213,31 +214,40 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             return originalOutput;
         }
 
+        public static final StreamCodec<RegistryFriendlyByteBuf, ConditionedShapedRecipe> STREAM_CODEC = StreamCodec.of(
+                ConditionedShapedRecipe.Serializer::toNetwork, ConditionedShapedRecipe.Serializer::fromNetwork
+        );
+
         @Override
-        public Codec<ConditionedShapedRecipe> codec() {
+        public MapCodec<ConditionedShapedRecipe> codec() {
             return CODEC;
         }
 
-        public ConditionedShapedRecipe fromNetwork(FriendlyByteBuf friendlyByteBuf) {
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ConditionedShapedRecipe> streamCodec() {
+            return STREAM_CODEC;
+        }
+
+        public static ConditionedShapedRecipe fromNetwork(RegistryFriendlyByteBuf friendlyByteBuf) {
             String groupName = friendlyByteBuf.readUtf();
             String configName = friendlyByteBuf.readUtf();
             CraftingBookCategory craftingBookCategory = friendlyByteBuf.readEnum(CraftingBookCategory.class);
-            ShapedRecipePattern shapedRecipePattern = ShapedRecipePattern.fromNetwork(friendlyByteBuf);
+            ShapedRecipePattern shapedRecipePattern = ShapedRecipePattern.STREAM_CODEC.decode(friendlyByteBuf);
 
             // Custom bit which validates the recipe output, if the validation fails then an empty itemstack is returned.
-            ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(friendlyByteBuf.readItem(), configName);
+            ItemStack itemStack = Serializer.validateRecipeOutput(ItemStack.STREAM_CODEC.decode(friendlyByteBuf), configName);
 
             boolean recipeHasTags = friendlyByteBuf.readBoolean();
             boolean showNotification = friendlyByteBuf.readBoolean();
             return new ConditionedShapedRecipe(groupName, craftingBookCategory, shapedRecipePattern, itemStack, configName, recipeHasTags, showNotification);
         }
 
-        public void toNetwork(FriendlyByteBuf friendlyByteBuf, ConditionedShapedRecipe shapedRecipe) {
+        public static void toNetwork(RegistryFriendlyByteBuf friendlyByteBuf, ConditionedShapedRecipe shapedRecipe) {
             friendlyByteBuf.writeUtf(shapedRecipe.group);
             friendlyByteBuf.writeUtf(shapedRecipe.configName);
             friendlyByteBuf.writeEnum(shapedRecipe.craftingBookCategory);
-            shapedRecipe.pattern.toNetwork(friendlyByteBuf);
-            friendlyByteBuf.writeItem(shapedRecipe.output);
+            ShapedRecipePattern.STREAM_CODEC.encode(friendlyByteBuf, shapedRecipe.pattern);
+            ItemStack.STREAM_CODEC.encode(friendlyByteBuf, shapedRecipe.output);
             friendlyByteBuf.writeBoolean(shapedRecipe.recipeHasTags);
             friendlyByteBuf.writeBoolean(shapedRecipe.showNotification);
         }

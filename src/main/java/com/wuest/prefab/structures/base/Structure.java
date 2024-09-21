@@ -188,7 +188,7 @@ public class Structure {
                 }
 
                 ResourceLocation resourceLocation = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(tileEntity.getType());
-                CompoundTag tagCompound = tileEntity.saveWithFullMetadata();
+                CompoundTag tagCompound = tileEntity.saveWithFullMetadata(world.registryAccess());
 
                 BuildTileEntity buildTileEntity = new BuildTileEntity();
                 assert resourceLocation != null;
@@ -670,7 +670,7 @@ public class Structure {
                     this.world.removeBlockEntity(tileEntityPos);
                 }
 
-                tileEntity = BlockEntity.loadStatic(tileEntityPos, tileBlock, buildTileEntity.getEntityDataTag());
+                tileEntity = BlockEntity.loadStatic(tileEntityPos, tileBlock, buildTileEntity.getEntityDataTag(), this.world.registryAccess());
 
                 if (tileEntity == null) {
                     continue;

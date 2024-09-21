@@ -9,7 +9,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class BlockStructureScanner extends TileBlockBase<StructureScannerBlockEntity> {
     public static final DirectionProperty FACING;
@@ -65,7 +68,7 @@ public class BlockStructureScanner extends TileBlockBase<StructureScannerBlockEn
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public @NotNull ItemInteractionResult useItemOn(ItemStack itemStack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (world.isClientSide) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
 
@@ -74,9 +77,9 @@ public class BlockStructureScanner extends TileBlockBase<StructureScannerBlockEn
                 ClientModRegistry.openGuiForBlock(pos, world, config);
             }
 
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         } else {
-            return InteractionResult.CONSUME;
+            return ItemInteractionResult.CONSUME;
         }
     }
 

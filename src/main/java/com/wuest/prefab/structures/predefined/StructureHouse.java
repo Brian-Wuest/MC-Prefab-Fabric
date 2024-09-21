@@ -5,6 +5,8 @@ import com.wuest.prefab.Tuple;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.blocks.FullDyeColor;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
+import com.wuest.prefab.network.message.PlayerConfigPayload;
+import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.BuildingMethods;
 import com.wuest.prefab.structures.base.Structure;
@@ -122,7 +124,11 @@ public class StructureHouse extends Structure {
 
         // Make sure to send a message to the client to sync up the server player information and the client player
         // information.
-        ServerPlayNetworking.send((ServerPlayer) player, ModRegistry.PlayerConfigSync, Utils.createMessageBuffer(playerConfig.createPlayerTag()));
+        TagMessage message = new TagMessage();
+        message.setMessageTag(playerConfig.createPlayerTag());
+
+        PlayerConfigPayload playerConfigPayload = new PlayerConfigPayload(message);
+        ServerPlayNetworking.send((ServerPlayer) player, playerConfigPayload);
     }
 
     @Override

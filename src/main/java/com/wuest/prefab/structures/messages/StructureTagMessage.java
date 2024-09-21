@@ -28,6 +28,10 @@ public class StructureTagMessage extends TagMessage {
         this.structureConfig = structureConfig;
     }
 
+    public StructureTagMessage(FriendlyByteBuf friendlyByteBuf) {
+        this.write(friendlyByteBuf);
+    }
+
     public static StructureTagMessage decode(FriendlyByteBuf buf) {
         // This class is very useful in general for writing more complex objects.
         CompoundTag tag = buf.readNbt();
@@ -50,6 +54,11 @@ public class StructureTagMessage extends TagMessage {
 
     public EnumStructureConfiguration getStructureConfig() {
         return this.structureConfig;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf friendlyByteBuf) {
+        StructureTagMessage.encode(this, friendlyByteBuf);
     }
 
     /**

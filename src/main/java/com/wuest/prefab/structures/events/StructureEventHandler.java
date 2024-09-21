@@ -6,6 +6,8 @@ import com.wuest.prefab.Tuple;
 import com.wuest.prefab.Utils;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
 import com.wuest.prefab.config.ModConfiguration;
+import com.wuest.prefab.network.message.PlayerConfigPayload;
+import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.BuildEntity;
 import com.wuest.prefab.structures.base.BuildingMethods;
@@ -130,8 +132,11 @@ public final class StructureEventHandler {
         }
 
         // Send the tag to the client.
-        FriendlyByteBuf messagePacket = Utils.createMessageBuffer(playerConfig.createPlayerTag());
-        ServerPlayNetworking.send(player, ModRegistry.PlayerConfigSync, messagePacket);
+        TagMessage tagMessage = new TagMessage();
+        tagMessage.setMessageTag(playerConfig.createPlayerTag());
+
+        PlayerConfigPayload playerConfigPayload = new PlayerConfigPayload(tagMessage);
+        ServerPlayNetworking.send(player, playerConfigPayload);
     }
 
     /**

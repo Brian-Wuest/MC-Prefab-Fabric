@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.WallSide;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
@@ -29,6 +30,8 @@ import java.util.*;
 @SuppressWarnings({"SpellCheckingInspection", "UnusedAssignment", "unchecked", "unused", "WeakerAccess"})
 public class BuildBlock {
     public BlockPos blockPos;
+    public Vec3 centerOfBlock;
+
     @Expose
     private String blockDomain;
     @Expose

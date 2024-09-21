@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -147,8 +148,8 @@ public class BlockBoundary extends Block {
      */
     @Environment(EnvType.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter worldIn, List<Component> tooltip, TooltipFlag advanced) {
-        super.appendHoverText(stack, worldIn, tooltip, advanced);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext tooltipContext, List<Component> tooltip, TooltipFlag advanced) {
+        super.appendHoverText(stack, tooltipContext, tooltip, advanced);
 
         boolean advancedKeyDown = Screen.hasShiftDown();
 

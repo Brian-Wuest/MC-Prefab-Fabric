@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -64,9 +65,8 @@ public class BulldozerConfiguration extends StructureConfiguration {
             }
 
             if (stack.getItem() == ModRegistry.Bulldozer) {
-                InteractionHand hand1 = hand;
-
-                stack.hurtAndBreak(1, player, (player1) -> player1.broadcastBreakEvent(hand1));
+                stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND
+                        : EquipmentSlot.OFFHAND);
 
                 player.containerMenu.broadcastChanges();
             }

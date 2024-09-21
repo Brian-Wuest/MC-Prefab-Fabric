@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -140,7 +141,7 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
         int j = Math.max(this.cursorPos, this.highlightPos);
         int k = this.maxLength - this.value.length() - (i - j);
         if (k > 0) {
-            String string2 = SharedConstants.filterText(textToWrite);
+            String string2 = StringUtil.filterText(textToWrite);
             int l = string2.length();
             if (k < l) {
                 if (Character.isHighSurrogate(string2.charAt(k - 1))) {
@@ -357,7 +358,7 @@ public class GuiTextBox extends AbstractWidget implements Renderable, GuiEventLi
     public boolean charTyped(char codePoint, int modifiers) {
         if (!this.canConsumeInput()) {
             return false;
-        } else if (SharedConstants.isAllowedChatCharacter(codePoint)) {
+        } else if (StringUtil.isAllowedChatCharacter(codePoint)) {
             if (this.isEditable) {
                 this.insertText(Character.toString(codePoint));
             }

@@ -1,30 +1,27 @@
 package com.wuest.prefab.mixins;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.structures.items.ItemBulldozer;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.Map;
 
 @Mixin(AnvilMenu.class)
 public class AnvilScreenHandlerMixin {
-//    @Final
+    @Final
     @Shadow
     private DataSlot cost;
 
-    @Inject(method = "createResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isDamageableItem()Z", ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    public void AnvilUpdate(CallbackInfo ci, ItemStack itemStack, int i, int j, int k, ItemStack itemStack2, ItemStack itemStack3, Map<Enchantment, Integer> map, boolean bl) {
+    @Inject(method = "createResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isDamageableItem()Z", ordinal = 0), cancellable = true)
+    public void AnvilUpdate(CallbackInfo ci, @Local(ordinal = 1) ItemStack itemStack2, @Local(ordinal = 2) ItemStack itemStack3) {
         // Because this gets injected into the actual class; we can use "this" to represent the AnvilScreenHandler correctly.
         AnvilMenu prefabHandler = (AnvilMenu) (Object) this;
         Item prefabTripleCompressedStone = ModRegistry.TripleCompressedStoneItem;

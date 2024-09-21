@@ -8,7 +8,6 @@
     "AnvilScreenHandlerMixin"
   ],
   "client": [
-    "ClientWorldMixin",
     "RenderIndicatorMixin",
     "MinecraftClientInitMixin"
   ],

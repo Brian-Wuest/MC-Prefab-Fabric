@@ -2,12 +2,14 @@ package com.wuest.prefab.base;
 
 import com.wuest.prefab.Prefab;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.Level;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -69,16 +71,16 @@ public abstract class TileEntityBase<T extends BaseConfig> extends BlockEntity {
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag);
+        this.saveAdditional(tag, provider);
 
         return tag;
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(@NotNull CompoundTag compound, HolderLookup.Provider provider) {
+        super.loadAdditional(compound, provider);
 
         if (this.config != null) {
             this.config.WriteToNBTCompound(compound);
@@ -86,8 +88,8 @@ public abstract class TileEntityBase<T extends BaseConfig> extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag compound) {
-        super.saveAdditional(compound);
+    public void saveAdditional(@NotNull CompoundTag compound, HolderLookup.Provider provider) {
+        super.saveAdditional(compound, provider);
 
         this.config = this.createConfigInstance().ReadFromCompoundNBT(compound);
     }

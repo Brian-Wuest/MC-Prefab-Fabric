@@ -1,5 +1,6 @@
 package com.wuest.prefab.items;
 
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
@@ -15,8 +16,11 @@ public class ItemSwiftBlade extends SwordItem {
      * Initializes a new instance of the ItemSwiftBlade class.
      */
     public ItemSwiftBlade(Tier tier, int attackDamageIn, float attackSpeedIn) {
-        super(tier, attackDamageIn, attackSpeedIn,
-                new Item.Properties().stacksTo(1).defaultDurability(tier.getUses()));
+        super(tier,
+                new Item.Properties()
+                        .attributes(SwordItem.createAttributes(tier, attackDamageIn, attackSpeedIn))
+                        .stacksTo(1)
+                        .durability(tier.getUses()));
     }
 
     /**
@@ -24,15 +28,8 @@ public class ItemSwiftBlade extends SwordItem {
      * equal to 2 damage points.
      */
     @Override
-    public float getDamage() {
+    public float getAttackDamageBonus(Player player, float p_327880_) {
         return this.getTier().getAttackDamageBonus();
-    }
-
-    /**
-     * Return the name for this tool's material.
-     */
-    public String getToolMaterialName() {
-        return this.getTier().toString();
     }
 
     /**

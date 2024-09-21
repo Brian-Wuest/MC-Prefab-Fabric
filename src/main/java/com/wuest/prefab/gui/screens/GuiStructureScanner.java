@@ -9,6 +9,9 @@ import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.controls.ExtendedButton;
 import com.wuest.prefab.gui.controls.GuiTextBox;
+import com.wuest.prefab.network.message.ScanShapePayload;
+import com.wuest.prefab.network.message.ScannerConfigPayload;
+import com.wuest.prefab.network.message.ScannerInfo;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -194,12 +197,12 @@ public class GuiStructureScanner extends GuiBase {
     }
 
     private void sendUpdatePacket() {
-        FriendlyByteBuf messagePacket = Utils.createMessageBuffer(this.config.GetCompoundNBT());
-        ClientPlayNetworking.send(ModRegistry.StructureScannerSync, messagePacket);
+        ScannerConfigPayload scannerConfigPayload = new ScannerConfigPayload(new ScannerInfo(this.config));
+        ClientPlayNetworking.send(scannerConfigPayload);
     }
 
     private void sendScanPacket() {
-        FriendlyByteBuf messagePacket = Utils.createMessageBuffer(this.config.GetCompoundNBT());
-        ClientPlayNetworking.send(ModRegistry.StructureScannerAction, messagePacket);
+        ScanShapePayload scanShapePayload = new ScanShapePayload(new ScannerInfo(this.config));
+        ClientPlayNetworking.send(scanShapePayload);
     }
 }
