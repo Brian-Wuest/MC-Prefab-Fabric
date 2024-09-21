@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_bulldozer",
+    "id": "prefab:item_bulldozer",
     "count": 1
   }
 }

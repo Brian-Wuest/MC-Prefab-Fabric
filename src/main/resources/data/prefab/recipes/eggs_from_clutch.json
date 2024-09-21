@@ -9,7 +9,7 @@
     }
   ],
   "result": {
-    "item": "minecraft:egg",
+    "id": "minecraft:egg",
     "count": 8
   }
 }

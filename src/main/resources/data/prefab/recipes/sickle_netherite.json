@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_sickle_netherite",
+    "id": "prefab:item_sickle_netherite",
     "count": 1
   }
 }

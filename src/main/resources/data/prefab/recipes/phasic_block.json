@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:block_phasic",
+    "id": "prefab:block_phasic",
     "count": 1
   }
 }

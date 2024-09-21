@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_crate_of_carrots",
+    "id": "prefab:item_crate_of_carrots",
     "count": 1
   }
 }

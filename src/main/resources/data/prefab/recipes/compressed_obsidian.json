@@ -13,7 +13,7 @@
     }
   },
   "result": {
-    "item": "prefab:block_compressed_obsidian",
+    "id": "prefab:block_compressed_obsidian",
     "count": 1
   }
 }

@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:block_double_compressed_quartz_crete",
+    "id": "prefab:block_double_compressed_quartz_crete",
     "count": 1
   }
 }

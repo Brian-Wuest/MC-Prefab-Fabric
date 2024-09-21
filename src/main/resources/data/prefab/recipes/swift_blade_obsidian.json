@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_swift_blade_obsidian",
+    "id": "prefab:item_swift_blade_obsidian",
     "count": 1
   }
 }

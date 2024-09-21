@@ -28,7 +28,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_farm_advanced",
+    "id": "prefab:item_farm_advanced",
     "count": 1
   }
 }

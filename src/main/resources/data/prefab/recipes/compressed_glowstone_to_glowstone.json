@@ -11,7 +11,7 @@
     }
   ],
   "result": {
-    "item": "minecraft:glowstone",
+    "id": "minecraft:glowstone",
     "count": 9
   }
 }

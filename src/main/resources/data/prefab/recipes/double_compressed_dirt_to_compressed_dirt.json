@@ -11,7 +11,7 @@
     }
   ],
   "result": {
-    "item": "prefab:block_compressed_dirt",
+    "id": "prefab:block_compressed_dirt",
     "count": 9
   }
 }

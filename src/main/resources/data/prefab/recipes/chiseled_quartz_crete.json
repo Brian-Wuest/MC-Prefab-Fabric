@@ -12,7 +12,7 @@
     }
   },
   "result": {
-    "item": "prefab:block_quartz_crete_chiseled",
+    "id": "prefab:block_quartz_crete_chiseled",
     "count": 1
   }
 }

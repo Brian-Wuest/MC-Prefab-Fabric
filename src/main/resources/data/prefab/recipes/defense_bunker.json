@@ -22,7 +22,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_defense_bunker",
+    "id": "prefab:item_defense_bunker",
     "count": 1
   }
 }

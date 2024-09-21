@@ -14,7 +14,7 @@
     }
   ],
   "result": {
-    "item": "prefab:item_house_improved",
+    "id": "prefab:item_house_improved",
     "count": 1
   }
 }

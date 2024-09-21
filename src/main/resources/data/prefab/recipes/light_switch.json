@@ -17,7 +17,7 @@
     }
   ],
   "result": {
-    "item": "prefab:block_light_switch",
+    "id": "prefab:block_light_switch",
     "count": 1
   }
 }

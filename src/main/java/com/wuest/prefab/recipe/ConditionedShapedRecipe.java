@@ -47,6 +47,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
         this.width = pattern.width();
         this.height = pattern.height();
         this.inputs = pattern.ingredients();
+        this.pattern = pattern;
         this.output = output;
         this.configName = configName;
         this.recipeHasTags = recipeHasTags;

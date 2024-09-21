@@ -22,7 +22,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_watch_tower",
+    "id": "prefab:item_watch_tower",
     "count": 1
   }
 }

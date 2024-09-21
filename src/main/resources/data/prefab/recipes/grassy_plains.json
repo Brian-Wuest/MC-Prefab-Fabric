@@ -20,7 +20,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_grassy_plain",
+    "id": "prefab:item_grassy_plain",
     "count": 1
   }
 }

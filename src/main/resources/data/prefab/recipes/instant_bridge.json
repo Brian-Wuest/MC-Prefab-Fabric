@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_instant_bridge",
+    "id": "prefab:item_instant_bridge",
     "count": 1
   }
 }

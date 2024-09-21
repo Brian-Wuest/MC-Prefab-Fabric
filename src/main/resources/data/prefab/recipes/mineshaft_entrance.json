@@ -22,7 +22,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_mineshaft_entrance",
+    "id": "prefab:item_mineshaft_entrance",
     "count": 1
   }
 }

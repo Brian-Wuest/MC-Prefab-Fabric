@@ -11,7 +11,7 @@
     }
   },
   "result": {
-    "item": "prefab:block_quartz_crete_smooth_slab",
+    "id": "prefab:block_quartz_crete_smooth_slab",
     "count": 6
   }
 }

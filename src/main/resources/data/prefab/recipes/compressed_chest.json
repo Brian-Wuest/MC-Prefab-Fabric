@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_compressed_chest",
+    "id": "prefab:item_compressed_chest",
     "count": 1
   }
 }

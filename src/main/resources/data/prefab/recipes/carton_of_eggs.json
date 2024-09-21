@@ -19,7 +19,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_carton_of_eggs",
+    "id": "prefab:item_carton_of_eggs",
     "count": 1
   }
 }

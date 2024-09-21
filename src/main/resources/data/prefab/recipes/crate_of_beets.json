@@ -16,7 +16,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_crate_of_beets",
+    "id": "prefab:item_crate_of_beets",
     "count": 1
   }
 }

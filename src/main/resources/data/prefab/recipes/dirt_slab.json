@@ -11,7 +11,7 @@
     }
   },
   "result": {
-    "item": "prefab:block_dirt_slab",
+    "id": "prefab:block_dirt_slab",
     "count": 6
   }
 }

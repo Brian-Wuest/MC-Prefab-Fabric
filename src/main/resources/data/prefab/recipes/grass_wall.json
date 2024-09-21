@@ -12,7 +12,7 @@
     }
   },
   "result": {
-    "item": "prefab:block_grass_wall",
+    "id": "prefab:block_grass_wall",
     "count": 6
   }
 }

@@ -22,7 +22,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_warehouse",
+    "id": "prefab:item_warehouse",
     "count": 1
   }
 }

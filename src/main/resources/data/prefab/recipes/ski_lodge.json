@@ -28,7 +28,7 @@
     }
   },
   "result": {
-    "item": "prefab:item_ski_lodge",
+    "id": "prefab:item_ski_lodge",
     "count": 1
   }
 }
