@@ -5,6 +5,8 @@ import com.wuest.prefab.blocks.entities.LightSwitchBlockEntity;
 import com.wuest.prefab.blocks.entities.StructureScannerBlockEntity;
 import com.wuest.prefab.config.StructureScannerConfig;
 import com.wuest.prefab.items.*;
+import com.wuest.prefab.network.message.ConfigSyncPayload;
+import com.wuest.prefab.network.message.PlayerConfigPayload;
 import com.wuest.prefab.network.message.ScanShapePayload;
 import com.wuest.prefab.network.message.ScannerConfigPayload;
 import com.wuest.prefab.recipe.ConditionedShapedRecipe;
@@ -263,6 +265,8 @@ public class ModRegistry {
 
         ModRegistry.registerItemBlocks();
 
+        ModRegistry.registerPayloadTypes();
+
         ModRegistry.RegisterClientToServerMessageHandlers();
 
         ModRegistry.RegisterRecipeSerializers();
@@ -496,9 +500,15 @@ public class ModRegistry {
         ModRegistry.ModItems.add(item);
     }
 
-    private static void registerStructureBuilderMessageHandler() {
+    private static void registerPayloadTypes() {
         PayloadTypeRegistry.playC2S().register(StructurePayload.PACKET_TYPE, StructurePayload.STREAM_CODEC);
+        PayloadTypeRegistry.playC2S().register(ScannerConfigPayload.PACKET_TYPE, ScannerConfigPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playC2S().register(ScanShapePayload.PACKET_TYPE, ScanShapePayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(ConfigSyncPayload.PACKET_TYPE, ConfigSyncPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(PlayerConfigPayload.PACKET_TYPE, PlayerConfigPayload.STREAM_CODEC);
+    }
 
+    private static void registerStructureBuilderMessageHandler() {
         ServerPlayNetworking.registerGlobalReceiver(StructurePayload.PACKET_TYPE, (payLoad, context) -> {
             // Packet processor, data will already have been de-serialized.
             // Can only access the "attachedData" on the "network thread" which is here.
@@ -514,9 +524,6 @@ public class ModRegistry {
     }
 
     private static void registerStructureScannerMessageHandler() {
-        // Register the serialization packet type and server-side handler.
-        PayloadTypeRegistry.playC2S().register(ScannerConfigPayload.PACKET_TYPE, ScannerConfigPayload.STREAM_CODEC);
-
         ServerPlayNetworking.registerGlobalReceiver(ScannerConfigPayload.PACKET_TYPE, (payLoad, context) -> {
             // Packet processor, data will already have been de-serialized.
             context.player().getServer().execute(() -> {
@@ -534,9 +541,6 @@ public class ModRegistry {
     }
 
     private static void registerStructureScannerActionMessageHandler() {
-        // Register the serialization packet type and server-side handler.
-        PayloadTypeRegistry.playC2S().register(ScanShapePayload.PACKET_TYPE, ScanShapePayload.STREAM_CODEC);
-
         ServerPlayNetworking.registerGlobalReceiver(ScanShapePayload.PACKET_TYPE, (payLoad, context) -> {
             // Packet processor, data will already have been de-serialized.
             context.player().getServer().execute(() -> {

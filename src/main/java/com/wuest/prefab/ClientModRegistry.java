@@ -11,8 +11,11 @@ import com.wuest.prefab.gui.GuiBase;
 import com.wuest.prefab.gui.screens.GuiStructureScanner;
 import com.wuest.prefab.network.message.PlayerConfigPayload;
 import com.wuest.prefab.network.message.ConfigSyncPayload;
+import com.wuest.prefab.network.message.ScanShapePayload;
+import com.wuest.prefab.network.message.ScannerConfigPayload;
 import com.wuest.prefab.structures.gui.GuiStructure;
 import com.wuest.prefab.structures.items.StructureItem;
+import com.wuest.prefab.structures.messages.StructurePayload;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 
@@ -86,8 +89,6 @@ public class ClientModRegistry {
     }
 
     private static void registerServerToClientMessageHandlers() {
-        PayloadTypeRegistry.playS2C().register(ConfigSyncPayload.PACKET_TYPE, ConfigSyncPayload.STREAM_CODEC);
-
         ClientPlayNetworking.registerGlobalReceiver(ConfigSyncPayload.PACKET_TYPE,
                 (payload, context) -> {
                     context.client().execute(() -> {
@@ -96,8 +97,6 @@ public class ClientModRegistry {
                     });
                 }
         );
-
-        PayloadTypeRegistry.playS2C().register(PlayerConfigPayload.PACKET_TYPE, PlayerConfigPayload.STREAM_CODEC);
 
         ClientPlayNetworking.registerGlobalReceiver(PlayerConfigPayload.PACKET_TYPE, (payload, context) -> {
             context.client().execute(() -> {
