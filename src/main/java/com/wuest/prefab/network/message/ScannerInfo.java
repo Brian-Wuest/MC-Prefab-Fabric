@@ -18,8 +18,7 @@ public class ScannerInfo{
     private @Nullable BlockPos blockPos = null;
 
     public ScannerInfo(FriendlyByteBuf friendlyByteBuf) {
-        this(friendlyByteBuf.readInt(), friendlyByteBuf.readInt(), friendlyByteBuf.readInt(), friendlyByteBuf.readInt(),friendlyByteBuf.readInt(),
-                friendlyByteBuf.readInt(), friendlyByteBuf.readUtf(),  friendlyByteBuf.readEnum(Direction.class),friendlyByteBuf.readNullable(BlockPos.STREAM_CODEC));
+        this.read(friendlyByteBuf);
     }
 
     public ScannerInfo(StructureScannerConfig structureScannerConfig) {
@@ -64,6 +63,18 @@ public class ScannerInfo{
         buf.writeUtf(this.structureZipName);
         buf.writeEnum(this.direction);
         buf.writeBlockPos(this.blockPos);
+    }
+
+    public void read (FriendlyByteBuf buf) {
+        this.blocksToTheLeft = buf.readInt();
+        this.blocksParallel = buf.readInt();
+        this.blocksDown = buf.readInt();
+        this.blocksWide = buf.readInt();
+        this.blocksLong = buf.readInt();
+        this.blocksTall = buf.readInt();
+        this.structureZipName = buf.readUtf();
+        this.direction = buf.readEnum(Direction.class);
+        this.blockPos = buf.readBlockPos();
     }
 
     public StructureScannerConfig ToConfig() {

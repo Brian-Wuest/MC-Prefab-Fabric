@@ -536,7 +536,7 @@ public class ModRegistry {
         // Register the serialization packet type and server-side handler.
         PayloadTypeRegistry.playC2S().register(ScanShapePayload.PACKET_TYPE, ScanShapePayload.STREAM_CODEC);
 
-        ServerPlayNetworking.registerGlobalReceiver(ScannerConfigPayload.PACKET_TYPE, (payLoad, context) -> {
+        ServerPlayNetworking.registerGlobalReceiver(ScanShapePayload.PACKET_TYPE, (payLoad, context) -> {
             // Packet processor, data will already have been de-serialized.
             context.player().getServer().execute(() -> {
                 StructureScannerConfig config = payLoad.scannerInfo().ToConfig();
