@@ -150,8 +150,9 @@ public class GuiStructureScanner extends GuiBase {
             // This generally happens when leaving and re-joining the world.
             if (existingConfig != null) {
                 ClientModRegistry.structureScanners.remove(existingConfig);
-                ClientModRegistry.structureScanners.add(this.config);
             }
+
+            ClientModRegistry.structureScanners.add(this.config);
 
             this.closeScreen();
         } else {
