@@ -150,20 +150,13 @@ public class ItemBulldozer extends StructureItem {
     }
 
     public void setPoweredValue(ItemStack stack, boolean value) {
-        CompoundTag baseTag = null;
-        CompoundTag prefabTag = null;
-        CustomData customData = null;
+        CompoundTag baseTag = new CompoundTag();
+        CompoundTag prefabTag = new CompoundTag();
 
-        if (stack.getComponents().isEmpty()) {
-            baseTag = new CompoundTag();
-            customData = CustomData.of(baseTag);
-        } else {
-            customData = stack.getComponents().get(DataComponents.CUSTOM_DATA);
-        }
-
-        prefabTag = new CompoundTag();
-        baseTag.put("prefab", prefabTag);
         prefabTag.putBoolean("powered", value);
+        baseTag.put("prefab", prefabTag);
+
+        CustomData customData = CustomData.of(baseTag);
         stack.set(DataComponents.CUSTOM_DATA, customData);
     }
 }
