@@ -135,18 +135,21 @@ public class GuiStructureScanner extends GuiBase {
         } else if (button == this.btnSet) {
             // Look through the list of scanners to see if it's already there, if so don't do anything.
             // Otherwise add it to the list of scanners.
-            boolean foundExistingConfig = false;
+            StructureScannerConfig existingConfig = null;
 
             for (StructureScannerConfig config : ClientModRegistry.structureScanners) {
                 if (config.blockPos.getX() == this.config.blockPos.getX()
                         && config.blockPos.getZ() == this.config.blockPos.getZ()
                         && config.blockPos.getY() == this.config.blockPos.getY()) {
-                    foundExistingConfig = true;
+                    existingConfig = config;
                     break;
                 }
             }
 
-            if (!foundExistingConfig) {
+            // The config can get re-initialized so make sure to remove and re-add the instance.
+            // This generally happens when leaving and re-joining the world.
+            if (existingConfig != null) {
+                ClientModRegistry.structureScanners.remove(existingConfig);
                 ClientModRegistry.structureScanners.add(this.config);
             }
 

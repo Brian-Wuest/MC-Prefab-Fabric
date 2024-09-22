@@ -522,7 +522,8 @@ public class ModRegistry {
             context.player().getServer().execute(() -> {
                 StructureScannerConfig config = payLoad.scannerInfo().ToConfig();
 
-                BlockEntity blockEntity = context.player().level().getBlockEntity(config.blockPos);
+                // The GUI always goes down 1 block for it's processing, so we have to make sure we go UP a block.
+                BlockEntity blockEntity = context.player().level().getBlockEntity(config.blockPos.above());
 
                 if (blockEntity instanceof StructureScannerBlockEntity) {
                     StructureScannerBlockEntity actualEntity = (StructureScannerBlockEntity) blockEntity;
