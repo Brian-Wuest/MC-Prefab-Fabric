@@ -1,20 +1,16 @@
 package com.wuest.prefab.structures.predefined;
 
-import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Tuple;
 import com.wuest.prefab.config.EntityPlayerConfiguration;
 import com.wuest.prefab.network.message.PlayerConfigPayload;
-import com.wuest.prefab.network.message.PlayerEntityTagMessage;
 import com.wuest.prefab.network.message.TagMessage;
 import com.wuest.prefab.structures.base.BuildBlock;
 import com.wuest.prefab.structures.base.BuildingMethods;
 import com.wuest.prefab.structures.base.Structure;
 import com.wuest.prefab.structures.config.HouseImprovedConfiguration;
 import com.wuest.prefab.structures.config.StructureConfiguration;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;

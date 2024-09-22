@@ -29,19 +29,18 @@ public class StructureTagMessage extends TagMessage {
     }
 
     public StructureTagMessage(FriendlyByteBuf friendlyByteBuf) {
-        this.write(friendlyByteBuf);
+        StructureTagMessage.decode(this, friendlyByteBuf);
     }
 
-    public static StructureTagMessage decode(FriendlyByteBuf buf) {
+    public static StructureTagMessage decode(StructureTagMessage messageToupdate, FriendlyByteBuf buf) {
         // This class is very useful in general for writing more complex objects.
         CompoundTag tag = buf.readNbt();
-        StructureTagMessage returnValue = new StructureTagMessage();
 
-        returnValue.structureConfig = EnumStructureConfiguration.getFromIdentifier(tag.getInt("config"));
+        messageToupdate.structureConfig = EnumStructureConfiguration.getFromIdentifier(tag.getInt("config"));
 
-        returnValue.tagMessage = tag.getCompound("dataTag");
+        messageToupdate.tagMessage = tag.getCompound("dataTag");
 
-        return returnValue;
+        return messageToupdate;
     }
 
     public static void encode(StructureTagMessage message, FriendlyByteBuf buf) {

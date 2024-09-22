@@ -9,7 +9,7 @@
   ],
   "key": {
     "a": {
-      "tag": "c:glass"
+      "tag": "c:glass_blocks"
     },
     "b": {
       "item": "minecraft:conduit"

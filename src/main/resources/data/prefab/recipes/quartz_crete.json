@@ -9,7 +9,7 @@
   ],
   "key": {
     "a": {
-      "tag": "c:quartz"
+      "tag": "c:gems/quartz"
     },
     "b": {
       "tag": "c:concrete"

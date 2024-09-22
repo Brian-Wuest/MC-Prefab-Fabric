@@ -12,7 +12,7 @@
       "item": "prefab:item_bundle_of_timber"
     },
     "b": {
-      "tag": "c:glass"
+      "tag": "c:glass_blocks"
     },
     "c": {
       "item": "minecraft:brewing_stand"

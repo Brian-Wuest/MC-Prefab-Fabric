@@ -50,6 +50,7 @@ import static net.minecraft.world.item.Tiers.WOOD;
  * @author WuestMan
  */
 public class ModRegistry {
+    private static final ArrayList<Item> ModItems = new ArrayList<>();
     public static final ArrayList<Consumer<Object>> guiRegistrations = new ArrayList<>();
 
     public static ModRegistries serverModRegistries;
@@ -104,11 +105,6 @@ public class ModRegistry {
     public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(Block.Properties.ofFullCopy(SmoothQuartzCrete));
 
     /* *********************************** Messages *********************************** */
-    public static final ResourceLocation ConfigSync = new ResourceLocation(Prefab.MODID, "config_sync");
-    public static final ResourceLocation PlayerConfigSync = new ResourceLocation(Prefab.MODID, "player_config_sync");
-    public static final ResourceLocation StructureBuild = new ResourceLocation(Prefab.MODID, "structure_build");
-    public static final ResourceLocation StructureScannerSync = new ResourceLocation(Prefab.MODID, "structure_scanner_sync");
-    public static final ResourceLocation StructureScannerAction = new ResourceLocation(Prefab.MODID, "structure_scanner_action");
     public static final Item LogoItem = new Item(new Item.Properties());
 
     /* *********************************** Item Blocks *********************************** */
@@ -234,126 +230,25 @@ public class ModRegistry {
     public static BlockEntityType<StructureScannerBlockEntity> StructureScannerEntityType;
     public static BlockEntityType<LightSwitchBlockEntity> LightSwitchEntityType;
 
-    /* *********************************** Block Entities *********************************** */
-    public static StructureScannerBlockEntity StructureScannerEntity;
-
     /* *********************************** Item Group *********************************** */
     private static final CreativeModeTab ITEM_GROUP = FabricItemGroup.builder()
             .icon(() -> new ItemStack(ModRegistry.LogoItem))
             .displayItems((context, entries) -> {
-                entries.accept(ModRegistry.CompressedStoneItem);
-                entries.accept(ModRegistry.DoubleCompressedStoneItem);
-                entries.accept(ModRegistry.TripleCompressedStoneItem);
-                entries.accept(ModRegistry.CompressedDirtItem);
-                entries.accept(ModRegistry.DoubleCompressedDirtItem);
-                entries.accept(ModRegistry.CompressedGlowstoneItem);
-                entries.accept(ModRegistry.DoubleCompressedGlowstoneItem);
-                entries.accept(ModRegistry.CompressedQuartzCreteItem);
-                entries.accept(ModRegistry.DoubleCompressedQuartzCreteItem);
-                entries.accept(ModRegistry.CompressedObsidianItem);
-                entries.accept(ModRegistry.DoubleCompressedObsidianItem);
-                entries.accept(ModRegistry.GlassSlabItem);
-                entries.accept(ModRegistry.GlassStairsItem);
-                entries.accept(ModRegistry.PaperLanternItem);
-                entries.accept(ModRegistry.PhasicItem);
-                entries.accept(ModRegistry.BoundaryItem);
-                entries.accept(ModRegistry.GrassSlabItem);
-                entries.accept(ModRegistry.GrassStairsItem);
-                entries.accept(ModRegistry.GrassWallItem);
-                entries.accept(ModRegistry.DirtWallItem);
-                entries.accept(ModRegistry.DirtStairsItem);
-                entries.accept(ModRegistry.DirtSlabItem);
-                entries.accept(ModRegistry.LightSwitchItem);
-                entries.accept(ModRegistry.DarkLampItem);
-                entries.accept(ModRegistry.QuartzCreteItem);
-                entries.accept(ModRegistry.QuartzCreteWallItem);
-                entries.accept(ModRegistry.QuartzCreteBricksItem);
-                entries.accept(ModRegistry.ChiseledQuartzCreteItem);
-                entries.accept(ModRegistry.QuartzCretePillarItem);
-                entries.accept(ModRegistry.QuartzCreteStairsItem);
-                entries.accept(ModRegistry.QuartzCreteSlabItem);
-                entries.accept(ModRegistry.SmoothQuartzCreteItem);
-                entries.accept(ModRegistry.SmoothQuartzCreteWallItem);
-                entries.accept(ModRegistry.SmoothQuartzCreteStairsItem);
-                entries.accept(ModRegistry.SmoothQuartzCreteSlabItem);
+                for (Item item : ModRegistry.ModItems) {
+                    if (item == ModRegistry.StructureScannerItem && !Prefab.isDebug) {
+                        continue;
+                    } else if (item == ModRegistry.LogoItem) {
+                        continue;
+                    }
 
-                entries.accept(ModRegistry.CompressedChest);
-                entries.accept(ModRegistry.ItemPileOfBricks);
-                entries.accept(ModRegistry.ItemPalletOfBricks);
-                entries.accept(ModRegistry.ItemBundleOfTimber);
-                entries.accept(ModRegistry.ItemHeapOfTimber);
-                entries.accept(ModRegistry.ItemTonOfTimber);
-                entries.accept(ModRegistry.StringOfLanterns);
-                entries.accept(ModRegistry.CoilOfLanterns);
-                entries.accept(ModRegistry.Upgrade);
-                entries.accept(ModRegistry.SwiftBladeWood);
-                entries.accept(ModRegistry.SwiftBladeStone);
-                entries.accept(ModRegistry.SwiftBladeIron);
-                entries.accept(ModRegistry.SwiftBladeDiamond);
-                entries.accept(ModRegistry.SwiftBladeGold);
-                entries.accept(ModRegistry.SwiftBladeCopper);
-                entries.accept(ModRegistry.SwiftBladeOsmium);
-                entries.accept(ModRegistry.SwiftBladeBronze);
-                entries.accept(ModRegistry.SwiftBladeSteel);
-                entries.accept(ModRegistry.SwiftBladeObsidian);
-                entries.accept(ModRegistry.SwiftBladeNetherite);
-                entries.accept(ModRegistry.SickleWood);
-                entries.accept(ModRegistry.SickleStone);
-                entries.accept(ModRegistry.SickleGold);
-                entries.accept(ModRegistry.SickleIron);
-                entries.accept(ModRegistry.SickleDiamond);
-                entries.accept(ModRegistry.SickleNetherite);
-                entries.accept(ModRegistry.ItemEmptyCrate);
-                entries.accept(ModRegistry.ClutchOfEggs);
-                entries.accept(ModRegistry.ItemCartonOfEggs);
-                entries.accept(ModRegistry.BunchOfPotatoes);
-                entries.accept(ModRegistry.ItemCrateOfPotatoes);
-                entries.accept(ModRegistry.BunchOfCarrots);
-                entries.accept(ModRegistry.ItemCrateOfCarrots);
-                entries.accept(ModRegistry.BunchOfBeets);
-                entries.accept(ModRegistry.ItemCrateOfBeets);
-
-                entries.accept(ModRegistry.InstantBridge);
-                entries.accept(ModRegistry.House);
-                entries.accept(ModRegistry.HouseImproved);
-                entries.accept(ModRegistry.HouseAdvanced);
-                entries.accept(ModRegistry.Bulldozer);
-                entries.accept(ModRegistry.CreativeBulldozer);
-                entries.accept(ModRegistry.MachineryTower);
-                entries.accept(ModRegistry.DefenseBunker);
-                entries.accept(ModRegistry.MineshaftEntrance);
-                entries.accept(ModRegistry.EnderGateway);
-                entries.accept(ModRegistry.GrassyPlain);
-                entries.accept(ModRegistry.MagicTemple);
-                entries.accept(ModRegistry.WatchTower);
-                entries.accept(ModRegistry.WelcomeCenter);
-                entries.accept(ModRegistry.Jail);
-                entries.accept(ModRegistry.Saloon);
-                entries.accept(ModRegistry.SkiLodge);
-                entries.accept(ModRegistry.WindMill);
-                entries.accept(ModRegistry.TownHall);
-                entries.accept(ModRegistry.NetherGate);
-                entries.accept(ModRegistry.AquaBase);
-                entries.accept(ModRegistry.AquaBaseImproved);
-                entries.accept(ModRegistry.Warehouse);
-                entries.accept(ModRegistry.WareHouseImproved);
-                entries.accept(ModRegistry.VillagerHouses);
-                entries.accept(ModRegistry.ModernBuildings);
-                entries.accept(ModRegistry.ModernBuildingsImproved);
-                entries.accept(ModRegistry.ModernBuildingsAdvanced);
-                entries.accept(ModRegistry.Farm);
-                entries.accept(ModRegistry.FarmImproved);
-                entries.accept(ModRegistry.FarmAdvanced);
-
-                if (Prefab.isDebug) {
-                    entries.accept(ModRegistry.StructureScannerItem);
+                    entries.accept(item);
                 }
             })
             .title(Utils.createTextComponent("Prefab"))
             .build();
 
+    // This variable may not be used, but the registration is still needed.
     public static final CreativeModeTab creativeModeTab = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(Prefab.MODID, "logo"), ITEM_GROUP);
-
 
     public static void registerModComponents() {
         ModRegistry.registerSounds();
@@ -598,6 +493,7 @@ public class ModRegistry {
 
     private static void registerItem(String registryName, Item item) {
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(Prefab.MODID, registryName), item);
+        ModRegistry.ModItems.add(item);
     }
 
     private static void registerStructureBuilderMessageHandler() {
