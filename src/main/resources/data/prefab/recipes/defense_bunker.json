@@ -12,7 +12,7 @@
       "item": "minecraft:iron_block"
     },
     "b": {
-      "item": "prefab:item_coil_of_lanterns"
+      "tag": "c:double_compressed_lights"
     },
     "c": {
       "tag": "c:triple_compressed_stone"

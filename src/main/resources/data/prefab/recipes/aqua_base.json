@@ -18,7 +18,7 @@
       "item": "minecraft:sea_lantern"
     },
     "d": {
-      "item": "prefab:item_coil_of_lanterns"
+      "tag": "c:double_compressed_lights"
     },
     "e": {
       "tag": "c:triple_compressed_stone"
