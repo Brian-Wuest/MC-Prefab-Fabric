@@ -36,7 +36,7 @@ public class BlockGlassStairs extends StairBlock {
     @Override
     @Environment(EnvType.CLIENT)
     public boolean skipRendering(BlockState state, BlockState adjacentBlockState, Direction side) {
-        boolean foundBlock = Utils.doesBlockStateHaveTag(adjacentBlockState, new ResourceLocation("c", "glass"));
+        boolean foundBlock = Utils.doesBlockStateHaveTag(adjacentBlockState, new ResourceLocation("c", "glass_blocks"));
         Block adjacentBlock = adjacentBlockState.getBlock();
 
         return foundBlock || adjacentBlock == this

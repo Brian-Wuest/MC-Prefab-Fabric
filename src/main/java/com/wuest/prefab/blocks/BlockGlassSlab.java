@@ -58,7 +58,7 @@ public class BlockGlassSlab extends TransparentBlock implements SimpleWaterlogge
     @Environment(EnvType.CLIENT)
     public boolean skipRendering(BlockState state, BlockState adjacentBlockState, Direction side) {
         Block adjacentBlock = adjacentBlockState.getBlock();
-        boolean foundBlock = Utils.doesBlockStateHaveTag(adjacentBlockState, new ResourceLocation("c", "glass"));
+        boolean foundBlock = Utils.doesBlockStateHaveTag(adjacentBlockState, new ResourceLocation("c", "glass_blocks"));
 
 		/*
 			Hide this side under the following conditions
