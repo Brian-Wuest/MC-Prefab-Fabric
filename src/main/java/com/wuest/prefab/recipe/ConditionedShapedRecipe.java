@@ -40,7 +40,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             boolean recipeHasTags,
             boolean showNotification
     ) {
-        super(group, craftingBookCategory, pattern, output, showNotification);
+        super(group, craftingBookCategory == null ? CraftingBookCategory.MISC : craftingBookCategory, pattern, output, showNotification);
 
         this.group = group;
         this.craftingBookCategory = craftingBookCategory;
@@ -158,17 +158,20 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
      */
     private void validateTagIngredients() {
         boolean invalidRecipe = false;
+
         for (Ingredient ingredient : this.getIngredients()) {
             if (ingredient.getItems().length == 0) {
-                ingredient.itemStacks = Arrays.stream(ingredient.values).flatMap((value) -> {
-                    return value.getItems().stream();
-                }).distinct().toArray(ItemStack[]::new);
-
-                if (ingredient.itemStacks.length == 0) {
-                    // There are no items associated with this tag; mark this recipe as invalid.
-                    invalidRecipe = true;
-                    break;
+                // Found a tag ingredient, loop through the pattern to determine if any of the keys are missing ingredients.
+                if (this.pattern.data().isPresent()) {
+                    for(Map.Entry<Character, Ingredient> keyMap : this.pattern.data().get().key().entrySet()) {
+                        if (keyMap.getValue().itemStacks.length == 0) {
+                            invalidRecipe = true;
+                            break;
+                        }
+                    }
                 }
+
+                break;
             }
         }
 
