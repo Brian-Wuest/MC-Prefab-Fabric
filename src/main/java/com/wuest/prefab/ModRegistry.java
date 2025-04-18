@@ -31,6 +31,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 
@@ -63,8 +64,8 @@ public class ModRegistry {
 
     public static final BlockCompressedObsidian CompressedObsidian = new BlockCompressedObsidian(BlockCompressedObsidian.EnumType.COMPRESSED_OBSIDIAN);
     public static final BlockCompressedObsidian DoubleCompressedObsidian = new BlockCompressedObsidian(BlockCompressedObsidian.EnumType.DOUBLE_COMPRESSED_OBSIDIAN);
-    public static final BlockGlassSlab GlassSlab = new BlockGlassSlab(Block.Properties.ofFullCopy(Blocks.GLASS));
-    public static final BlockGlassStairs GlassStairs = new BlockGlassStairs(Blocks.GLASS.defaultBlockState(), Block.Properties.ofFullCopy(Blocks.GLASS));
+    public static final BlockGlassSlab GlassSlab = new BlockGlassSlab(BlockBehaviour.Properties.copy(Blocks.GLASS));
+    public static final BlockGlassStairs GlassStairs = new BlockGlassStairs(Blocks.GLASS.defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.GLASS));
     public static final BlockPaperLantern PaperLantern = new BlockPaperLantern();
     public static final BlockPhasic Phasic = new BlockPhasic();
     public static final BlockBoundary Boundary = new BlockBoundary();
@@ -77,27 +78,27 @@ public class ModRegistry {
     public static BlockStructureScanner StructureScanner = null;
     public static BlockLightSwitch LightSwitch = new BlockLightSwitch();
     public static BlockDarkLamp DarkLamp = new BlockDarkLamp();
-    public static final BlockRotatableHorizontalShaped PileOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PileOfBricks, Block.Properties.ofFullCopy(Blocks.BRICKS).mapColor(MapColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped PalletOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PalletOfBricks, Block.Properties.ofFullCopy(Blocks.BRICKS).mapColor(MapColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped BundleOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.BundleOfTimber, Block.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped HeapOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.HeapOfTimber, Block.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatableHorizontalShaped TonOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.TonOfTimber, Block.Properties.ofFullCopy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
-    public static final BlockRotatable EmptyCrate = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CartonOfEggs = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CrateOfPotatoes = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CrateOfCarrots = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
-    public static final BlockRotatable CrateOfBeets = new BlockRotatable(Block.Properties.ofFullCopy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
-    public static final Block QuartzCrete = new Block(Block.Properties.ofFullCopy(Blocks.QUARTZ_BLOCK));
-    public static final WallBlock QuartzCreteWall = new WallBlock(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
-    public static final Block QuartzCreteBricks = new Block(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
-    public static final Block ChiseledQuartzCrete = new Block(Block.Properties.ofFullCopy(Blocks.CHISELED_QUARTZ_BLOCK));
-    public static final RotatedPillarBlock QuartzCretePillar = new RotatedPillarBlock(Block.Properties.ofFullCopy(Blocks.QUARTZ_PILLAR));
-    public static final BlockCustomStairs QuartzCreteStairs = new BlockCustomStairs(ModRegistry.QuartzCrete.defaultBlockState(), Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
-    public static final SlabBlock QuartzCreteSlab = new SlabBlock(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
-    public static final Block SmoothQuartzCrete = new Block(Block.Properties.ofFullCopy(ModRegistry.QuartzCrete));
-    public static final WallBlock SmoothQuartzCreteWall = new WallBlock(Block.Properties.ofFullCopy(ModRegistry.SmoothQuartzCrete));
-    public static final BlockCustomStairs SmoothQuartzCreteStairs = new BlockCustomStairs(ModRegistry.SmoothQuartzCrete.defaultBlockState(), Block.Properties.ofFullCopy(ModRegistry.SmoothQuartzCrete));
-    public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(Block.Properties.ofFullCopy(SmoothQuartzCrete));
+    public static final BlockRotatableHorizontalShaped PileOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PileOfBricks, BlockBehaviour.Properties.copy(Blocks.BRICKS).mapColor(MapColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped PalletOfBricks = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.PalletOfBricks, BlockBehaviour.Properties.copy(Blocks.BRICKS).mapColor(MapColor.COLOR_RED).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped BundleOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.BundleOfTimber, BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped HeapOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.HeapOfTimber, BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatableHorizontalShaped TonOfTimber = new BlockRotatableHorizontalShaped(BlockShaped.BlockShape.TonOfTimber, BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).mapColor(MapColor.COLOR_BROWN).sound(SoundType.WOOD).noOcclusion().isViewBlocking(ModRegistry::never));
+    public static final BlockRotatable EmptyCrate = new BlockRotatable(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CartonOfEggs = new BlockRotatable(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CrateOfPotatoes = new BlockRotatable(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CrateOfCarrots = new BlockRotatable(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final BlockRotatable CrateOfBeets = new BlockRotatable(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD).sound(SoundType.WOOD));
+    public static final Block QuartzCrete = new Block(BlockBehaviour.Properties.copy(Blocks.QUARTZ_BLOCK));
+    public static final WallBlock QuartzCreteWall = new WallBlock(BlockBehaviour.Properties.copy(ModRegistry.QuartzCrete));
+    public static final Block QuartzCreteBricks = new Block(BlockBehaviour.Properties.copy(ModRegistry.QuartzCrete));
+    public static final Block ChiseledQuartzCrete = new Block(BlockBehaviour.Properties.copy(Blocks.CHISELED_QUARTZ_BLOCK));
+    public static final RotatedPillarBlock QuartzCretePillar = new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.QUARTZ_PILLAR));
+    public static final BlockCustomStairs QuartzCreteStairs = new BlockCustomStairs(ModRegistry.QuartzCrete.defaultBlockState(), BlockBehaviour.Properties.copy(ModRegistry.QuartzCrete));
+    public static final SlabBlock QuartzCreteSlab = new SlabBlock(BlockBehaviour.Properties.copy(ModRegistry.QuartzCrete));
+    public static final Block SmoothQuartzCrete = new Block(BlockBehaviour.Properties.copy(ModRegistry.QuartzCrete));
+    public static final WallBlock SmoothQuartzCreteWall = new WallBlock(BlockBehaviour.Properties.copy(ModRegistry.SmoothQuartzCrete));
+    public static final BlockCustomStairs SmoothQuartzCreteStairs = new BlockCustomStairs(ModRegistry.SmoothQuartzCrete.defaultBlockState(), BlockBehaviour.Properties.copy(ModRegistry.SmoothQuartzCrete));
+    public static final SlabBlock SmoothQuartzCreteSlab = new SlabBlock(BlockBehaviour.Properties.copy(SmoothQuartzCrete));
 
     /* *********************************** Messages *********************************** */
     public static final ResourceLocation ConfigSync = new ResourceLocation(Prefab.MODID, "config_sync");

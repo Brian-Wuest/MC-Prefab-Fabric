@@ -9,8 +9,7 @@ import net.minecraft.world.level.material.MapColor;
 
 public class BlockGrassSlab extends SlabBlock {
     public BlockGrassSlab() {
-        super(FabricBlockSettings
-                .ofFullCopy(Blocks.GRASS_BLOCK)
+        super(BlockBehaviour.Properties.copy(Blocks.GRASS_BLOCK)
                 .mapColor(MapColor.GRASS)
                 .sound(SoundType.GRASS)
                 .strength(0.5f, 0.5f));

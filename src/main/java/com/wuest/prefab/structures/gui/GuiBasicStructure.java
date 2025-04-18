@@ -159,7 +159,7 @@ public class GuiBasicStructure extends GuiStructure {
             int imagePanelUpperLeft = x + 136;
             int imagePanelMiddle = this.imagePanelWidth / 2;
 
-            this.renderBackground(guiGraphics,0,0,0);
+            this.renderBackground(guiGraphics);
 
             this.drawControlLeftPanel(guiGraphics, x + 2, y + 10, 185, 190);
             this.drawControlRightPanel(guiGraphics, imagePanelUpperLeft, y + 10, this.imagePanelWidth, 190);

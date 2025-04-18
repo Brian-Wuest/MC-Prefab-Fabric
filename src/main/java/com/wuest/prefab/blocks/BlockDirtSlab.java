@@ -16,7 +16,7 @@ import net.minecraft.world.level.material.MapColor;
 
 public class BlockDirtSlab extends SlabBlock implements IGrassSpreadable {
     public BlockDirtSlab() {
-        super(FabricBlockSettings.ofFullCopy(Blocks.DIRT).mapColor(MapColor.DIRT).sound(SoundType.GRAVEL)
+        super(BlockBehaviour.Properties.copy(Blocks.DIRT).mapColor(MapColor.DIRT).sound(SoundType.GRAVEL)
                 .strength(0.5f, 0.5f));
     }
 

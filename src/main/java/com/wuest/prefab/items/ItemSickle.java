@@ -43,7 +43,9 @@ public class ItemSickle extends TieredItem {
         effectiveBlocks.addAll(Utils.getBlocksWithTagKey(BlockTags.FLOWERS));
         effectiveBlocks.add(Blocks.TALL_GRASS);
         effectiveBlocks.add(Blocks.DEAD_BUSH);
-        effectiveBlocks.add(Blocks.SHORT_GRASS);
+        effectiveBlocks.add(Blocks.ROSE_BUSH);
+        effectiveBlocks.add(Blocks.PEONY);
+        effectiveBlocks.add(Blocks.GRASS);
         effectiveBlocks.add(Blocks.SEAGRASS);
         effectiveBlocks.add(Blocks.TALL_SEAGRASS);
     }

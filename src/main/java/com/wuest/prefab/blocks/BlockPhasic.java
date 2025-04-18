@@ -108,7 +108,7 @@ public class BlockPhasic extends Block {
      * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
      */
     @Override
-    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         EnumPhasingProgress currentState = state.getValue(Phasing_Progress);
 
         super.playerWillDestroy(world, pos, state, player);
@@ -121,8 +121,6 @@ public class BlockPhasic extends Block {
             // Set this block and all neighbor Phasic Blocks to base. This will cascade to tall touching Phasic blocks.
             this.updateNeighborPhasicBlocks(false, world, pos, state, false, false);
         }
-
-        return state;
     }
 
     /**

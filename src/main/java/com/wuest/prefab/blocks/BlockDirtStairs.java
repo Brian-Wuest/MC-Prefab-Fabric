@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -20,7 +21,7 @@ public class BlockDirtStairs extends StairBlock implements IGrassSpreadable {
      */
     public BlockDirtStairs() {
         super(Blocks.DIRT.defaultBlockState(),
-                FabricBlockSettings.ofFullCopy(Blocks.DIRT));
+                BlockBehaviour.Properties.copy(Blocks.DIRT));
     }
 
     /**

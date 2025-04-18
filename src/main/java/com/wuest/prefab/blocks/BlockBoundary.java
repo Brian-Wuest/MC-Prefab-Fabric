@@ -91,7 +91,7 @@ public class BlockBoundary extends Block {
      * @return
      */
     @Override
-    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         super.playerWillDestroy(world, pos, state, player);
 
         ServerEvents.RedstoneAffectedBlockPositions.remove(pos);
@@ -101,7 +101,6 @@ public class BlockBoundary extends Block {
         if (poweredSide) {
             this.setNeighborGlassBlocksPoweredStatus(world, pos, false, 0, new ArrayList<>(), false);
         }
-        return state;
     }
 
     /**

@@ -14,6 +14,6 @@ public class BlockGrassStairs extends StairBlock {
 
     public BlockGrassStairs() {
         super(Blocks.GRASS_BLOCK.defaultBlockState(),
-                FabricBlockSettings.ofFullCopy(Blocks.GRASS_BLOCK));
+                BlockBehaviour.Properties.copy(Blocks.GRASS_BLOCK));
     }
 }

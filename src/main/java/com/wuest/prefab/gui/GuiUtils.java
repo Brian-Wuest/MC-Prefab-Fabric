@@ -14,9 +14,7 @@ import org.lwjgl.opengl.GL11;
 public class GuiUtils {
     private static final RenderBuffers renderBuffers = initRenderBuffers();
     private static RenderBuffers initRenderBuffers() {
-        int i = Runtime.getRuntime().availableProcessors();
-        int j = Math.min(i, 4);
-        return new RenderBuffers(j);
+        return new RenderBuffers();
     }
     public static RenderBuffers renderBuffers(){
         return renderBuffers;

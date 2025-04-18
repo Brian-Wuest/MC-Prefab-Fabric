@@ -1,20 +1,33 @@
 package com.wuest.prefab.recipe;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.gson.*;
 import com.wuest.prefab.ModRegistry;
 import com.wuest.prefab.Prefab;
+import com.wuest.prefab.Tuple;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class ConditionedShapedRecipe extends ShapedRecipe {
 
@@ -22,59 +35,60 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     final int height;
     final CraftingBookCategory craftingBookCategory;
     final NonNullList<Ingredient> inputs;
+    final ResourceLocation id;
     final String group;
     final String configName;
     final boolean recipeHasTags;
-    ShapedRecipePattern pattern;
     ItemStack output;
     boolean reloadedTags;
     boolean showNotification;
 
     public ConditionedShapedRecipe(
+            ResourceLocation id,
             String group,
             CraftingBookCategory craftingBookCategory,
-            ShapedRecipePattern pattern,
+            int width,
+            int height,
+            NonNullList<Ingredient> ingredients,
             ItemStack output,
             String configName,
-            boolean recipeHasTags,
-            boolean showNotification
-    ) {
-        super(group, craftingBookCategory, pattern, output, showNotification);
+            boolean recipeHasTags) {
+        super(id, group, craftingBookCategory, width, height, ingredients, output);
 
+        this.id = id;
         this.group = group;
+        this.width = width;
+        this.height = height;
         this.craftingBookCategory = craftingBookCategory;
-        this.width = pattern.width();
-        this.height = pattern.height();
-        this.inputs = pattern.ingredients();
+        this.inputs = ingredients;
         this.output = output;
         this.configName = configName;
         this.recipeHasTags = recipeHasTags;
         this.reloadedTags = false;
-        this.showNotification = showNotification;
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public @NotNull RecipeSerializer<?> getSerializer() {
         return ModRegistry.ConditionedShapedRecipeSeriaizer;
     }
 
     @Override
-    public String getGroup() {
+    public @NotNull String getGroup() {
         return this.group;
     }
 
     @Override
-    public CraftingBookCategory category() {
+    public @NotNull CraftingBookCategory category() {
         return this.craftingBookCategory;
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
+    public @NotNull ItemStack getResultItem(RegistryAccess registryAccess) {
         return this.output;
     }
 
     @Override
-    public  NonNullList<Ingredient> getIngredients() {
+    public @NotNull NonNullList<Ingredient> getIngredients() {
         return this.inputs;
     }
 
@@ -113,7 +127,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer craftingContainer, RegistryAccess registryAccess) {
+    public @NotNull ItemStack assemble(CraftingContainer craftingContainer, RegistryAccess registryAccess) {
         return this.getResultItem(registryAccess).copy();
     }
 
@@ -126,6 +140,166 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     public int getHeight() {
         return this.height;
     }
+
+
+    private static NonNullList<Ingredient> dissolvePattern(String[] pattern, Map<String, Ingredient> key, int width, int height) {
+        NonNullList<Ingredient> defaultedList = NonNullList.withSize(width * height, Ingredient.EMPTY);
+        Set<String> set = Sets.newHashSet(key.keySet());
+        set.remove(" ");
+
+        for (int i = 0; i < pattern.length; ++i) {
+            for (int j = 0; j < pattern[i].length(); ++j) {
+                String string = pattern[i].substring(j, j + 1);
+                Ingredient ingredient = key.get(string);
+                if (ingredient == null) {
+                    throw new JsonSyntaxException("Pattern references symbol '" + string + "' but it's not defined in the key");
+                }
+
+                set.remove(string);
+                defaultedList.set(j + width * i, ingredient);
+            }
+        }
+
+        if (!set.isEmpty()) {
+            throw new JsonSyntaxException("Key defines symbols that aren't used in pattern: " + set);
+        } else {
+            return defaultedList;
+        }
+    }
+
+
+    @VisibleForTesting
+    static String[] combinePattern(String... lines) {
+        int i = Integer.MAX_VALUE;
+        int j = 0;
+        int k = 0;
+        int l = 0;
+
+        for (int m = 0; m < lines.length; ++m) {
+            String string = lines[m];
+            i = Math.min(i, findNextIngredient(string));
+            int n = findNextIngredientReverse(string);
+            j = Math.max(j, n);
+            if (n < 0) {
+                if (k == m) {
+                    ++k;
+                }
+
+                ++l;
+            } else {
+                l = 0;
+            }
+        }
+
+        if (lines.length == l) {
+            return new String[0];
+        } else {
+            String[] strings = new String[lines.length - l - k];
+
+            for (int o = 0; o < strings.length; ++o) {
+                strings[o] = lines[o + k].substring(i, j + 1);
+            }
+
+            return strings;
+        }
+    }
+
+    private static int findNextIngredient(String pattern) {
+        int i;
+        for (i = 0; i < pattern.length() && pattern.charAt(i) == ' '; ++i) {
+        }
+
+        return i;
+    }
+
+    private static int findNextIngredientReverse(String pattern) {
+        int i;
+        for (i = pattern.length() - 1; i >= 0 && pattern.charAt(i) == ' '; --i) {
+        }
+
+        return i;
+    }
+
+    private static String[] getPattern(JsonArray json) {
+        String[] strings = new String[json.size()];
+        if (strings.length > 3) {
+            throw new JsonSyntaxException("Invalid pattern: too many rows, 3 is maximum");
+        } else if (strings.length == 0) {
+            throw new JsonSyntaxException("Invalid pattern: empty pattern not allowed");
+        } else {
+            for (int i = 0; i < strings.length; ++i) {
+                String string = GsonHelper.convertToString(json.get(i), "pattern[" + i + "]");
+                if (string.length() > 3) {
+                    throw new JsonSyntaxException("Invalid pattern: too many columns, 3 is maximum");
+                }
+
+                if (i > 0 && strings[0].length() != string.length()) {
+                    throw new JsonSyntaxException("Invalid pattern: each row must be the same width");
+                }
+
+                strings[i] = string;
+            }
+
+            return strings;
+        }
+    }
+
+    private static Tuple<Boolean, Map<String, Ingredient>> keyFromJson(JsonObject json) {
+        Map<String, Ingredient> map = Maps.newHashMap();
+        Iterator<Map.Entry<String, JsonElement>> var2 = json.entrySet().iterator();
+        boolean hasTags = false;
+
+        while (var2.hasNext()) {
+            Map.Entry<String, JsonElement> entry = var2.next();
+
+            if ((entry.getKey()).length() != 1) {
+                throw new JsonSyntaxException("Invalid key entry: '" + (String) entry.getKey() + "' is an invalid symbol (must be 1 character only).");
+            }
+
+            if (" ".equals(entry.getKey())) {
+                throw new JsonSyntaxException("Invalid key entry: ' ' is a reserved symbol.");
+            }
+
+            JsonElement ingredientJSON = entry.getValue();
+            Ingredient ingredient = Ingredient.fromJson(ingredientJSON);
+
+            if (!hasTags) {
+                hasTags = ((JsonObject) ingredientJSON).has("tag");
+            }
+
+            if (ingredient.isEmpty()) {
+                // Unable to find a corresponding item for this key. Clear out all entries and return.
+                map.clear();
+                break;
+            }
+
+            map.put(entry.getKey(), ingredient);
+        }
+
+        map.put(" ", Ingredient.EMPTY);
+        return new Tuple<>(hasTags, map);
+    }
+
+    public static ItemStack itemStackFromJson(JsonObject json) {
+        String string = GsonHelper.getAsString(json, "item");
+
+        Item item = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(string)).orElseThrow(() -> {
+            return new JsonSyntaxException("Unknown item '" + string + "'");
+        });
+
+        int stackCount = 1;
+
+        if (GsonHelper.isNumberValue(json, "count")) {
+            stackCount = GsonHelper.getAsInt(json, "count");
+        }
+
+        if (json.has("data")) {
+            throw new JsonParseException("Disallowed data tag found");
+        } else {
+            return new ItemStack(item, stackCount);
+        }
+    }
+
 
     private boolean matches(CraftingContainer inv, int offsetX, int offsetY, boolean bl) {
         for (int i = 0; i < inv.getWidth(); ++i) {
@@ -178,25 +352,6 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<ConditionedShapedRecipe> {
-        public static final Codec<ConditionedShapedRecipe> CODEC = RecordCodecBuilder.create((instance) -> {
-            return instance.group(
-                    ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter((shapedRecipe) -> {
-                return shapedRecipe.group;
-            }), CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter((shapedRecipe) -> {
-                return shapedRecipe.craftingBookCategory;
-            }), ShapedRecipePattern.MAP_CODEC.forGetter((shapedRecipe) -> {
-                return shapedRecipe.pattern;
-            }), ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter((shapedRecipe) -> {
-                return shapedRecipe.output;
-            }), ExtraCodecs.strictOptionalField(Codec.STRING, "configName", "").forGetter((shapedRecipe) -> {
-                        return shapedRecipe.configName;
-            }),  ExtraCodecs.strictOptionalField(Codec.BOOL, "recipe_has_tags", true).forGetter((shapedRecipe) -> {
-                return shapedRecipe.recipeHasTags;
-            }), ExtraCodecs.strictOptionalField(Codec.BOOL, "show_notification", true).forGetter((shapedRecipe) -> {
-                return shapedRecipe.showNotification;
-            })).apply(instance, ConditionedShapedRecipe::new);
-        });
-
         public static ItemStack validateRecipeOutput(ItemStack originalOutput, String configName) {
             if (originalOutput == ItemStack.EMPTY) {
                 return ItemStack.EMPTY;
@@ -213,33 +368,58 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             return originalOutput;
         }
 
-        @Override
-        public Codec<ConditionedShapedRecipe> codec() {
-            return CODEC;
+        @NotNull
+        public ConditionedShapedRecipe fromJson(ResourceLocation identifier, JsonObject jsonObject) {
+            String groupName = GsonHelper.getAsString(jsonObject, "group", "");
+            String configName = GsonHelper.getAsString(jsonObject, "configName", "");
+            Tuple<Boolean, Map<String, Ingredient>> ingredientResult = ConditionedShapedRecipe.keyFromJson(GsonHelper.getAsJsonObject(jsonObject, "key"));
+            Map<String, Ingredient> map = ingredientResult.getSecond();
+
+            if (map.size() == 1 && map.containsKey(" ")) {
+                Prefab.logger.info("Processed EMPTY recipe for location: {}", identifier.toString());
+
+                // This is just an empty recipe. return empty recipe.
+                return new ConditionedShapedRecipe(identifier, groupName, CraftingBookCategory.MISC, 3, 3, NonNullList.withSize(3 * 3, Ingredient.EMPTY), ItemStack.EMPTY, configName, ingredientResult.getFirst());
+            }
+
+            String[] strings = ConditionedShapedRecipe.combinePattern(ConditionedShapedRecipe.getPattern(GsonHelper.getAsJsonArray(jsonObject, "pattern")));
+            int width = strings[0].length();
+            int height = strings.length;
+            NonNullList<Ingredient> defaultedList = ConditionedShapedRecipe.dissolvePattern(strings, map, width, height);
+            ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(ConditionedShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(jsonObject, "result")), configName);
+
+            return new ConditionedShapedRecipe(identifier, groupName, CraftingBookCategory.MISC, width, height, defaultedList, itemStack, configName, ingredientResult.getFirst());
         }
 
-        public ConditionedShapedRecipe fromNetwork(FriendlyByteBuf friendlyByteBuf) {
-            String groupName = friendlyByteBuf.readUtf();
-            String configName = friendlyByteBuf.readUtf();
-            CraftingBookCategory craftingBookCategory = friendlyByteBuf.readEnum(CraftingBookCategory.class);
-            ShapedRecipePattern shapedRecipePattern = ShapedRecipePattern.fromNetwork(friendlyByteBuf);
+        @NotNull
+        public ConditionedShapedRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf packetByteBuf) {
+            int width = packetByteBuf.readVarInt();
+            int height = packetByteBuf.readVarInt();
+            String groupName = packetByteBuf.readUtf(32767);
+            String configName = packetByteBuf.readUtf(32767);
+            boolean recipeHasTags = packetByteBuf.readBoolean();
 
-            // Custom bit which validates the recipe output, if the validation fails then an empty itemstack is returned.
-            ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(friendlyByteBuf.readItem(), configName);
+            NonNullList<Ingredient> defaultedList = NonNullList.withSize(width * height, Ingredient.EMPTY);
 
-            boolean recipeHasTags = friendlyByteBuf.readBoolean();
-            boolean showNotification = friendlyByteBuf.readBoolean();
-            return new ConditionedShapedRecipe(groupName, craftingBookCategory, shapedRecipePattern, itemStack, configName, recipeHasTags, showNotification);
+            defaultedList.replaceAll(ignored -> Ingredient.fromNetwork(packetByteBuf));
+
+            ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(packetByteBuf.readItem(), configName);
+            return new ConditionedShapedRecipe(identifier, groupName, CraftingBookCategory.MISC, width, height, defaultedList, itemStack, configName, recipeHasTags);
         }
 
-        public void toNetwork(FriendlyByteBuf friendlyByteBuf, ConditionedShapedRecipe shapedRecipe) {
-            friendlyByteBuf.writeUtf(shapedRecipe.group);
-            friendlyByteBuf.writeUtf(shapedRecipe.configName);
-            friendlyByteBuf.writeEnum(shapedRecipe.craftingBookCategory);
-            shapedRecipe.pattern.toNetwork(friendlyByteBuf);
-            friendlyByteBuf.writeItem(shapedRecipe.output);
-            friendlyByteBuf.writeBoolean(shapedRecipe.recipeHasTags);
-            friendlyByteBuf.writeBoolean(shapedRecipe.showNotification);
+        public void toNetwork(FriendlyByteBuf packetByteBuf, ConditionedShapedRecipe shapedRecipe) {
+            packetByteBuf.writeVarInt(shapedRecipe.width);
+            packetByteBuf.writeVarInt(shapedRecipe.height);
+            packetByteBuf.writeUtf(shapedRecipe.group);
+            packetByteBuf.writeUtf(shapedRecipe.configName);
+            packetByteBuf.writeBoolean(shapedRecipe.recipeHasTags);
+
+            for (Ingredient ingredient : shapedRecipe.inputs) {
+                ingredient.toNetwork(packetByteBuf);
+            }
+
+            packetByteBuf.writeItem(shapedRecipe.output);
         }
     }
 }
+
