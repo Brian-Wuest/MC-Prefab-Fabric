@@ -3,7 +3,7 @@ package com.wuest.prefab.structures.config.enums;
 public class DefenseBunkerOptions extends BaseOption {
     public static DefenseBunkerOptions Default = new DefenseBunkerOptions(
             "item.prefab.defense.bunker",
-            "assets/prefab/structures/defense_bunker.zip",
+            "assets/prefab/structures/defense_bunker.gz",
             "textures/gui/defense_bunker.png",
             false,
             false);
