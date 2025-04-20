@@ -128,7 +128,8 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
 
     @Override
     public @NotNull ItemStack assemble(CraftingContainer craftingContainer, RegistryAccess registryAccess) {
-        return this.getResultItem(registryAccess).copy();
+        ItemStack actualOutput = Serializer.validateRecipeOutput(this.output, this.configName);
+        return actualOutput.copy();
     }
 
     @Override
@@ -331,6 +332,12 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
     private void validateTagIngredients() {
         boolean invalidRecipe = false;
         for (Ingredient ingredient : this.getIngredients()) {
+            if (ingredient.isEmpty()) {
+                // Don't bother with empty ingredients.
+                // This equivalent to a " " in the pattern.
+                continue;
+            }
+
             if (ingredient.getItems().length == 0) {
                 ingredient.itemStacks = Arrays.stream(ingredient.values).flatMap((value) -> {
                     return value.getItems().stream();
@@ -374,6 +381,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             String configName = GsonHelper.getAsString(jsonObject, "configName", "");
             Tuple<Boolean, Map<String, Ingredient>> ingredientResult = ConditionedShapedRecipe.keyFromJson(GsonHelper.getAsJsonObject(jsonObject, "key"));
             Map<String, Ingredient> map = ingredientResult.getSecond();
+            boolean recipeHasTags = ingredientResult.getFirst();
 
             if (map.size() == 1 && map.containsKey(" ")) {
                 Prefab.logger.info("Processed EMPTY recipe for location: {}", identifier.toString());
@@ -386,9 +394,10 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
             int width = strings[0].length();
             int height = strings.length;
             NonNullList<Ingredient> defaultedList = ConditionedShapedRecipe.dissolvePattern(strings, map, width, height);
-            ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(ConditionedShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(jsonObject, "result")), configName);
+            ItemStack itemStack = ConditionedShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(jsonObject, "result"));
+            ////ConditionedShapedRecipe.Serializer.validateRecipeOutput(ConditionedShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(jsonObject, "result")), configName);
 
-            return new ConditionedShapedRecipe(identifier, groupName, CraftingBookCategory.MISC, width, height, defaultedList, itemStack, configName, ingredientResult.getFirst());
+            return new ConditionedShapedRecipe(identifier, groupName, CraftingBookCategory.MISC, width, height, defaultedList, itemStack, configName, recipeHasTags);
         }
 
         @NotNull
@@ -403,7 +412,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
 
             defaultedList.replaceAll(ignored -> Ingredient.fromNetwork(packetByteBuf));
 
-            ItemStack itemStack = ConditionedShapedRecipe.Serializer.validateRecipeOutput(packetByteBuf.readItem(), configName);
+            ItemStack itemStack = packetByteBuf.readItem();////ConditionedShapedRecipe.Serializer.validateRecipeOutput(packetByteBuf.readItem(), configName);
             return new ConditionedShapedRecipe(identifier, groupName, CraftingBookCategory.MISC, width, height, defaultedList, itemStack, configName, recipeHasTags);
         }
 
