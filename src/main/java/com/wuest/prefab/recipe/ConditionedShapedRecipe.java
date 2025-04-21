@@ -352,6 +352,7 @@ public class ConditionedShapedRecipe extends ShapedRecipe {
         }
 
         if (invalidRecipe) {
+            Prefab.logger.debug("{} recipe is disabled, the item result is still available, but players will be unable to craft the associated item(s)", configName);
             this.output = ItemStack.EMPTY;
         } else {
             this.output = ConditionedShapedRecipe.Serializer.validateRecipeOutput(this.output, this.configName);
