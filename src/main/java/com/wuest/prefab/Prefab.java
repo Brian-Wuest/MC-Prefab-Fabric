@@ -6,6 +6,7 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -53,7 +54,13 @@ public class Prefab implements ModInitializer {
         AutoConfig.register(ModConfiguration.class, GsonConfigSerializer::new);
 
         Prefab.serverConfiguration = new ModConfiguration();
-        Prefab.configuration = AutoConfig.getConfigHolder(ModConfiguration.class).getConfig();
+        ModConfiguration config = AutoConfig.getConfigHolder(ModConfiguration.class).getConfig();
+
+        // Make sure the static mod configuration object is separate from the object loaded from the file system.
+        // This way, we don't have issues when players swap between servers and local worlds.
+        CompoundTag tag = config.writeCompoundTag();
+        Prefab.configuration = new ModConfiguration();
+        Prefab.configuration.readFromTag(tag);
 
         ServerEvents.registerServerEvents();
     }
